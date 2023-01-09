@@ -1,8 +1,8 @@
 # [MiniDayZ](https://nextdev56.github.io/MiniDayZ/)
 
-[![Survivor](./survivor.png)](https://nextdev56.github.io/MiniDayZ/)
+### [Source](https://nextdev56.github.io/MiniDayZ/)
 
-### [Click Me!](https://nextdev56.github.io/MiniDayZ/)
+### [Play!](https://raw.githack.com/Exyoff/mdzClone/main/docs/index.html)
 ## Notes
 * Change controls from stick to tap/draw for PC
 * F11/Fullscreen before the game loads
