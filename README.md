@@ -1,4 +1,4 @@
-# [MiniDayZ](https://nextdev56.github.io/MiniDayZ/)
+# [MiniDayZ]
 
 ### [Source](https://nextdev56.github.io/MiniDayZ/)
 ## Browser Custom Play Links:
