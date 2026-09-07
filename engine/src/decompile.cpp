@@ -106,11 +106,12 @@ bool match_abs(const Expr& e, const Expr** inner) {
     return true;
 }
 
-std::string join_args(const Project& p, const std::vector<Expr>& args, size_t from) {
+std::string join_args(const Project& p, const std::vector<Expr>& args, size_t from,
+                      const AceNames* names) {
     std::string out;
     for (size_t i = from; i < args.size(); ++i) {
         if (i > from) out += ", ";
-        out += format_expression(p, args[i]);
+        out += format_expression(p, args[i], names);
     }
     return out;
 }
@@ -144,6 +145,36 @@ size_t AceNames::load(const std::string& path) {
     return count;
 }
 
+size_t AceNames::load_expressions(const std::string& path) {
+    std::ifstream in(path);
+    if (!in) return 0;
+    size_t count = 0;
+    std::string line;
+    while (std::getline(in, line)) {
+        size_t hash = line.find('#');
+        if (hash != std::string::npos) line = line.substr(0, hash);
+        std::istringstream ls(line);
+        std::string kind, name, behavior;
+        int plugin = 0, index = 0;
+        if (!(ls >> kind >> plugin >> index >> name)) continue;
+        if (kind.size() != 1) continue;
+        ls >> behavior;
+        expressions_[{kind[0], plugin, index, behavior}] = name;
+        ++count;
+    }
+    return count;
+}
+
+std::string AceNames::expression(char kind, int plugin, int index,
+                                 const std::string& behavior) const {
+    if (!behavior.empty()) {
+        auto it = expressions_.find({kind, plugin, index, behavior});
+        if (it != expressions_.end()) return it->second;
+    }
+    auto it = expressions_.find({kind, plugin, index, std::string()});
+    return it == expressions_.end() ? std::string() : it->second;
+}
+
 std::string AceNames::lookup(const std::map<Key, std::string>& table, int plugin, int ace,
                              const std::string& behavior) const {
     if (!behavior.empty()) {
@@ -166,9 +197,9 @@ std::string AceNames::action(int plugin, int ace, const std::string& behavior) c
 // Expressions
 // ---------------------------------------------------------------------------
 
-std::string format_expression(const Project& p, const Expr& e) {
+std::string format_expression(const Project& p, const Expr& e, const AceNames* names) {
     const Expr* abs_inner = nullptr;
-    if (match_abs(e, &abs_inner)) return "abs(" + format_expression(p, *abs_inner) + ")";
+    if (match_abs(e, &abs_inner)) return "abs(" + format_expression(p, *abs_inner, names) + ")";
 
     switch (e.op) {
         case ExpOp::Int:
@@ -183,37 +214,50 @@ std::string format_expression(const Project& p, const Expr& e) {
 
         case ExpOp::Negate:
             return "-" + (e.args.empty() ? std::string("?")
-                                         : format_expression(p, e.args[0]));
+                                         : format_expression(p, e.args[0], names));
 
         case ExpOp::Conditional:
             if (e.args.size() >= 3)
-                return "(" + format_expression(p, e.args[0]) + " ? " +
-                       format_expression(p, e.args[1]) + " : " +
-                       format_expression(p, e.args[2]) + ")";
+                return "(" + format_expression(p, e.args[0], names) + " ? " +
+                       format_expression(p, e.args[1], names) + " : " +
+                       format_expression(p, e.args[2], names) + ")";
             return "?:";
 
-        case ExpOp::SystemExp:
-            return "System.exp#" + std::to_string(e.index) +
-                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0) + ")");
+        case ExpOp::SystemExp: {
+            std::string n = names ? names->expression('S', -1, e.index) : std::string();
+            if (n.empty()) n = "exp#" + std::to_string(e.index);
+            else n += "#" + std::to_string(e.index);
+            return "System." + n +
+                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0, names) + ")");
+        }
 
-        case ExpOp::ObjectExp:
-            return p.label(e.object_type) + ".exp#" + std::to_string(e.index) +
-                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0) + ")");
+        case ExpOp::ObjectExp: {
+            const int plugin = e.object_type < 0 ? -1 : p.type(e.object_type).plugin;
+            std::string n = names ? names->expression('O', plugin, e.index) : std::string();
+            if (n.empty()) n = "exp#" + std::to_string(e.index);
+            else n += "#" + std::to_string(e.index);
+            return p.label(e.object_type) + "." + n +
+                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0, names) + ")");
+        }
 
         case ExpOp::InstanceVar:
             return p.label(e.object_type) + ".var#" + std::to_string(e.index);
 
-        case ExpOp::BehaviorExp:
-            return p.label(e.object_type) + "." + e.text + ".exp#" +
-                   std::to_string(e.index) +
-                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0) + ")");
+        case ExpOp::BehaviorExp: {
+            const int plugin = e.object_type < 0 ? -1 : p.type(e.object_type).plugin;
+            std::string n = names ? names->expression('B', plugin, e.index, e.text) : std::string();
+            if (n.empty()) n = "exp#" + std::to_string(e.index);
+            else n += "#" + std::to_string(e.index);
+            return p.label(e.object_type) + "." + e.text + "." + n +
+                   (e.args.empty() ? "" : "(" + join_args(p, e.args, 0, names) + ")");
+        }
 
         default: {
             // Binary operator: parenthesise operands that bind more loosely.
             if (e.args.size() < 2) return "?op" + std::to_string(static_cast<int>(e.op));
             const int mine = precedence(e.op);
-            std::string lhs = format_expression(p, e.args[0]);
-            std::string rhs = format_expression(p, e.args[1]);
+            std::string lhs = format_expression(p, e.args[0], names);
+            std::string rhs = format_expression(p, e.args[1], names);
             if (precedence(e.args[0].op) < mine) lhs = "(" + lhs + ")";
             if (precedence(e.args[1].op) <= mine) rhs = "(" + rhs + ")";
             return lhs + op_symbol(e.op) + rhs;
@@ -226,6 +270,10 @@ std::string format_expression(const Project& p, const Expr& e) {
 // ---------------------------------------------------------------------------
 
 std::string format_param(const Project& p, const Param& param) {
+    return format_param(p, param, nullptr);
+}
+
+std::string format_param(const Project& p, const Param& param, const AceNames* names) {
     switch (param.tag) {
         case 4:   // object reference -- the payload is an object type index
             return p.label(static_cast<int>(param.value.number));
@@ -241,7 +289,7 @@ std::string format_param(const Project& p, const Param& param) {
         case 12:  // file, by name
             return quote(param.value.text);
         default:
-            return format_expression(p, param.value);
+            return format_expression(p, param.value, names);
     }
 }
 
@@ -251,11 +299,12 @@ std::string format_param(const Project& p, const Param& param) {
 
 namespace {
 
-std::string params_text(const Project& p, const std::vector<Param>& params) {
+std::string params_text(const Project& p, const std::vector<Param>& params,
+                        const AceNames* names) {
     std::string out;
     for (size_t i = 0; i < params.size(); ++i) {
         if (i) out += ", ";
-        out += format_param(p, params[i]);
+        out += format_param(p, params[i], names);
     }
     return out;
 }
@@ -274,7 +323,7 @@ std::string condition_text(const Project& p, const Condition& c, const AceNames&
 
     std::string out = target;
     if (!c.behavior.empty()) out += "." + c.behavior;
-    out += "." + call + "(" + params_text(p, c.params) + ")";
+    out += "." + call + "(" + params_text(p, c.params, &names) + ")";
     return out;
 }
 
@@ -287,7 +336,7 @@ std::string action_text(const Project& p, const Action& a, const AceNames& names
 
     std::string out = target;
     if (!a.behavior.empty()) out += "." + a.behavior;
-    out += "." + call + "(" + params_text(p, a.params) + ")";
+    out += "." + call + "(" + params_text(p, a.params, &names) + ")";
     return out;
 }
 

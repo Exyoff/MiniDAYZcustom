@@ -29,6 +29,7 @@ int param_int(const std::vector<Param>& params, size_t i, int fallback = 0) {
 Runtime::Runtime(const Project& project, const AceNames& names)
     : project_(project), names_(names), engine_(project) {
     register_builtins();
+    register_expression_builtins();
 }
 
 // ---------------------------------------------------------------------------
@@ -102,8 +103,7 @@ Value Runtime::eval(const Expr& e, const Instance* self) const {
         case ExpOp::SystemExp:
         case ExpOp::ObjectExp:
         case ExpOp::BehaviorExp:
-            ++stats_.unknown_expressions;
-            return Value(0.0);
+            return call_expression(e, self);
 
         default: break;
     }
@@ -142,6 +142,34 @@ Value Runtime::eval(const Expr& e, const Instance* self) const {
     }
 }
 
+// Expressions carry no index at runtime, so they are named through the same
+// table the decompiler uses and dispatched by that name.
+Value Runtime::call_expression(const Expr& e, const Instance* self) const {
+    char kind = 'S';
+    int plugin = -1;
+    if (e.op == ExpOp::ObjectExp) { kind = 'O'; plugin = project_.type(e.object_type).plugin; }
+    else if (e.op == ExpOp::BehaviorExp) { kind = 'B'; plugin = project_.type(e.object_type).plugin; }
+
+    const std::string name = names_.expression(kind, plugin, e.index,
+                                               e.op == ExpOp::BehaviorExp ? e.text : "");
+    auto it = expressions_.find(name);
+    if (it == expressions_.end()) {
+        ++stats_.unknown_expressions;
+        ++stats_.missing_expressions[name.empty() ? "<unnamed>" : name];
+        return Value(0.0);
+    }
+    // The instance in context, or the first one picked for the referenced type.
+    const Instance* target = self;
+    if (e.op != ExpOp::SystemExp) {
+        if (!target || target->object_type != e.object_type) {
+            const std::vector<int> picked = engine_.picked(e.object_type);
+            target = picked.empty() ? nullptr
+                                    : &engine_.instances[static_cast<size_t>(picked.front())];
+        }
+    }
+    return it->second(const_cast<Runtime&>(*this), e, target);
+}
+
 Value Runtime::param(const Action& a, size_t index, const Instance* self) const {
     if (index >= a.params.size()) return Value(0.0);
     return eval(a.params[index].value, self);
@@ -162,6 +190,10 @@ std::string Runtime::condition_name(const Condition& c) const {
 std::string Runtime::action_name(const Action& a) const {
     const int plugin = a.object_type < 0 ? -1 : project_.type(a.object_type).plugin;
     return names_.action(plugin, a.ace, a.behavior);
+}
+
+void Runtime::register_expression(const std::string& name, ExpressionFn fn) {
+    expressions_[name] = std::move(fn);
 }
 
 void Runtime::register_condition(const std::string& name, ConditionFn fn) {
@@ -367,6 +399,140 @@ void Runtime::register_builtins() {
 
     register_action("Destroy", [](Runtime& rt, const Action&, const std::vector<int>& picked) {
         for (int i : picked) rt.engine().destroy_instance(i);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Built-in expressions
+// ---------------------------------------------------------------------------
+
+void Runtime::register_expression_builtins() {
+    auto arg = [](Runtime& rt, const Expr& e, size_t i, const Instance* self) {
+        return i < e.args.size() ? rt.eval(e.args[i], self) : Value(0.0);
+    };
+
+    // --- instance properties ----------------------------------------------
+    register_expression("X", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->x : 0.0);
+    });
+    register_expression("Y", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->y : 0.0);
+    });
+    register_expression("Width", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->width : 0.0);
+    });
+    register_expression("Height", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->height : 0.0);
+    });
+    register_expression("Angle", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->angle * 180.0 / 3.14159265358979323846 : 0.0);
+    });
+    register_expression("UID", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? static_cast<double>(s->uid) : 0.0);
+    });
+    register_expression("AnimationFrame", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? static_cast<double>(s->frame) : 0.0);
+    });
+    register_expression("Count", [](Runtime& rt, const Expr& e, const Instance*) {
+        return Value(static_cast<double>(rt.engine().instances_of(e.object_type).size()));
+    });
+
+    // --- maths ------------------------------------------------------------
+    register_expression("Int", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::trunc(arg(rt, e, 0, s).as_number()));
+    });
+    register_expression("Floor", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::floor(arg(rt, e, 0, s).as_number()));
+    });
+    register_expression("Ceil", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::ceil(arg(rt, e, 0, s).as_number()));
+    });
+    register_expression("Round", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::floor(arg(rt, e, 0, s).as_number() + 0.5));
+    });
+    register_expression("Abs", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::fabs(arg(rt, e, 0, s).as_number()));
+    });
+    register_expression("Sqrt", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        return Value(std::sqrt(std::fabs(arg(rt, e, 0, s).as_number())));
+    });
+    register_expression("Min", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        double m = arg(rt, e, 0, s).as_number();
+        for (size_t i = 1; i < e.args.size(); ++i) m = std::min(m, arg(rt, e, i, s).as_number());
+        return Value(m);
+    });
+    register_expression("Max", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        double m = arg(rt, e, 0, s).as_number();
+        for (size_t i = 1; i < e.args.size(); ++i) m = std::max(m, arg(rt, e, i, s).as_number());
+        return Value(m);
+    });
+    register_expression("Distance", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        const double dx = arg(rt, e, 2, s).as_number() - arg(rt, e, 0, s).as_number();
+        const double dy = arg(rt, e, 3, s).as_number() - arg(rt, e, 1, s).as_number();
+        return Value(std::sqrt(dx * dx + dy * dy));
+    });
+
+    // Deterministic RNG: a fixed seed keeps runs reproducible, which matters
+    // more here than statistical quality.
+    register_expression("Random", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        static uint32_t seed = 0x2545F491u;
+        seed = seed * 1664525u + 1013904223u;
+        const double unit = static_cast<double>(seed >> 8) / 16777216.0;
+        if (e.args.empty()) return Value(unit);
+        if (e.args.size() == 1) return Value(unit * arg(rt, e, 0, s).as_number());
+        const double lo = arg(rt, e, 0, s).as_number(), hi = arg(rt, e, 1, s).as_number();
+        return Value(lo + unit * (hi - lo));
+    });
+    register_expression("Choose", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        if (e.args.empty()) return Value(0.0);
+        static uint32_t seed = 0x9E3779B9u;
+        seed = seed * 1664525u + 1013904223u;
+        return arg(rt, e, (seed >> 8) % e.args.size(), s);
+    });
+
+    // --- runtime scalars ---------------------------------------------------
+    register_expression("Dt", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.dt());
+    });
+    register_expression("Time", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.time());
+    });
+    register_expression("LayoutName", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.layout() ? rt.layout()->name : std::string());
+    });
+    register_expression("ViewportLeft", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.viewport.left);
+    });
+    register_expression("ViewportTop", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.viewport.top);
+    });
+    register_expression("ViewportRight", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.viewport.right);
+    });
+    register_expression("ViewportBottom", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.viewport.bottom);
+    });
+    register_expression("LayerScale", [](Runtime&, const Expr&, const Instance*) {
+        return Value(1.0);   // layer scaling is not modelled yet
+    });
+    register_expression("CurrentTime", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.time());
+    });
+    register_expression("WallClockTime", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.time());
+    });
+    // Approximate: the true image point is offset by the frame's hotspot and
+    // rotated by the instance angle. Returning the origin is close for
+    // centred points and wrong for offset ones.
+    register_expression("ImagePointX", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->x : 0.0);
+    });
+    register_expression("ImagePointY", [](Runtime&, const Expr&, const Instance* s) {
+        return Value(s ? s->y : 0.0);
+    });
+
+    register_expression("NewLine", [](Runtime&, const Expr&, const Instance*) {
+        return Value(std::string("\n"));
     });
 }
 

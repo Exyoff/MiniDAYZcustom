@@ -1,0 +1,121 @@
+# Expression name table for the MiniDayZ+1.2 export.
+#
+# Format:   <S|O|B> <plugin> <index> <Name> [behavior]
+#   S = system expression, O = object expression, B = behavior expression.
+#   plugin -1 is the System object, 18 is Sprite.
+#
+# Expressions carry no index at runtime -- Construct 2 binds the function to
+# the node at load and discards it -- so these were recovered by matching ACEs
+# by SID and then pairing expression trees within each matched ACE. That
+# pairing validates itself against the node types both sides report: 106683
+# nodes paired with zero type mismatches and no key resolving to more than one
+# implementation. See docs/expressions.md.
+#
+# Names were read off the implementations. Many are pinned exactly because
+# Closure does not rename properties that collide with externs, so round,
+# ceil, floor, abs, sqrt, find, left, right, replace, trim and Text survive
+# minification as literal property names in c2runtime.js.
+#
+# 101 entries. Confidence: {'high': 101}.
+#
+B 18 270 Value Sine
+B 18 271 AngleOfMotion Bullet
+B 18 279 CurrentTime Timer
+B 18 279 CurrentTime Stopper
+B 18 303 Speed Vehicle
+B 18 338 TotalTime Timer
+B 18 340 Duration Timer
+B 18 394 TargetUID Turret
+B 18 394 TargetUID Aim
+B 18 401 Speed attack
+B 18 402 MovingAngle AltMove
+O 0 358 Y
+O 0 359 X
+O 0 435 Width
+O 0 437 Height
+O 1 441 LastData
+O 2 119 At
+O 2 198 Width
+O 2 217 CurX
+O 2 218 CurY
+O 2 222 IndexOf
+O 2 363 UID
+O 2 371 CurValue
+O 4 464 Language
+O 5 324 Get
+O 6 93 Param
+O 6 186 ReturnValue
+O 6 337 Call
+O 7 177 ItemValue
+O 9 423 X
+O 9 424 Width
+O 9 425 Y
+O 9 426 Height
+O 10 318 Angle
+O 11 407 StringFromKeyCode
+O 12 445 Text
+O 13 117 Y
+O 13 144 X
+O 13 145 UID
+O 13 233 TextWidth
+O 13 235 Width
+O 13 236 Text
+O 13 345 Height
+O 13 365 FaceSize
+O 13 418 TextHeight
+O 14 157 Width
+O 14 277 X
+O 14 349 Y
+O 14 463 Height
+O 15 282 X
+O 15 283 Y
+O 15 374 TouchIndex
+O 15 377 TouchID
+O 15 378 XForID
+O 15 379 YForID
+O 16 180 X
+O 16 181 Y
+O 16 200 UID
+O 16 220 PositionToTileX
+O 16 221 PositionToTileY
+O 18 59 ImagePointX
+O 18 60 ImagePointY
+O 18 61 Height
+O 18 65 X
+O 18 66 Y
+O 18 98 LayerName
+O 18 125 Angle
+O 18 127 Count
+O 18 151 UID
+O 18 158 Width
+O 18 291 AnimationName
+O 18 361 AnimationFrame
+O 18 381 PickedCount
+S -1 42 ViewportRight
+S -1 43 ViewportLeft
+S -1 44 ViewportBottom
+S -1 45 ViewportTop
+S -1 52 LayoutName
+S -1 79 Distance
+S -1 80 Round
+S -1 82 Choose
+S -1 86 Abs
+S -1 95 Random
+S -1 101 Angle
+S -1 120 NewLine
+S -1 150 LoopIndex
+S -1 179 RGB
+S -1 204 Floor
+S -1 237 Int
+S -1 238 TokenAt
+S -1 247 Ceil
+S -1 295 Str
+S -1 326 WallClockTime
+S -1 332 ScrollX
+S -1 333 ScrollY
+S -1 342 Min
+S -1 389 Left
+S -1 400 LayerScale
+S -1 409 Right
+S -1 452 Len
+S -1 458 Find

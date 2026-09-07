@@ -44,7 +44,8 @@ int main(int argc, char** argv) {
         Project project = Project::load(data_js);
         AceNames names;
         const size_t loaded = names.load(names_path);
-        std::printf("ace names loaded: %zu\n", loaded);
+        const size_t exprs = names.load_expressions("data/expr_names.txt");
+        std::printf("ace names: %zu, expression names: %zu\n", loaded, exprs);
 
         const Layout* layout = nullptr;
         for (const Layout& l : project.layouts) {
@@ -100,7 +101,7 @@ int main(int argc, char** argv) {
                     cond_pct, s.unimplemented_conditions);
         std::printf("  actions implemented     %.1f%%  (%zu unimplemented)\n",
                     act_pct, s.unimplemented_actions);
-        std::printf("  unknown expressions     %zu  (expression tables not extracted yet)\n",
+        std::printf("  unresolved expressions  %zu  (named but not implemented)\n",
                     s.unknown_expressions);
 
         auto top = [](const std::unordered_map<std::string, size_t>& m, const char* title) {
@@ -113,6 +114,7 @@ int main(int argc, char** argv) {
         };
         top(s.missing_conditions, "conditions");
         top(s.missing_actions, "actions");
+        top(s.missing_expressions, "expressions");
         return 0;
     } catch (const std::exception& e) {
         std::fprintf(stderr, "error: %s\n", e.what());

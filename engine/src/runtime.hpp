@@ -45,6 +45,12 @@ public:
     double time() const { return time_; }
     double dt() const { return dt_; }
 
+    // The visible region. Viewport expressions are read by startup logic that
+    // sizes the UI, so a sensible default matters even with no window attached.
+    struct Viewport { double left = 0, top = 0, right = 1024, bottom = 768; };
+    Viewport viewport;
+    const Layout* layout() const { return layout_; }
+
     // --- expressions -------------------------------------------------------
     // `self` supplies the instance context for instance-variable references.
     Value eval(const Expr& e, const Instance* self) const;
@@ -55,8 +61,13 @@ public:
     // Actions receive the instances the picking engine selected.
     using ActionFn = std::function<void(Runtime&, const Action&, const std::vector<int>&)>;
 
+    // Expressions return a value. `self` is the instance in context, when
+    // there is one.
+    using ExpressionFn = std::function<Value(Runtime&, const Expr&, const Instance*)>;
+
     void register_condition(const std::string& name, ConditionFn fn);
     void register_action(const std::string& name, ActionFn fn);
+    void register_expression(const std::string& name, ExpressionFn fn);
 
     // Name an ACE the way the decompiler would, for dispatch and diagnostics.
     std::string condition_name(const Condition& c) const;
@@ -70,6 +81,7 @@ public:
         size_t unknown_expressions = 0;
         std::unordered_map<std::string, size_t> missing_conditions;
         std::unordered_map<std::string, size_t> missing_actions;
+        std::unordered_map<std::string, size_t> missing_expressions;
     };
     const Stats& stats() const { return stats_; }
     void reset_stats() { stats_ = Stats{}; }
@@ -89,11 +101,15 @@ private:
     std::unordered_map<std::string, Value> variables_;
     std::unordered_map<std::string, ConditionFn> conditions_;
     std::unordered_map<std::string, ActionFn> actions_;
+    std::unordered_map<std::string, ExpressionFn> expressions_;
 
     double time_ = 0.0, dt_ = 0.0;
     mutable Stats stats_;
 
     void register_builtins();
+    void register_expression_builtins();
+    // Resolves a call node to its name, then to a handler.
+    Value call_expression(const Expr& e, const Instance* self) const;
 };
 
 }  // namespace mdz

@@ -28,6 +28,13 @@ public:
     // back to numeric indices. Returns the number of names loaded.
     size_t load(const std::string& path);
 
+    // Expression names, from a separate table. Expressions are a third index
+    // space, keyed by kind ('S' system, 'O' object, 'B' behavior) rather than
+    // by the condition/action split.
+    size_t load_expressions(const std::string& path);
+    std::string expression(char kind, int plugin, int index,
+                           const std::string& behavior = "") const;
+
     // Empty when the ACE has no known name. A behavior-scoped entry wins over
     // an unscoped one: the same (plugin, ace) pair means different things
     // across behaviors, so "SetSpeed" on Bullet is not "SetSpeed" on Car.
@@ -39,16 +46,19 @@ private:
     using Key = std::tuple<int, int, std::string>;
     std::map<Key, std::string> conditions_;
     std::map<Key, std::string> actions_;
+    std::map<std::tuple<char, int, int, std::string>, std::string> expressions_;
     std::string lookup(const std::map<Key, std::string>& table, int plugin, int ace,
                        const std::string& behavior) const;
 };
 
 // Renders one expression as infix text, parenthesised by precedence.
-std::string format_expression(const Project& p, const Expr& e);
+std::string format_expression(const Project& p, const Expr& e,
+                              const AceNames* names = nullptr);
 
 // Renders one parameter, using its slot tag to decode object references,
 // comparison operators, instance variable indices and variable names.
 std::string format_param(const Project& p, const Param& param);
+std::string format_param(const Project& p, const Param& param, const AceNames* names);
 
 void dump_sheet(std::ostream& out, const Project& p, const EventSheet& sheet,
                 const AceNames& names);

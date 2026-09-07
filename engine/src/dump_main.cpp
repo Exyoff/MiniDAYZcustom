@@ -68,7 +68,8 @@ int main(int argc, char** argv) {
 
         AceNames names;
         size_t loaded = names.load(names_path);
-        std::printf("ace name table: %zu entries from %s\n", loaded, names_path.c_str());
+        const size_t exprs = names.load_expressions("data/expr_names.txt");
+        std::printf("ace names: %zu, expression names: %zu\n", loaded, exprs);
 
         Coverage cov;
         for (const EventSheet& s : p.sheets)
