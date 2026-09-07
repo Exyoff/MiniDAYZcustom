@@ -1,7 +1,2 @@
 
 
-engine/build/
-engine/dump/
-engine/capture/
-engine/play/
-engine/*.json
