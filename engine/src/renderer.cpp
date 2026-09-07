@@ -187,9 +187,14 @@ void Renderer::shutdown() {
 
 int Renderer::load_textures(const Project& project, const Layout& layout,
                             const std::string& game_dir) {
-    // Only the sheets this layout's types actually reference.
+    return load_textures_for(project, layout.instances, game_dir);
+}
+
+int Renderer::load_textures_for(const Project& project, const std::vector<Instance>& instances,
+                                const std::string& game_dir) {
+    // Only the sheets these instances' types actually reference.
     std::vector<std::string> wanted;
-    for (const Instance& inst : layout.instances) {
+    for (const Instance& inst : instances) {
         if (inst.object_type < 0 || inst.object_type >= static_cast<int>(project.object_types.size()))
             continue;
         for (const Animation& a : project.type(inst.object_type).animations)
@@ -246,6 +251,11 @@ void Renderer::flush(unsigned texture) {
 }
 
 void Renderer::draw_layout(const Project& project, const Layout& layout, const Camera& cam) {
+    draw_instances(project, layout, cam, layout.instances);
+}
+
+void Renderer::draw_instances(const Project& project, const Layout& layout, const Camera& cam,
+                              const std::vector<Instance>& instances) {
     quads_drawn_ = 0;
     glClearColor(0.10f, 0.10f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -268,8 +278,8 @@ void Renderer::draw_layout(const Project& project, const Layout& layout, const C
 
     // Layer order decides compositing, so sort by it before drawing.
     std::vector<const Instance*> ordered;
-    ordered.reserve(layout.instances.size());
-    for (const Instance& i : layout.instances) ordered.push_back(&i);
+    ordered.reserve(instances.size());
+    for (const Instance& i : instances) ordered.push_back(&i);
     std::stable_sort(ordered.begin(), ordered.end(),
                      [](const Instance* a, const Instance* b) { return a->layer < b->layer; });
 

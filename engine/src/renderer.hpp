@@ -31,12 +31,19 @@ public:
     bool init(int width, int height, const std::string& title, bool headless);
     void shutdown();
 
-    // Uploads every spritesheet the layout's object types reference.
+    // Uploads every spritesheet the given instances' object types reference.
     // Returns the number of textures loaded; missing files are counted, not fatal.
     int load_textures(const Project& project, const Layout& layout,
                       const std::string& game_dir);
+    int load_textures_for(const Project& project, const std::vector<Instance>& instances,
+                          const std::string& game_dir);
 
     void draw_layout(const Project& project, const Layout& layout, const Camera& camera);
+
+    // Draws a live instance list rather than the layout's static one, so the
+    // simulation can be watched instead of only the starting arrangement.
+    void draw_instances(const Project& project, const Layout& layout, const Camera& camera,
+                        const std::vector<Instance>& instances);
     void present();
 
     bool save_png(const std::string& path);

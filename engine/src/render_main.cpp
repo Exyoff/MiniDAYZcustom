@@ -15,8 +15,10 @@
 #include <cstring>
 #include <string>
 
+#include "decompile.hpp"
 #include "project.hpp"
 #include "renderer.hpp"
+#include "runtime.hpp"
 
 using namespace mdz;
 
@@ -93,10 +95,30 @@ int main(int argc, char** argv) {
         std::printf("layout %s  %dx%d  %zu instances\n", layout->name.c_str(),
                     layout->width, layout->height, layout->instances.size());
 
+        // Optionally run the event engine first, then draw the state it
+        // produced rather than the layout's starting arrangement.
+        const bool simulate = has_flag(argc, argv, "--simulate");
+        const int sim_ticks = arg_value(argc, argv, "--ticks")
+                                  ? std::atoi(arg_value(argc, argv, "--ticks")) : 60;
+        AceNames names;
+        Runtime runtime(project, names);
+        if (simulate) {
+            names.load("data/ace_names.txt");
+            names.load_expressions("data/expr_names.txt");
+            runtime.load_layout(*layout);
+            for (int t = 0; t < sim_ticks; ++t) runtime.tick(1.0 / 60.0);
+            size_t alive = 0;
+            for (const Instance& i : runtime.engine().instances) if (!i.destroyed) ++alive;
+            std::printf("simulated %d ticks: %zu instances (%zu alive)\n",
+                        sim_ticks, runtime.engine().instances.size(), alive);
+        }
+
         Renderer renderer;
         if (!renderer.init(vw, vh, "MiniDayZ viewer", shot != nullptr)) return 1;
 
-        const int loaded = renderer.load_textures(project, *layout, game_dir);
+        const int loaded = simulate
+            ? renderer.load_textures_for(project, runtime.engine().instances, game_dir)
+            : renderer.load_textures(project, *layout, game_dir);
         std::printf("textures loaded %d, missing %zu\n", loaded, renderer.missing_textures());
         for (size_t i = 0; i < renderer.missing().size() && i < 5; ++i)
             std::printf("  missing: %s\n", renderer.missing()[i].c_str());
@@ -110,8 +132,13 @@ int main(int argc, char** argv) {
         if (const char* z = arg_value(argc, argv, "--zoom")) cam.zoom = std::atof(z);
         std::printf("camera (%.0f, %.0f) zoom %.4f\n", cam.x, cam.y, cam.zoom);
 
+        auto draw = [&](const Camera& c) {
+            if (simulate) renderer.draw_instances(project, *layout, c, runtime.engine().instances);
+            else renderer.draw_layout(project, *layout, c);
+        };
+
         if (shot) {
-            renderer.draw_layout(project, *layout, cam);
+            draw(cam);
             std::printf("quads drawn %zu\n", renderer.quads_drawn());
             const bool ok = renderer.save_png(shot);
             std::printf("%s %s\n", ok ? "wrote" : "FAILED to write", shot);
@@ -146,7 +173,7 @@ int main(int argc, char** argv) {
                     cam.y -= e.motion.yrel / cam.zoom;
                 }
             }
-            renderer.draw_layout(project, *layout, cam);
+            draw(cam);
             renderer.present();
             SDL_Delay(16);
         }
