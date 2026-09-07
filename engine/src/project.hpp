@@ -175,6 +175,13 @@ struct Instance {
     // flat colour on frame 0 and their real artwork on later frames.
     std::string animation;
     int frame = 0;
+    bool destroyed = false;
+
+    // Per-instance behavior state, keyed "Behavior.property". Behaviors keep
+    // their own data per instance (a bullet's distance travelled, a timer's
+    // elapsed time); this is the minimal store for it, keyed by the behavior
+    // name from the export, which was never minified.
+    std::unordered_map<std::string, double> behavior_state;
     double x = 0.0, y = 0.0;
     double width = 0.0, height = 0.0;
     double angle = 0.0;

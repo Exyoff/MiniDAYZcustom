@@ -30,6 +30,24 @@ void PickingEngine::load_layout(const Layout& layout) {
     for (const Instance& inst : layout.instances) add_instance(inst);
 }
 
+void PickingEngine::destroy_instance(int instance_index) {
+    if (instance_index < 0 || instance_index >= static_cast<int>(instances.size())) return;
+    Instance& inst = instances[static_cast<size_t>(instance_index)];
+    if (inst.destroyed) return;
+    inst.destroyed = true;
+
+    std::vector<int>& list = by_type_[static_cast<size_t>(inst.object_type)];
+    list.erase(std::remove(list.begin(), list.end(), instance_index), list.end());
+    for (int fam : project_.type(inst.object_type).member_of)
+        family_cache_[static_cast<size_t>(fam)].clear();
+
+    // Drop it from any SOL that currently holds it, at every scope depth.
+    for (std::vector<Sol>& stack : sol_stack_)
+        for (Sol& s : stack)
+            s.instances.erase(std::remove(s.instances.begin(), s.instances.end(), instance_index),
+                              s.instances.end());
+}
+
 void PickingEngine::rebuild_family_cache(int family) const {
     std::vector<int>& out = family_cache_[static_cast<size_t>(family)];
     out.clear();

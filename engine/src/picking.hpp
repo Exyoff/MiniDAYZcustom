@@ -67,6 +67,11 @@ public:
     // The instances a condition or action currently applies to.
     std::vector<int> picked(int object_type) const;
 
+    // Removes an instance from play. It stays in `instances` so existing
+    // indices remain valid, but is dropped from its type's list so nothing
+    // picks it again.
+    void destroy_instance(int instance_index);
+
     // Forces a specific pick, as a trigger does with the instance that fired.
     void pick_single(int object_type, int instance_index);
     void pick_set(int object_type, const std::vector<int>& set);
