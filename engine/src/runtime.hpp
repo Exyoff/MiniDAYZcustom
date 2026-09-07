@@ -82,6 +82,10 @@ public:
     // asks, identified by its SID.
     bool trigger_once(long long sid);
 
+    // Groups are active unless an event turns them off.
+    bool group_active(const std::string& name) const;
+    void set_group_active(const std::string& name, bool active);
+
     // "Every X seconds" accumulates per call site, so it needs the SID too.
     bool every_seconds(long long sid, double interval);
 
@@ -157,6 +161,10 @@ public:
     Value param(const Action& a, size_t index, const Instance* self) const;
     Value param(const Condition& c, size_t index, const Instance* self) const;
     Instance* instance(int index);
+    std::unordered_map<std::string, Value>& dictionary(int instance_index) {
+        return dictionaries_[instance_index];
+    }
+    const ObjectType& project_type(int i) const { return project_.type(i); }
 
 private:
     const Project& project_;
@@ -177,6 +185,11 @@ private:
     std::vector<CallFrame> frames_;
     int next_uid_ = 1;
 
+    std::unordered_map<std::string, bool> groups_;
+    // Per-instance dictionary storage, so SetItem/GetItem/HasKey work on real
+    // data rather than being guessed at.
+    std::unordered_map<int, std::unordered_map<std::string, Value>> dictionaries_;
+
     std::unordered_set<long long> fired_;
     std::unordered_map<long long, double> accumulators_;
 
@@ -192,6 +205,9 @@ private:
     void index_functions();
     // Advances behavior timers and records which fired this tick.
     void update_timers(double dt);
+    // Pinned instances follow their target each tick, keeping the offset
+    // captured when the pin was made.
+    void update_pins();
     void register_builtins();
     void register_expression_builtins();
     // Resolves a call node to its name, then to a handler.

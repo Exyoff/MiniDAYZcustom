@@ -21,6 +21,10 @@ bool EventRunner::run_block(const EventBlock& block, int depth) {
     ++stats_.blocks_entered;
     stats_.deepest_scope = std::max(stats_.deepest_scope, depth);
 
+    // A disabled group and everything under it is skipped entirely.
+    if (block.is_group && hooks_.group_active && !hooks_.group_active(block.group_name))
+        return false;
+
     // A group is a container: it has no conditions of its own to satisfy.
     if (block.is_group && block.conditions.empty()) {
         run_actions_and_subevents(block, depth);

@@ -179,6 +179,8 @@ struct Instance {
     bool destroyed = false;
     bool visible = true;
     double opacity = 1.0;
+    int z = 0;                      // order within a layer; MoveToTop raises it
+    std::string text;               // Text objects
 
     // Per-instance behavior state, keyed "Behavior.property". Behaviors keep
     // their own data per instance (a bullet's distance travelled, a timer's
@@ -199,6 +201,8 @@ struct LayerInfo {
     std::string name;
     bool visible = true;
     double opacity = 1.0;
+    int z = 0;                      // order within a layer; MoveToTop raises it
+    std::string text;               // Text objects
 };
 
 struct Layout {

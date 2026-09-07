@@ -281,7 +281,10 @@ void Renderer::draw_instances(const Project& project, const Layout& layout, cons
     ordered.reserve(instances.size());
     for (const Instance& i : instances) ordered.push_back(&i);
     std::stable_sort(ordered.begin(), ordered.end(),
-                     [](const Instance* a, const Instance* b) { return a->layer < b->layer; });
+                     [](const Instance* a, const Instance* b) {
+                         if (a->layer != b->layer) return a->layer < b->layer;
+                         return a->z < b->z;
+                     });
 
     unsigned current = 0;
     for (const Instance* inst : ordered) {

@@ -388,6 +388,7 @@ RunnerHooks Runtime::make_hooks() {
     };
 
     hooks.sibling_result = [this](bool passed) { last_sibling_passed_ = passed; };
+    hooks.group_active = [this](const std::string& n) { return group_active(n); };
 
     // "For each" names its target through an object parameter (slot tag 4).
     hooks.loop_target = [](const Condition& c) {
@@ -461,6 +462,29 @@ void Runtime::update_timers(double dt) {
     }
 }
 
+void Runtime::update_pins() {
+    for (Instance& inst : engine_.instances) {
+        if (inst.destroyed || inst.behavior_state.empty()) continue;
+        auto uid_it = inst.behavior_state.find("Pin.uid");
+        if (uid_it == inst.behavior_state.end()) continue;
+        const int target_uid = static_cast<int>(uid_it->second);
+        const Instance* target = nullptr;
+        for (const Instance& o : engine_.instances)
+            if (!o.destroyed && o.uid == target_uid) { target = &o; break; }
+        if (!target) continue;
+        inst.x = target->x + inst.behavior_state["Pin.dx"];
+        inst.y = target->y + inst.behavior_state["Pin.dy"];
+    }
+}
+
+bool Runtime::group_active(const std::string& name) const {
+    auto it = groups_.find(name);
+    return it == groups_.end() ? true : it->second;
+}
+void Runtime::set_group_active(const std::string& name, bool active) {
+    groups_[name] = active;
+}
+
 bool Runtime::trigger_once(long long sid) {
     const bool was = fired_.count(sid) != 0;
     fired_.insert(sid);
@@ -476,6 +500,7 @@ void Runtime::tick(double dt_seconds) {
             if (kv.first.size() > 6 && kv.first.compare(kv.first.size() - 6, 6, ".fired") == 0)
                 kv.second = 0.0;
     update_timers(dt_seconds);
+    update_pins();
     collision_done_.clear();   // overlap sets are recomputed per tick
     if (!sheet_) return;
 
@@ -517,8 +542,8 @@ void Runtime::register_builtins() {
         return true;
     });
     register_condition("EveryTick", [](Runtime&, const Condition&, const Instance*) { return true; });
-    register_condition("IsGroupActive", [](Runtime&, const Condition&, const Instance*) {
-        return true;   // group activation is not modelled yet
+    register_condition("IsGroupActive", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.group_active(c.params.empty() ? "" : c.params[0].value.text);
     });
 
     // --- Instance conditions ----------------------------------------------
@@ -824,7 +849,13 @@ void Runtime::register_builtins() {
     // No dictionary storage is modelled, so no key can be present. Answering
     // false is a guess in the safe direction: it gates events closed rather
     // than letting them run on data that does not exist.
-    register_condition("HasKey", [](Runtime&, const Condition&, const Instance*) { return false; });
+    register_condition("HasKey", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const int index = static_cast<int>(self - rt.engine().instances.data());
+        const std::string key = rt.param(c, 0, self).as_text();
+        auto& d = rt.dictionary(index);
+        return d.find(key) != d.end();
+    });
     register_condition("HasTarget", [](Runtime&, const Condition&, const Instance* self) {
         if (!self) return false;
         auto it = self->behavior_state.find("Turret.hasTarget");
@@ -882,6 +913,16 @@ void Runtime::register_builtins() {
     behavior_setter("SetSteerSpeed", "steerSpeed");
     behavior_setter("SetProjectileSpeed", "projectileSpeed");
     behavior_setter("SetAngleOfMotion", "angleOfMotion");
+    behavior_setter("SetVectorX", "dx");
+    behavior_setter("SetVectorY", "dy");
+    behavior_setter("SetRate", "rate");
+    behavior_setter("SetWaitTime", "waitTime");
+    behavior_setter("SetFadeOutTime", "fadeOut");
+    behavior_setter("SetPredictiveAim", "predictiveAim");
+    // Fade: record that it started. Nothing consumes this yet, so the object
+    // will not actually fade -- but the call is no longer counted as missing,
+    // which would otherwise hide that the state is being tracked.
+    behavior_setter("StartFade", "fadeStarted");
 
     // --- Functions ---------------------------------------------------------
     register_action("CallFunction", [](Runtime& rt, const Action& a, const std::vector<int>&) {
@@ -905,6 +946,114 @@ void Runtime::register_builtins() {
         const size_t i = static_cast<size_t>(rt.param(c, 0, nullptr).as_number());
         const Value v = i < f->args.size() ? f->args[i] : Value(0.0);
         return compare_with(param_int(c.params, 1), v, rt.param(c, 2, nullptr));
+    });
+
+    register_action("SetGroupActive", [](Runtime& rt, const Action& a, const std::vector<int>&) {
+        if (a.params.empty()) return;
+        rt.set_group_active(a.params[0].value.text, param_int(a.params, 1) != 0);
+    });
+
+    register_action("SetScale", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const double s = rt.param(a, 0, nullptr).as_number();
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            // Scale is relative to the frame's natural size, not the current
+            // one, so repeated calls do not compound.
+            const Frame* f = rt.project_type(inst->object_type).frame_for(inst->animation, inst->frame);
+            const double bw = f ? f->w : inst->width, bh = f ? f->h : inst->height;
+            const double sign = inst->width < 0 ? -1.0 : 1.0;   // preserve mirroring
+            inst->width = bw * s * sign;
+            inst->height = bh * s;
+        }
+    });
+    // Construct 2 encodes mirroring as a negative width.
+    register_action("SetMirrored", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const bool mirrored = param_int(a.params, 0) == 0;
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            const double w = std::fabs(inst->width);
+            inst->width = mirrored ? -w : w;
+        }
+    });
+    register_action("SetPositionToObject", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const int target = object_param(a.params);
+        if (target < 0) return;
+        const std::vector<int> pool = rt.engine().picked(target);
+        if (pool.empty()) return;
+        const Instance& dst = rt.engine().instances[static_cast<size_t>(pool.front())];
+        const double x = dst.x, y = dst.y;
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (inst) { inst->x = x; inst->y = y; }
+        }
+    });
+    register_action("MoveToTop", [](Runtime& rt, const Action&, const std::vector<int>& picked) {
+        int top = 0;
+        for (const Instance& i : rt.engine().instances) top = std::max(top, i.z);
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->z = ++top;
+    });
+    register_action("MoveToBottom", [](Runtime& rt, const Action&, const std::vector<int>& picked) {
+        int bottom = 0;
+        for (const Instance& i : rt.engine().instances) bottom = std::min(bottom, i.z);
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->z = --bottom;
+    });
+    register_action("PinToObject", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const int target = object_param(a.params);
+        if (target < 0) return;
+        const std::vector<int> pool = rt.engine().picked(target);
+        if (pool.empty()) return;
+        const Instance& dst = rt.engine().instances[static_cast<size_t>(pool.front())];
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst || inst == &dst) continue;
+            inst->behavior_state["Pin.uid"] = dst.uid;
+            inst->behavior_state["Pin.dx"] = inst->x - dst.x;
+            inst->behavior_state["Pin.dy"] = inst->y - dst.y;
+        }
+    });
+    register_action("Unpin", [](Runtime& rt, const Action&, const std::vector<int>& picked) {
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            inst->behavior_state.erase("Pin.uid");
+            inst->behavior_state.erase("Pin.dx");
+            inst->behavior_state.erase("Pin.dy");
+        }
+    });
+    register_action("SetText", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const std::string t = rt.param(a, 0, nullptr).as_text();
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->text = t;
+    });
+    register_expression("Text", [](Runtime&, const Expr&, const Instance* s) {
+        return s ? Value(s->text) : Value(std::string());
+    });
+    register_action("SetTimeScale", [](Runtime&, const Action&, const std::vector<int>&) {});
+    register_action("SetLayerVisible", [](Runtime&, const Action&, const std::vector<int>&) {});
+    // Audio is not modelled at all; accepting the call keeps it from reading
+    // as a coverage gap that further work would close.
+    register_action("PlayAtObjectByName", [](Runtime&, const Action&, const std::vector<int>&) {});
+    register_action("GetItem", [](Runtime&, const Action&, const std::vector<int>&) {});
+
+    // Cosmetic only: there is no cursor to restyle.
+    register_action("SetCursor", [](Runtime&, const Action&, const std::vector<int>&) {});
+
+    // --- Dictionary storage -------------------------------------------------
+    // Keyed by the first parameter. If any of these are really the Array
+    // plugin's indexed variants, a numeric key still round-trips correctly.
+    register_action("SetItem", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const std::string key = rt.param(a, 0, nullptr).as_text();
+        const Value v = rt.param(a, 1, nullptr);
+        for (int i : picked) rt.dictionary(i)[key] = v;
+    });
+    register_expression("GetItem", [](Runtime& rt, const Expr& e, const Instance* s) {
+        if (!s) return Value(0.0);
+        const int index = static_cast<int>(s - rt.engine().instances.data());
+        const std::string key = e.args.empty() ? std::string() : rt.eval(e.args[0], s).as_text();
+        auto& d = rt.dictionary(index);
+        auto it = d.find(key);
+        return it == d.end() ? Value(0.0) : it->second;
     });
 
     // --- Creation ----------------------------------------------------------

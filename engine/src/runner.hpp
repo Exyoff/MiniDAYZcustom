@@ -31,6 +31,11 @@ struct RunnerHooks {
     ActionSink action;
     LoopTargetResolver loop_target;
 
+    // Groups can be switched off by events, and a disabled group's whole
+    // subtree stops running. Group blocks carry no conditions, so this cannot
+    // be expressed as one -- the runner has to ask.
+    std::function<bool(const std::string&)> group_active;
+
     // "Else" passes when the preceding sibling event failed, so the runner
     // reports each sibling's outcome as it goes. Called with false when a new
     // sibling list begins, so an Else with nothing before it does not inherit
