@@ -21,6 +21,10 @@
 using namespace mdz;
 
 namespace {
+bool has_flag(int argc, char** argv, const char* flag) {
+    for (int i = 1; i < argc; ++i) if (std::strcmp(argv[i], flag) == 0) return true;
+    return false;
+}
 const char* arg_value(int argc, char** argv, const char* flag) {
     for (int i = 1; i < argc - 1; ++i)
         if (std::strcmp(argv[i], flag) == 0) return argv[i + 1];
@@ -55,6 +59,7 @@ int main(int argc, char** argv) {
         if (!layout) { std::fprintf(stderr, "layout not found\n"); return 1; }
 
         Runtime rt(project, names);
+        rt.strict_unimplemented = has_flag(argc, argv, "--strict");
         rt.load_layout(*layout);
         std::printf("layout %s, sheet %s, %zu instances, %zu variables\n\n",
                     layout->name.c_str(), layout->event_sheet.c_str(),

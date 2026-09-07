@@ -278,6 +278,7 @@ void Renderer::draw_layout(const Project& project, const Layout& layout, const C
         // Skip hidden layers: spawn markers ship visible=false, and UI layers
         // ship at opacity 0 for events to fade in.
         if (!layout.layer_draws(inst->layer)) continue;
+        if (inst->destroyed || !inst->visible) continue;
         if (inst->object_type < 0 ||
             inst->object_type >= static_cast<int>(project.object_types.size())) continue;
         const Frame* f = project.type(inst->object_type)

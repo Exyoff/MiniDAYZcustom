@@ -15,6 +15,8 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "decompile.hpp"
@@ -83,6 +85,12 @@ public:
     // "Every X seconds" accumulates per call site, so it needs the SID too.
     bool every_seconds(long long sid, double interval);
 
+    // True when `instance` has only just begun overlapping something of
+    // `other_type`. Overlap sets are computed once per type pair per tick and
+    // diffed against the previous tick, since "on collision" is an edge, not a
+    // state.
+    bool on_collision(int self_type, int other_type, int instance_index);
+
     // Whether the event immediately before this one, at the same level, passed.
     bool last_sibling_passed() const { return last_sibling_passed_; }
 
@@ -112,6 +120,13 @@ public:
         std::unordered_map<std::string, size_t> missing_actions;
         std::unordered_map<std::string, size_t> missing_expressions;
     };
+    // When true, an unimplemented condition FAILS instead of passing. Passing
+    // is the default because it keeps events running while coverage is low,
+    // but it makes a run an upper bound on execution rather than a simulation.
+    // Once coverage reaches 100% the two settings must agree -- and that is
+    // worth testing rather than assuming.
+    bool strict_unimplemented = false;
+
     const Stats& stats() const { return stats_; }
     void reset_stats() { stats_ = Stats{}; }
 
@@ -139,6 +154,12 @@ private:
 
     std::unordered_set<long long> fired_;
     std::unordered_map<long long, double> accumulators_;
+
+    using TypePair = std::pair<int, int>;
+    using PairSet = std::set<std::pair<int, int>>;
+    std::map<TypePair, PairSet> overlaps_prev_;   // as of last tick
+    std::map<TypePair, PairSet> overlaps_new_;    // began this tick
+    std::set<TypePair> collision_done_;           // computed already this tick
     bool last_sibling_passed_ = false;
     double time_ = 0.0, dt_ = 0.0;
     mutable Stats stats_;

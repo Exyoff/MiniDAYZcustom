@@ -295,14 +295,7 @@ RunnerHooks Runtime::make_hooks() {
         if (it == conditions_.end()) {
             ++stats_.unimplemented_conditions;
             ++stats_.missing_conditions[name.empty() ? "<unnamed>" : name];
-            // Unimplemented conditions pass. The alternative -- failing --
-            // would stop almost every event from running and make coverage
-            // unmeasurable. But it cuts the other way: events fire that the
-            // real game would gate, so a run with unimplemented conditions
-            // present is an UPPER BOUND on execution, not a faithful
-            // simulation. Variable changes observed under it are not evidence
-            // of correct behaviour until the gating conditions are real.
-            return true;
+            return !strict_unimplemented;
         }
         return it->second(*this, c, &inst);
     };
@@ -314,7 +307,7 @@ RunnerHooks Runtime::make_hooks() {
         if (it == conditions_.end()) {
             ++stats_.unimplemented_conditions;
             ++stats_.missing_conditions[name.empty() ? "<unnamed>" : name];
-            return true;
+            return !strict_unimplemented;
         }
         return it->second(*this, c, nullptr);
     };
@@ -340,6 +333,37 @@ RunnerHooks Runtime::make_hooks() {
         return -1;
     };
     return hooks;
+}
+
+// "On collision" is an edge, not a state: it fires on the tick an overlap
+// begins. Overlap sets are computed once per type pair per tick (the first
+// instance to ask triggers the work) and diffed against the previous tick.
+bool Runtime::on_collision(int self_type, int other_type, int instance_index) {
+    const TypePair key{self_type, other_type};
+    if (!collision_done_.count(key)) {
+        collision_done_.insert(key);
+        PairSet current;
+        for (int a : engine_.instances_of(self_type)) {
+            const Instance& ia = engine_.instances[static_cast<size_t>(a)];
+            if (ia.destroyed) continue;
+            const Bounds ba = bounds_of(ia);
+            for (int b : engine_.instances_of(other_type)) {
+                if (a == b) continue;
+                const Instance& ib = engine_.instances[static_cast<size_t>(b)];
+                if (ib.destroyed) continue;
+                if (overlaps(ba, bounds_of(ib))) current.insert({a, b});
+            }
+        }
+        PairSet& prev = overlaps_prev_[key];
+        PairSet began;
+        for (const auto& p : current)
+            if (!prev.count(p)) began.insert(p);
+        overlaps_new_[key] = std::move(began);
+        prev = std::move(current);
+    }
+    for (const auto& p : overlaps_new_[key])
+        if (p.first == instance_index) return true;
+    return false;
 }
 
 bool Runtime::every_seconds(long long sid, double interval) {
@@ -389,6 +413,7 @@ void Runtime::tick(double dt_seconds) {
             if (kv.first.size() > 6 && kv.first.compare(kv.first.size() - 6, 6, ".fired") == 0)
                 kv.second = 0.0;
     update_timers(dt_seconds);
+    collision_done_.clear();   // overlap sets are recomputed per tick
     if (!sheet_) return;
     RunnerHooks hooks = make_hooks();
     EventRunner runner(engine_, hooks);
@@ -546,6 +571,144 @@ void Runtime::register_builtins() {
 
     register_condition("EveryXSeconds", [](Runtime& rt, const Condition& c, const Instance*) {
         return rt.every_seconds(c.sid, rt.param(c, 0, nullptr).as_number());
+    });
+
+    register_condition("OnCollision", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const int other = object_param(c.params);
+        if (other < 0) return false;
+        // The index is needed, and Instance carries no back-pointer, so
+        // recover it from the address within the engine's instance vector.
+        const int index = static_cast<int>(self - rt.engine().instances.data());
+        return rt.on_collision(c.object_type, other, index);
+    });
+
+    register_action("SetVisible", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const bool visible = param_int(a.params, 0) != 0;
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->visible = visible;
+    });
+    register_action("SetAnimation", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const std::string name = rt.param(a, 0, nullptr).as_text();
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            inst->animation = name;
+            if (param_int(a.params, 1) == 0) inst->frame = 0;   // from beginning
+        }
+    });
+    register_action("MoveToLayer", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const int layer = static_cast<int>(rt.param(a, 0, nullptr).as_number());
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->layer = layer;
+    });
+    // Deliberately inert. A faithful Wait defers the REST of the action list
+    // and its sub-events, with the selection captured at the point of the
+    // wait, which needs an action-scheduling queue. Running on immediately is
+    // wrong, but it is wrong in a bounded and obvious way rather than silently
+    // dropping the actions that follow.
+    register_action("WaitSeconds", [](Runtime&, const Action&, const std::vector<int>&) {});
+    // Visual only; the engine models no effects.
+    register_action("SetEffectParam", [](Runtime&, const Action&, const std::vector<int>&) {});
+
+    register_action("SetOpacity", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const double v = rt.param(a, 0, nullptr).as_number() / 100.0;   // C2 uses 0..100
+        for (int i : picked) if (Instance* n = rt.instance(i)) n->opacity = v;
+    });
+    register_action("SetBoolInstanceVar", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const int idx = param_int(a.params, 0);
+        const double v = param_int(a.params, 1) != 0 ? 1.0 : 0.0;
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst || idx < 0 || idx >= static_cast<int>(inst->vars.size())) continue;
+            inst->vars[static_cast<size_t>(idx)] = v;
+        }
+    });
+    register_action("SetAngleTowardPosition", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            const double dx = rt.param(a, 0, inst).as_number() - inst->x;
+            const double dy = rt.param(a, 1, inst).as_number() - inst->y;
+            inst->angle = std::atan2(dy, dx);
+        }
+    });
+    register_action("MoveAtAngle", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const double deg = rt.param(a, 0, nullptr).as_number();
+        const double dist = rt.param(a, 1, nullptr).as_number();
+        const double rad = deg * 3.14159265358979323846 / 180.0;
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            inst->x += std::cos(rad) * dist;
+            inst->y += std::sin(rad) * dist;
+        }
+    });
+    register_action("SetActive", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const double v = param_int(a.params, 0) != 0 ? 1.0 : 0.0;
+        for (int i : picked)
+            if (Instance* n = rt.instance(i)) n->behavior_state[a.behavior + ".active"] = v;
+    });
+    // Layer scaling is not modelled; accepting it silently is better than
+    // counting it as missing forever, but nothing reads the value yet.
+    register_action("SetLayerScale", [](Runtime&, const Action&, const std::vector<int>&) {});
+
+    register_condition("CompareSpeed", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        auto it = self->behavior_state.find(c.behavior + ".speed");
+        const double speed = it == self->behavior_state.end() ? 0.0 : it->second;
+        return compare_with(param_int(c.params, 0), Value(speed), rt.param(c, 1, self));
+    });
+    register_condition("CompareWidth", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return compare_with(param_int(c.params, 0), Value(self->width), rt.param(c, 1, self));
+    });
+    register_condition("IsBetweenValues", [](Runtime& rt, const Condition& c, const Instance* self) {
+        const double v = rt.param(c, 0, self).as_number();
+        const double lo = rt.param(c, 1, self).as_number();
+        const double hi = rt.param(c, 2, self).as_number();
+        return v >= std::min(lo, hi) && v <= std::max(lo, hi);
+    });
+    // No pointer input is attached, so nothing can be under the cursor.
+    register_condition("IsDragging", [](Runtime&, const Condition&, const Instance*) { return false; });
+    // Line of sight needs an obstacle raycast; this only checks the range the
+    // behavior was configured with, so it over-reports through walls.
+    register_condition("HasLOSToObject", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const int other = object_param(c.params);
+        if (other < 0) return false;
+        auto it = self->behavior_state.find(c.behavior + ".range");
+        const double range = it == self->behavior_state.end() ? 0.0 : it->second;
+        if (range <= 0.0) return false;
+        for (int i : rt.engine().instances_of(other)) {
+            const Instance& o = rt.engine().instances[static_cast<size_t>(i)];
+            if (o.destroyed) continue;
+            const double dx = o.x - self->x, dy = o.y - self->y;
+            if (dx * dx + dy * dy <= range * range) return true;
+        }
+        return false;
+    });
+    register_condition("IsOnScreen", [](Runtime& rt, const Condition&, const Instance* self) {
+        if (!self) return false;
+        const Bounds b = bounds_of(*self);
+        const Runtime::Viewport& v = rt.viewport;
+        return b.l < v.right && v.left < b.r && b.t < v.bottom && v.top < b.b;
+    });
+    register_condition("IsMoving", [](Runtime&, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        auto it = self->behavior_state.find(c.behavior + ".speed");
+        return it != self->behavior_state.end() && it->second != 0.0;
+    });
+    register_condition("IsWithinAngle", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const double deg = self->angle * 180.0 / 3.14159265358979323846;
+        const double target = rt.param(c, 0, self).as_number();
+        const double within = rt.param(c, 1, self).as_number();
+        double d = std::fmod(deg - target + 540.0, 360.0) - 180.0;
+        return std::fabs(d) <= within;
+    });
+    register_condition("HasTarget", [](Runtime&, const Condition&, const Instance* self) {
+        if (!self) return false;
+        auto it = self->behavior_state.find("Turret.hasTarget");
+        return it != self->behavior_state.end() && it->second != 0.0;
     });
 
     // --- Timers ------------------------------------------------------------
