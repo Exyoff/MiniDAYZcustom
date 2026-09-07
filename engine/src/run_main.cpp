@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
@@ -21,6 +22,26 @@
 using namespace mdz;
 
 namespace {
+// Values can contain quotes and backslashes, so they have to be escaped or the
+// dump is not valid JSON.
+std::string json_escape(const std::string& s) {
+    std::string out;
+    out.reserve(s.size() + 8);
+    for (char c : s) {
+        switch (c) {
+            case '"':  out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default:
+                if (static_cast<unsigned char>(c) < 0x20) out += ' ';
+                else out += c;
+        }
+    }
+    return out;
+}
+
 bool has_flag(int argc, char** argv, const char* flag) {
     for (int i = 1; i < argc; ++i) if (std::strcmp(argv[i], flag) == 0) return true;
     return false;
@@ -99,6 +120,23 @@ int main(int argc, char** argv) {
                                   " -> " + kv.second.as_text());
         }
         std::sort(changed.begin(), changed.end());
+
+        // Machine-readable variable dump, for differential comparison against
+        // the original runtime.
+        if (const char* dump_path = arg_value(argc, argv, "--dump-vars")) {
+            std::ofstream out(dump_path);
+            out << "{\n \"count\": " << rt.variables().size() << ",\n \"vars\": {\n";
+            std::map<std::string, std::string> sorted;
+            for (const auto& kv : rt.variables()) sorted[kv.first] = kv.second.as_text();
+            bool first = true;
+            for (const auto& kv : sorted) {
+                if (!first) out << ",\n";
+                first = false;
+                out << "  \"" << json_escape(kv.first) << "\": \"" << json_escape(kv.second) << "\"";
+            }
+            out << "\n }\n}\n";
+            std::printf("wrote %s (%zu variables)\n", dump_path, rt.variables().size());
+        }
 
         const Runtime::Stats& s = rt.stats();
         std::printf("=== after %d ticks ===\n", ticks);
