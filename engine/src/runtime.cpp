@@ -1,5 +1,6 @@
 #include "runtime.hpp"
 
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -1440,6 +1441,35 @@ void Runtime::register_expression_builtins() {
 
     // Assets are loaded synchronously before the first tick, so loading is
     // always complete. The original ramps this from 0 to 1 while downloading.
+    // Find returns the index of a substring, or -1 when absent. Leaving it
+    // unimplemented returned 0, and 0 is a MEANINGFUL value here: the game
+    // tests Find(...) >= 0, so "not implemented" read as "found at index 0"
+    // and every language branch matched at once. The last one to run won,
+    // which is how this engine ended up reporting RU while the original
+    // reported EN. Construct 2's find is case-insensitive.
+    register_expression("Find", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        std::string hay = arg(rt, e, 0, s).as_text();
+        std::string needle = arg(rt, e, 1, s).as_text();
+        auto lower = [](std::string& v) {
+            for (char& ch : v) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+        };
+        lower(hay);
+        lower(needle);
+        const size_t at = hay.find(needle);
+        return Value(at == std::string::npos ? -1.0 : static_cast<double>(at));
+    });
+    // No browser is attached. The original reports the host locale; this
+    // reports a fixed one, which at least makes language selection
+    // deterministic and matches what the reference capture reported.
+    register_expression("Language", [](Runtime&, const Expr&, const Instance*) {
+        return Value(std::string("en-US"));
+    });
+    register_expression("StringFromKeyCode", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        const int code = static_cast<int>(arg(rt, e, 0, s).as_number());
+        if (code >= 32 && code < 127) return Value(std::string(1, static_cast<char>(code)));
+        return Value(std::string());
+    });
+
     register_expression("LoadingProgress", [](Runtime&, const Expr&, const Instance*) {
         return Value(1.0);
     });
