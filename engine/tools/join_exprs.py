@@ -42,8 +42,11 @@ def emit(node, out, plug, tname):
     out.append((op, key))
 
     def params(at):
+        # A call's parameters are bare expression nodes, not [tag, payload]
+        # wrappers. Taking element 1 of each -- the wrapper reading -- truncates
+        # operands and misreads variable references as strings.
         raw = node[at] if len(node) > at and isinstance(node[at], list) else []
-        return [p[1] for p in raw if isinstance(p, list) and len(p) > 1]
+        return [p for p in raw if isinstance(p, list)]
 
     if op == 19:
         kids = params(2)

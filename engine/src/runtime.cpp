@@ -19,6 +19,26 @@ bool compare_with(int op, const Value& a, const Value& b) {
     }
 }
 
+// The object a picking condition operates on is named by its tag-4 parameter,
+// not by the condition's own object_type (which is System for these).
+int object_param(const std::vector<Param>& params) {
+    for (const Param& p : params)
+        if (p.tag == 4) return static_cast<int>(p.value.number);
+    return -1;
+}
+
+// Axis-aligned bounds. Construct 2 tests per-frame collision polygons; this is
+// the bounding box only, so it over-reports overlap for non-rectangular art.
+struct Bounds { double l, t, r, b; };
+Bounds bounds_of(const Instance& i) {
+    const double hw = (i.width != 0 ? i.width : 1.0) * 0.5;
+    const double hh = (i.height != 0 ? i.height : 1.0) * 0.5;
+    return Bounds{i.x - hw, i.y - hh, i.x + hw, i.y + hh};
+}
+bool overlaps(const Bounds& a, const Bounds& b) {
+    return a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+}
+
 int param_int(const std::vector<Param>& params, size_t i, int fallback = 0) {
     if (i >= params.size()) return fallback;
     return static_cast<int>(params[i].value.number);
@@ -249,6 +269,8 @@ RunnerHooks Runtime::make_hooks() {
         it->second(*this, a, picked);
     };
 
+    hooks.sibling_result = [this](bool passed) { last_sibling_passed_ = passed; };
+
     // "For each" names its target through an object parameter (slot tag 4).
     hooks.loop_target = [](const Condition& c) {
         for (const Param& p : c.params)
@@ -256,6 +278,12 @@ RunnerHooks Runtime::make_hooks() {
         return -1;
     };
     return hooks;
+}
+
+bool Runtime::trigger_once(long long sid) {
+    const bool was = fired_.count(sid) != 0;
+    fired_.insert(sid);
+    return !was;
 }
 
 void Runtime::tick(double dt_seconds) {
@@ -299,11 +327,121 @@ void Runtime::register_builtins() {
         return compare_with(param_int(c.params, 1), Value(self->vars[static_cast<size_t>(idx)]),
                             rt.param(c, 2, self));
     });
-    register_condition("IsBooleanInstanceVar", [](Runtime&, const Condition& c, const Instance* self) {
+    register_condition("IsBooleanInstanceVarSet", [](Runtime&, const Condition& c, const Instance* self) {
         if (!self) return false;
         const int idx = param_int(c.params, 0);
         if (idx < 0 || idx >= static_cast<int>(self->vars.size())) return false;
         return self->vars[static_cast<size_t>(idx)] != 0.0;
+    });
+
+    // --- Picking ----------------------------------------------------------
+    // The single largest gap by call volume: PickByUID alone is reached ~80k
+    // times in 30 ticks of Game_events. It filters like any other instance
+    // condition, so the picking engine handles the SOL bookkeeping already.
+    register_condition("PickByUID", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return static_cast<double>(self->uid) == rt.param(c, 0, self).as_number();
+    });
+
+    // These name their target through an object parameter and rewrite that
+    // type's selection wholesale, rather than filtering the current one.
+    register_condition("PickAll", [](Runtime& rt, const Condition& c, const Instance*) {
+        const int t = object_param(c.params);
+        if (t < 0) return false;
+        const std::vector<int> all = rt.engine().instances_of(t);
+        rt.engine().pick_set(t, all);
+        return !all.empty();
+    });
+    register_condition("PickByComparison", [](Runtime& rt, const Condition& c, const Instance*) {
+        const int t = object_param(c.params);
+        if (t < 0) return false;
+        std::vector<int> kept;
+        for (int i : rt.engine().picked(t)) {
+            const Instance* inst = &rt.engine().instances[static_cast<size_t>(i)];
+            if (compare_with(param_int(c.params, 2), rt.param(c, 1, inst), rt.param(c, 3, inst)))
+                kept.push_back(i);
+        }
+        rt.engine().pick_set(t, kept);
+        return !kept.empty();
+    });
+    register_condition("PickRandomInstance", [](Runtime& rt, const Condition& c, const Instance*) {
+        const int t = object_param(c.params);
+        if (t < 0) return false;
+        const std::vector<int> pool = rt.engine().picked(t);
+        if (pool.empty()) return false;
+        static uint32_t seed = 0x85EBCA6Bu;
+        seed = seed * 1664525u + 1013904223u;
+        rt.engine().pick_set(t, {pool[(seed >> 8) % pool.size()]});
+        return true;
+    });
+
+    // Bounding-box only -- see bounds_of. Real collision needs the per-frame
+    // polygons the export carries, so this over-reports on non-rectangular art.
+    register_condition("IsOverlapping", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const int other = object_param(c.params);
+        if (other < 0) return false;
+        const Bounds a = bounds_of(*self);
+        for (int i : rt.engine().instances_of(other)) {
+            const Instance& o = rt.engine().instances[static_cast<size_t>(i)];
+            if (!o.destroyed && &o != self && overlaps(a, bounds_of(o))) return true;
+        }
+        return false;
+    });
+
+    register_condition("CompareX", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return compare_with(param_int(c.params, 0), Value(self->x), rt.param(c, 1, self));
+    });
+    register_condition("CompareY", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return compare_with(param_int(c.params, 0), Value(self->y), rt.param(c, 1, self));
+    });
+    register_condition("IsBetweenAngles", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const double deg = self->angle * 180.0 / 3.14159265358979323846;
+        double lo = rt.param(c, 0, self).as_number(), hi = rt.param(c, 1, self).as_number();
+        auto norm = [](double d) { d = std::fmod(d, 360.0); return d < 0 ? d + 360.0 : d; };
+        const double a = norm(deg); lo = norm(lo); hi = norm(hi);
+        return lo <= hi ? (a >= lo && a <= hi) : (a >= lo || a <= hi);
+    });
+
+    register_condition("Else", [](Runtime& rt, const Condition&, const Instance*) {
+        return !rt.last_sibling_passed();
+    });
+    register_condition("CompareFrame", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return compare_with(param_int(c.params, 0), Value(static_cast<double>(self->frame)),
+                            rt.param(c, 1, self));
+    });
+    register_condition("IsOnLayer", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        return static_cast<double>(self->layer) == rt.param(c, 0, self).as_number();
+    });
+    // params are (nearest|furthest, x, y): reduce the selection to the single
+    // closest or furthest instance from that point.
+    register_condition("PickDistance", [](Runtime& rt, const Condition& c, const Instance*) {
+        const int t = object_param(c.params);
+        const std::vector<int> pool = rt.engine().picked(t >= 0 ? t : 0);
+        if (t < 0 || pool.empty()) return false;
+        const bool furthest = param_int(c.params, 0) != 0;
+        const double px = rt.param(c, 1, nullptr).as_number();
+        const double py = rt.param(c, 2, nullptr).as_number();
+        int best = pool.front();
+        double best_d = -1.0;
+        for (int i : pool) {
+            const Instance& o = rt.engine().instances[static_cast<size_t>(i)];
+            const double dx = o.x - px, dy = o.y - py;
+            const double d = dx * dx + dy * dy;
+            if (best_d < 0 || (furthest ? d > best_d : d < best_d)) { best_d = d; best = i; }
+        }
+        rt.engine().pick_set(t, {best});
+        return true;
+    });
+    // Passes the first time this call site is true and not again until it has
+    // gone false, so identity has to be per call site -- hence the SID.
+    register_condition("TriggerOnce", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.trigger_once(c.sid);
     });
 
     // --- System actions ----------------------------------------------------

@@ -30,6 +30,12 @@ struct RunnerHooks {
     SystemPredicate system_condition;
     ActionSink action;
     LoopTargetResolver loop_target;
+
+    // "Else" passes when the preceding sibling event failed, so the runner
+    // reports each sibling's outcome as it goes. Called with false when a new
+    // sibling list begins, so an Else with nothing before it does not inherit
+    // a stale result from an unrelated branch.
+    std::function<void(bool)> sibling_result;
 };
 
 struct RunStats {

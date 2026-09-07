@@ -16,7 +16,8 @@
 # ceil, floor, abs, sqrt, find, left, right, replace, trim and Text survive
 # minification as literal property names in c2runtime.js.
 #
-# 101 entries. Confidence: {'high': 101}.
+#
+# 103 entries, all high confidence.
 #
 B 18 270 Value Sine
 B 18 271 AngleOfMotion Bullet
@@ -51,6 +52,8 @@ O 9 423 X
 O 9 424 Width
 O 9 425 Y
 O 9 426 Height
+O 10 228 X
+O 10 229 Y
 O 10 318 Angle
 O 11 407 StringFromKeyCode
 O 12 445 Text

@@ -43,6 +43,13 @@ bool truthy(const JsonDoc& d, uint32_t n) {
 
 // ---------------------------------------------------------------------------
 // Expressions
+//
+// Note the asymmetry between two things that look alike. An ACE's OWN
+// parameters are [slot_tag, payload] wrappers. The parameters of a call INSIDE
+// an expression are bare expression nodes. Both use small leading integers, so
+// reading one as the other parses without complaint and quietly corrupts the
+// result: [7, a, b] (a division) collapses to just `a`, and [23, "X"] (a
+// variable reference) becomes the literal string "X".
 // ---------------------------------------------------------------------------
 
 Expr parse_expression(const JsonDoc& doc, uint32_t node) {
@@ -70,7 +77,7 @@ Expr parse_expression(const JsonDoc& doc, uint32_t node) {
             uint32_t params = doc.child_at(node, 2);
             if (is_arr(doc, params)) {
                 for (uint32_t c = doc.at(params).child; c != kNone; c = doc.at(c).next)
-                    e.args.push_back(parse_param(doc, c).value);
+                    e.args.push_back(parse_expression(doc, c));
             }
             return e;
         }
@@ -82,7 +89,7 @@ Expr parse_expression(const JsonDoc& doc, uint32_t node) {
             uint32_t params = doc.child_at(node, 5);
             if (is_arr(doc, params)) {
                 for (uint32_t c = doc.at(params).child; c != kNone; c = doc.at(c).next)
-                    e.args.push_back(parse_param(doc, c).value);
+                    e.args.push_back(parse_expression(doc, c));
             }
             return e;
         }
@@ -101,7 +108,7 @@ Expr parse_expression(const JsonDoc& doc, uint32_t node) {
             uint32_t params = doc.child_at(node, 6);
             if (is_arr(doc, params)) {
                 for (uint32_t c = doc.at(params).child; c != kNone; c = doc.at(c).next)
-                    e.args.push_back(parse_param(doc, c).value);
+                    e.args.push_back(parse_expression(doc, c));
             }
             return e;
         }
@@ -151,6 +158,7 @@ Condition parse_condition(const JsonDoc& doc, uint32_t n) {
     c.looping      = truthy(doc, doc.child_at(n, 4));
     c.inverted     = truthy(doc, doc.child_at(n, 5));
     c.type_flag    = truthy(doc, doc.child_at(n, 6));
+    c.sid          = static_cast<long long>(doc.num(doc.child_at(n, 7)));
     uint32_t params = doc.child_at(n, 9);   // absent on 9-element conditions
     if (is_arr(doc, params))
         for (uint32_t p = doc.at(params).child; p != kNone; p = doc.at(p).next)

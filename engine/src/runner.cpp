@@ -8,10 +8,12 @@ EventRunner::EventRunner(PickingEngine& engine, RunnerHooks hooks)
     : engine_(engine), hooks_(std::move(hooks)) {}
 
 void EventRunner::run_sheet(const EventSheet& sheet) {
+    if (hooks_.sibling_result) hooks_.sibling_result(false);
     for (const EventBlock& block : sheet.blocks) {
         // Rule 1: each top-level event starts from a clean slate.
         engine_.reset_all();
-        run_block(block, 0);
+        const bool passed = run_block(block, 0);
+        if (hooks_.sibling_result) hooks_.sibling_result(passed);
     }
 }
 
@@ -83,10 +85,12 @@ void EventRunner::run_actions_and_subevents(const EventBlock& block, int depth) 
     }
 
     // Rule 4: sub-events inherit a copy of the SOL; siblings stay independent.
+    if (hooks_.sibling_result) hooks_.sibling_result(false);
     for (const EventBlock& sub : block.subevents) {
         engine_.push_scope();
-        run_block(sub, depth + 1);
+        const bool passed = run_block(sub, depth + 1);
         engine_.pop_scope();
+        if (hooks_.sibling_result) hooks_.sibling_result(passed);
     }
 }
 

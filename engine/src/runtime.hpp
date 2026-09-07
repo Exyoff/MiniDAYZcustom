@@ -14,6 +14,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "decompile.hpp"
@@ -75,6 +76,13 @@ public:
 
     RunnerHooks make_hooks();
 
+    // "Trigger once while true": true only on the first tick a given call site
+    // asks, identified by its SID.
+    bool trigger_once(long long sid);
+
+    // Whether the event immediately before this one, at the same level, passed.
+    bool last_sibling_passed() const { return last_sibling_passed_; }
+
     struct Stats {
         size_t conditions_run = 0, actions_run = 0;
         size_t unimplemented_conditions = 0, unimplemented_actions = 0;
@@ -103,6 +111,8 @@ private:
     std::unordered_map<std::string, ActionFn> actions_;
     std::unordered_map<std::string, ExpressionFn> expressions_;
 
+    std::unordered_set<long long> fired_;
+    bool last_sibling_passed_ = false;
     double time_ = 0.0, dt_ = 0.0;
     mutable Stats stats_;
 

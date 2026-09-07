@@ -76,6 +76,7 @@ struct Param {
 struct Condition {
     int object_type = -1;      // -1 == the System object
     int ace = 0;               // index into the plugin's condition table
+    long long sid = 0;         // stable id; identifies this call site
     std::string behavior;      // non-empty when the condition targets a behavior
     int trigger_mode = 0;      // 0 normal, 1 trigger, 2 fast trigger
     bool looping = false;      // fixed per condition type (For / Repeat / For Each)
