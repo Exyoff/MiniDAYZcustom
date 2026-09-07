@@ -109,6 +109,29 @@ public:
     const CallFrame* current_frame() const { return frames_.empty() ? nullptr : &frames_.back(); }
     CallFrame* current_frame() { return frames_.empty() ? nullptr : &frames_.back(); }
 
+    // --- input -------------------------------------------------------------
+    // Pointer position is in world coordinates. Layer parallax and scale are
+    // not modelled, so a layer that scrolls at a different rate will report a
+    // position the original would not.
+    struct Input {
+        double x = 0.0, y = 0.0;
+        bool down = false;
+        bool pressed = false;    // went down this tick
+        bool released = false;   // came up this tick
+        std::set<int> keys;
+        std::set<int> keys_pressed;
+    };
+    Input input;
+
+    // Runs the blocks whose first condition is the named trigger. Input
+    // triggers are dispatched explicitly, the same way function calls are,
+    // rather than by letting every trigger run in the normal pass -- that
+    // would change semantics for triggers that are not self-gating.
+    void fire_trigger(const std::string& ace_name);
+
+    // True when the pointer is over any live instance of `object_type`.
+    bool pointer_over(int object_type) const;
+
     // Creates an instance at runtime and picks it, as CreateObject does.
     int create_instance(int object_type, double x, double y, int layer);
 
@@ -149,6 +172,8 @@ private:
 
     // Function name -> the events under its OnFunction trigger.
     std::unordered_map<std::string, std::vector<const EventBlock*>> functions_;
+    // ACE name of a block's first condition -> those blocks, for trigger dispatch.
+    std::unordered_map<std::string, std::vector<const EventBlock*>> triggers_;
     std::vector<CallFrame> frames_;
     int next_uid_ = 1;
 

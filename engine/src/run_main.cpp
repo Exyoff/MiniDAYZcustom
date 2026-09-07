@@ -73,7 +73,20 @@ int main(int argc, char** argv) {
         size_t alive_before = 0;
         for (const Instance& i : rt.engine().instances) if (!i.destroyed) ++alive_before;
 
-        for (int t = 0; t < ticks; ++t) rt.tick(1.0 / 60.0);
+        // Optional synthetic click, in world coordinates, delivered halfway
+        // through the run so the layout has settled first.
+        double cx = 0, cy = 0;
+        const bool do_click = arg_value(argc, argv, "--click") &&
+            std::sscanf(arg_value(argc, argv, "--click"), "%lf,%lf", &cx, &cy) == 2;
+        for (int t = 0; t < ticks; ++t) {
+            if (do_click && t == ticks / 2) {
+                rt.input.x = cx; rt.input.y = cy;
+                rt.input.down = true; rt.input.pressed = true;
+            } else if (do_click && t == ticks / 2 + 1) {
+                rt.input.down = false; rt.input.released = true;
+            }
+            rt.tick(1.0 / 60.0);
+        }
 
         size_t alive_after = 0;
         for (const Instance& i : rt.engine().instances) if (!i.destroyed) ++alive_after;

@@ -69,10 +69,44 @@ void Runtime::index_functions() {
                 functions_[c.params[0].value.text].push_back(&b);
             }
         }
+        // Index every block by the name of its first condition, so triggers
+        // can be dispatched by name.
+        if (!b.conditions.empty()) {
+            const Condition& c0 = b.conditions.front();
+            if (c0.trigger_mode != 0 && c0.object_type >= 0) {
+                const std::string n = names_.condition(project_.type(c0.object_type).plugin,
+                                                       c0.ace, c0.behavior);
+                if (!n.empty()) triggers_[n].push_back(&b);
+            }
+        }
         for (const EventBlock& s : b.subevents) visit(s);
     };
+    triggers_.clear();
     for (const EventSheet& s : project_.sheets)
         for (const EventBlock& b : s.blocks) visit(b);
+}
+
+void Runtime::fire_trigger(const std::string& ace_name) {
+    auto it = triggers_.find(ace_name);
+    if (it == triggers_.end()) return;
+    RunnerHooks hooks = make_hooks();
+    EventRunner runner(engine_, hooks);
+    runner.run_triggers = true;
+    for (const EventBlock* b : it->second) {
+        engine_.reset_all();
+        runner.run_block(*b, 0);
+    }
+}
+
+bool Runtime::pointer_over(int object_type) const {
+    if (object_type < 0) return false;
+    for (int i : engine_.instances_of(object_type)) {
+        const Instance& o = engine_.instances[static_cast<size_t>(i)];
+        if (o.destroyed || !o.visible) continue;
+        const Bounds b = bounds_of(o);
+        if (input.x >= b.l && input.x <= b.r && input.y >= b.t && input.y <= b.b) return true;
+    }
+    return false;
 }
 
 Value Runtime::call_function(const std::string& name, std::vector<Value> args) {
@@ -119,7 +153,32 @@ int Runtime::create_instance(int object_type, double x, double y, int layer) {
 void Runtime::load_layout(const Layout& layout) {
     layout_ = &layout;
     engine_.load_layout(layout);
+
+    // Construct 2 gives single-instance plugins -- Touch, Keyboard, Mouse,
+    // Function, Audio and friends -- one implicit instance that never appears
+    // in layout data. Without it their conditions have no candidate instances,
+    // so the picking engine rejects them before the predicate is ever called
+    // and every such condition silently reads false. That is not a small
+    // detail: it is why OnFunction never fired, so function bodies did not run
+    // even though CallFunction did, and why no touch or click was ever seen.
+    //
+    // They are identified structurally: a plugin used by exactly one object
+    // type, where that type has no instances in the layout.
+    std::unordered_map<int, int> types_per_plugin;
+    for (const ObjectType& t : project_.object_types)
+        if (!t.is_family) ++types_per_plugin[t.plugin];
+    for (const ObjectType& t : project_.object_types) {
+        if (t.is_family) continue;
+        if (types_per_plugin[t.plugin] != 1) continue;
+        if (!engine_.instances_of(t.index).empty()) continue;
+        Instance inst;
+        inst.object_type = t.index;
+        inst.uid = -1;                      // assigned below, after uid scan
+        inst.vars.assign(static_cast<size_t>(t.instance_var_count), 0.0);
+        engine_.add_instance(inst);
+    }
     for (const Instance& i : engine_.instances) next_uid_ = std::max(next_uid_, i.uid + 1);
+    for (Instance& i : engine_.instances) if (i.uid < 0) i.uid = next_uid_++;
     index_functions();
 
     // Seed variables from every sheet: an event sheet can read variables that
@@ -234,7 +293,11 @@ Value Runtime::call_expression(const Expr& e, const Instance* self) const {
 
     const std::string name = names_.expression(kind, plugin, e.index,
                                                e.op == ExpOp::BehaviorExp ? e.text : "");
-    auto it = expressions_.find(name);
+    // Expression names collide across plugins -- Touch.X and Sprite.X are both
+    // called "X". A plugin-qualified registration wins over the bare name, so
+    // the pointer position does not silently resolve to an instance position.
+    auto it = expressions_.find(std::to_string(plugin) + ":" + name);
+    if (it == expressions_.end()) it = expressions_.find(name);
     if (it == expressions_.end()) {
         ++stats_.unknown_expressions;
         ++stats_.missing_expressions[name.empty() ? "<unnamed>" : name];
@@ -415,9 +478,23 @@ void Runtime::tick(double dt_seconds) {
     update_timers(dt_seconds);
     collision_done_.clear();   // overlap sets are recomputed per tick
     if (!sheet_) return;
+
     RunnerHooks hooks = make_hooks();
     EventRunner runner(engine_, hooks);
     runner.run_sheet(*sheet_);
+
+    // Input triggers fire after the main pass, then the edge flags clear so a
+    // press is delivered on exactly one tick.
+    if (input.pressed) {
+        fire_trigger("OnTouchObject");
+        fire_trigger("OnObjectClicked");
+        fire_trigger("OnClick");
+    }
+    if (input.released) fire_trigger("OnNthTouchEnd");
+    if (!input.keys_pressed.empty()) fire_trigger("OnKey");
+    input.pressed = false;
+    input.released = false;
+    input.keys_pressed.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -573,6 +650,39 @@ void Runtime::register_builtins() {
         return rt.every_seconds(c.sid, rt.param(c, 0, nullptr).as_number());
     });
 
+    // --- input --------------------------------------------------------------
+    register_condition("IsInTouch", [](Runtime& rt, const Condition&, const Instance*) {
+        return rt.input.down;
+    });
+    register_condition("IsTouchingObject", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.input.down && rt.pointer_over(object_param(c.params));
+    });
+    register_condition("IsOverObject", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.pointer_over(object_param(c.params));
+    });
+    // The three ACEs the table calls OnTouchObject are all marked medium
+    // confidence and are probably touch-start/end variants of each other. All
+    // three are treated as "a press began over this object", which is right for
+    // at least one of them and wrong for any that is really a release.
+    register_condition("OnTouchObject", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.input.pressed && rt.pointer_over(object_param(c.params));
+    });
+    register_condition("OnObjectClicked", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.input.pressed && rt.pointer_over(object_param(c.params));
+    });
+    register_condition("OnClick", [](Runtime& rt, const Condition&, const Instance*) {
+        return rt.input.pressed;
+    });
+    register_condition("OnNthTouchEnd", [](Runtime& rt, const Condition&, const Instance*) {
+        return rt.input.released;
+    });
+    register_condition("IsKeyDown", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.input.keys.count(param_int(c.params, 0)) != 0;
+    });
+    register_condition("OnKey", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.input.keys_pressed.count(param_int(c.params, 0)) != 0;
+    });
+
     register_condition("OnCollision", [](Runtime& rt, const Condition& c, const Instance* self) {
         if (!self) return false;
         const int other = object_param(c.params);
@@ -705,6 +815,16 @@ void Runtime::register_builtins() {
         double d = std::fmod(deg - target + 540.0, 360.0) - 180.0;
         return std::fabs(d) <= within;
     });
+    register_condition("CompareOpacity", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        // Opacity is stored 0..1 here; Construct 2 expresses it as 0..100.
+        return compare_with(param_int(c.params, 0), Value(self->opacity * 100.0),
+                            rt.param(c, 1, self));
+    });
+    // No dictionary storage is modelled, so no key can be present. Answering
+    // false is a guess in the safe direction: it gates events closed rather
+    // than letting them run on data that does not exist.
+    register_condition("HasKey", [](Runtime&, const Condition&, const Instance*) { return false; });
     register_condition("HasTarget", [](Runtime&, const Condition&, const Instance* self) {
         if (!self) return false;
         auto it = self->behavior_state.find("Turret.hasTarget");
@@ -996,6 +1116,22 @@ void Runtime::register_expression_builtins() {
     });
     register_expression("Time", [](Runtime& rt, const Expr&, const Instance*) {
         return Value(rt.time());
+    });
+    // Plugin 15 is Touch: its X/Y are the pointer, not an instance.
+    register_expression("15:X", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.input.x);
+    });
+    register_expression("15:Y", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.input.y);
+    });
+    register_expression("TouchIndex", [](Runtime&, const Expr&, const Instance*) {
+        return Value(0.0);
+    });
+    register_expression("XForID", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.input.x);
+    });
+    register_expression("YForID", [](Runtime& rt, const Expr&, const Instance*) {
+        return Value(rt.input.y);
     });
     register_expression("LayoutName", [](Runtime& rt, const Expr&, const Instance*) {
         return Value(rt.layout() ? rt.layout()->name : std::string());

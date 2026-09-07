@@ -102,11 +102,27 @@ int main(int argc, char** argv) {
                                   ? std::atoi(arg_value(argc, argv, "--ticks")) : 60;
         AceNames names;
         Runtime runtime(project, names);
+        // A synthetic click, in world coordinates, for headless testing.
+        double click_x = 0, click_y = 0;
+        const bool do_click = arg_value(argc, argv, "--click") &&
+            std::sscanf(arg_value(argc, argv, "--click"), "%lf,%lf", &click_x, &click_y) == 2;
+
         if (simulate) {
             names.load("data/ace_names.txt");
             names.load_expressions("data/expr_names.txt");
             runtime.load_layout(*layout);
-            for (int t = 0; t < sim_ticks; ++t) runtime.tick(1.0 / 60.0);
+            for (int t = 0; t < sim_ticks; ++t) {
+                if (do_click && t == sim_ticks / 2) {
+                    runtime.input.x = click_x;
+                    runtime.input.y = click_y;
+                    runtime.input.down = true;
+                    runtime.input.pressed = true;
+                } else if (do_click && t == sim_ticks / 2 + 1) {
+                    runtime.input.down = false;
+                    runtime.input.released = true;
+                }
+                runtime.tick(1.0 / 60.0);
+            }
             size_t alive = 0;
             for (const Instance& i : runtime.engine().instances) if (!i.destroyed) ++alive;
             std::printf("simulated %d ticks: %zu instances (%zu alive)\n",
@@ -147,9 +163,33 @@ int main(int argc, char** argv) {
 
         bool running = true;
         bool dragging = false;
+        // Screen pixel -> world, so the pointer the events see matches what is
+        // drawn under the cursor.
+        auto to_world = [&](int sx, int sy, double* wx, double* wy) {
+            *wx = cam.x + (sx - vw / 2.0) / cam.zoom;
+            *wy = cam.y + (sy - vh / 2.0) / cam.zoom;
+        };
         while (running) {
             SDL_Event e;
             while (SDL_PollEvent(&e)) {
+                if (simulate) {
+                    if (e.type == SDL_MOUSEBUTTONDOWN) {
+                        to_world(e.button.x, e.button.y, &runtime.input.x, &runtime.input.y);
+                        runtime.input.down = true;
+                        runtime.input.pressed = true;
+                    } else if (e.type == SDL_MOUSEBUTTONUP) {
+                        runtime.input.down = false;
+                        runtime.input.released = true;
+                    } else if (e.type == SDL_MOUSEMOTION) {
+                        to_world(e.motion.x, e.motion.y, &runtime.input.x, &runtime.input.y);
+                    } else if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+                        const int code = e.key.keysym.sym;
+                        runtime.input.keys.insert(code);
+                        runtime.input.keys_pressed.insert(code);
+                    } else if (e.type == SDL_KEYUP) {
+                        runtime.input.keys.erase(e.key.keysym.sym);
+                    }
+                }
                 if (e.type == SDL_QUIT) running = false;
                 else if (e.type == SDL_KEYDOWN) {
                     const double step = 64.0 / cam.zoom;
@@ -173,6 +213,7 @@ int main(int argc, char** argv) {
                     cam.y -= e.motion.yrel / cam.zoom;
                 }
             }
+            if (simulate) runtime.tick(1.0 / 60.0);
             draw(cam);
             renderer.present();
             SDL_Delay(16);
