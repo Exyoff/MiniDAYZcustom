@@ -1,0 +1,36 @@
+# ACE name table for the MiniDayZ+1.2 export.
+#
+# Format:   <C|A> <plugin> <ace> <Name>        # notes
+#   C = condition, A = action
+#   plugin -1 is the System object; 18 is Sprite.
+#
+# The minified c2runtime.js no longer names any plugin action or condition, so
+# every entry here is an INFERENCE from the parameter signature and usage
+# frequency, not a fact read out of the export. The decompiler always prints
+# the raw index alongside the name, so a wrong guess here is visible and
+# harmless. Add entries as you identify more.
+#
+# Confidence is noted per line:
+#   [high]   signature is distinctive and the reading is hard to argue with
+#   [medium] signature is consistent with the reading but not conclusive
+
+# --- System ---------------------------------------------------------------
+A -1 94  CreateObject          # [high]   (object, layer, x, y) -- 2509 uses
+A -1 41  SetValue              # [high]   (variable, expr)      -- 2540 uses
+C -1 46  CompareVariable       # [high]   (variable, cmp, expr) -- 2714 uses
+C -1 51  CompareTwoValues      # [high]   (any, cmp, any)       --  837 uses
+C -1 90  ForEach               # [high]   (object), flagged looping
+
+# --- Sprite (plugin 18) ---------------------------------------------------
+A 18 88  SetInstanceVar        # [high]   (var#, expr)          -- 6662 uses
+A 18 87  AddToInstanceVar      # [medium] (var#, expr)
+C 18 71  CompareInstanceVar    # [high]   (var#, cmp, expr)     -- 4869 uses
+C 18 91  IsBooleanInstanceVar  # [medium] (var#)
+A 18 53  Destroy               # [high]   no parameters         -- 1108 uses
+A 18 160 SetAnimation          # [high]   (name, from-beginning/current)
+C 18 108 IsOverlapping         # [high]   (object)
+A 18 73  SpawnObject           # [medium] (object, layer, imagepoint)
+C 18 64  CompareInstanceCount  # [medium] (cmp, number)
+
+# --- Behaviors ------------------------------------------------------------
+A 18 57  PinToObject           # [high]   behavior "Pin", (object, mode)

@@ -13,10 +13,14 @@ add_library(mdz_core
   src/project.cpp
   src/picking.cpp
   src/runner.cpp
+  src/decompile.cpp
 )
 
 add_executable(mdz_probe src/main.cpp)
 target_link_libraries(mdz_probe PRIVATE mdz_core)
+
+add_executable(mdz_dump src/dump_main.cpp)
+target_link_libraries(mdz_dump PRIVATE mdz_core)
 
 add_executable(picking_tests tests/picking_tests.cpp)
 target_link_libraries(picking_tests PRIVATE mdz_core)
