@@ -21,6 +21,8 @@ not.
 | `src/main.cpp` | Loads the real export and drives every event through the engine |
 | `src/dump_main.cpp` | The decompiler CLI |
 | `data/ace_names.txt` | Editable ACE name table (all entries are inferences) |
+| `tools/capture.js` | Boots the original build in Chromium and screenshots it |
+| `tools/play.js` | Drives it through the menus into gameplay |
 | `tests/picking_tests.cpp` | One test per Construct 2 picking rule |
 | `docs/data_format.md` | The recovered `data.js` format |
 
@@ -43,6 +45,33 @@ mkdir -p dump
 The dump is generated, not checked in -- it takes about a second to rebuild.
 It writes one file per event sheet plus `object_index.txt`, which maps every
 minified `tN` to its reconstructed name.
+
+## Reference capture
+
+`tools/` runs the original browser build in headless Chromium and captures what
+it actually does. This is the fidelity oracle: it is what any reimplementation
+has to be compared against, and it reports the console, failed requests and
+404s that tell you whether the build loaded cleanly.
+
+```sh
+npm install playwright-core          # browsers are already present; do not re-download
+NODE_PATH=<node_modules> node tools/capture.js ../MiniDayZ+1.2 /tmp/cap
+NODE_PATH=<node_modules> node tools/play.js    ../MiniDayZ+1.2 /tmp/play
+```
+
+Captured frames are deliberately not committed -- they are game imagery, and
+they regenerate on demand.
+
+Verified working: the 1.2 build boots to the menu and plays, with WebGL
+running under SwiftShader, no page errors and no failed requests. The one
+console error is `EncodingError: Unable to decode audio data`, which is
+headless Chromium lacking the AAC codec for the `.m4a` files, not a fault in
+the build.
+
+Navigating the menu needs exact targets: the main menu column sits near x=512
+but the difficulty column shifts to x=411, and the Start button only appears
+*after* a difficulty is chosen. Clicking a fixed centre point silently lands on
+"Back" and bounces between screens.
 
 ## Naming ACEs
 
