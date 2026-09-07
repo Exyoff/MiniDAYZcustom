@@ -26,12 +26,12 @@ void measure(const Project& p, const EventBlock& b, const AceNames& names, Cover
     for (const Condition& c : b.conditions) {
         ++cov->conditions;
         int plugin = c.object_type < 0 ? -1 : p.type(c.object_type).plugin;
-        if (!names.condition(plugin, c.ace).empty()) ++cov->named_conditions;
+        if (!names.condition(plugin, c.ace, c.behavior).empty()) ++cov->named_conditions;
     }
     for (const Action& a : b.actions) {
         ++cov->actions;
         int plugin = a.object_type < 0 ? -1 : p.type(a.object_type).plugin;
-        if (!names.action(plugin, a.ace).empty()) ++cov->named_actions;
+        if (!names.action(plugin, a.ace, a.behavior).empty()) ++cov->named_actions;
     }
     for (const EventBlock& sub : b.subevents) measure(p, sub, names, cov);
 }

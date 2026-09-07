@@ -319,6 +319,14 @@ void Project::load_layouts(const JsonDoc& doc, uint32_t node) {
                 inst.object_type = doc.as_int(doc.child_at(i, 1));
                 inst.uid         = doc.as_int(doc.child_at(i, 2));
                 inst.layer       = layer_index;
+                // Slot 5 is [?, animation_name, frame_index, ?].
+                uint32_t anim_state = doc.child_at(i, 5);
+                if (is_arr(doc, anim_state)) {
+                    uint32_t aname = doc.child_at(anim_state, 1);
+                    if (is_str(doc, aname)) inst.animation = std::string(doc.text_of(aname));
+                    uint32_t aframe = doc.child_at(anim_state, 2);
+                    if (is_num(doc, aframe)) inst.frame = doc.as_int(aframe);
+                }
                 if (inst.object_type >= 0 &&
                     inst.object_type < static_cast<int>(object_types.size())) {
                     inst.vars.assign(static_cast<size_t>(

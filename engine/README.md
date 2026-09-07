@@ -75,12 +75,21 @@ but the difficulty column shifts to x=411, and the Start button only appears
 
 ## Naming ACEs
 
-Actions and conditions are numeric indices into plugin tables that the
-minified runtime no longer names, so `data/ace_names.txt` maps them by hand.
-Every entry there is an inference from the parameter signature, and the
-decompiler always prints the raw index next to the name, so a wrong guess is
-visible rather than silently misleading. The seeded table covers the heaviest
-call sites; extend it as you identify more.
+Actions and conditions are numeric indices into plugin tables that the minified
+runtime no longer names. `data/ace_names.txt` maps all 423 of them.
+
+These names are not guesses from parameter shapes. `tools/extract_aces.js`
+pulls each ACE's real implementation out of the live runtime and
+`tools/join_aces.py` pairs it with the (plugin, ace, behavior) key by SID; the
+names were then read off those implementations. Many are pinned exactly by the
+runtime's own `saveToJSON` property names -- the Car behavior serialises
+`acc`/`dec`/`steerSpeed`/`driftRecover`, for instance, which settles four
+setters that look identical from the outside.
+
+Entries are scoped by behavior where needed, since the same (plugin, ace) pair
+means different things across behaviors. 385 are high confidence, 31 medium and
+7 are honest unknowns whose bodies did not identify themselves. The decompiler
+always prints the raw index beside the name, so a wrong one stays visible.
 
 ## Status
 
@@ -88,9 +97,9 @@ Passing: 27 checks across the seven picking rules, and a full traversal of the
 real project — 15,896 / 15,896 event blocks, 21,436 conditions, 44,297 actions,
 nesting depth 13/13, in 181 ms.
 
-The decompiler renders all six sheets. 51% of condition call sites and 41% of
-action call sites currently resolve to a name; the rest print as `#N`, with
-their object, parameters and expressions still fully readable.
+The decompiler renders all six sheets, and every call site resolves to a name:
+21435/21436 conditions and 44297/44297 actions. The single holdout is the one
+ACE key whose implementation was not consistent across call sites.
 
 Not started: rendering, the 346 plugin ACE implementations, behaviors, audio,
 save/load.

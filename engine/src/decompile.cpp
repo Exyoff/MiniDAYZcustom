@@ -133,24 +133,33 @@ size_t AceNames::load(const std::string& path) {
         std::istringstream ls(line);
         std::string kind;
         int plugin = 0, ace = 0;
-        std::string name;
+        std::string name, behavior;
         if (!(ls >> kind >> plugin >> ace >> name)) continue;
-        if (kind == "C") conditions_[{plugin, ace}] = name;
-        else if (kind == "A") actions_[{plugin, ace}] = name;
+        ls >> behavior;   // optional; absent for unscoped entries
+        if (kind == "C") conditions_[Key{plugin, ace, behavior}] = name;
+        else if (kind == "A") actions_[Key{plugin, ace, behavior}] = name;
         else continue;
         ++count;
     }
     return count;
 }
 
-std::string AceNames::condition(int plugin, int ace) const {
-    auto it = conditions_.find({plugin, ace});
-    return it == conditions_.end() ? std::string() : it->second;
+std::string AceNames::lookup(const std::map<Key, std::string>& table, int plugin, int ace,
+                             const std::string& behavior) const {
+    if (!behavior.empty()) {
+        auto it = table.find(Key{plugin, ace, behavior});
+        if (it != table.end()) return it->second;
+    }
+    auto it = table.find(Key{plugin, ace, std::string()});
+    return it == table.end() ? std::string() : it->second;
 }
 
-std::string AceNames::action(int plugin, int ace) const {
-    auto it = actions_.find({plugin, ace});
-    return it == actions_.end() ? std::string() : it->second;
+std::string AceNames::condition(int plugin, int ace, const std::string& behavior) const {
+    return lookup(conditions_, plugin, ace, behavior);
+}
+
+std::string AceNames::action(int plugin, int ace, const std::string& behavior) const {
+    return lookup(actions_, plugin, ace, behavior);
 }
 
 // ---------------------------------------------------------------------------
@@ -257,7 +266,7 @@ int plugin_of(const Project& p, int object_type) {
 
 std::string condition_text(const Project& p, const Condition& c, const AceNames& names) {
     const std::string target = c.object_type < 0 ? "System" : p.label(c.object_type);
-    std::string call = names.condition(plugin_of(p, c.object_type), c.ace);
+    std::string call = names.condition(plugin_of(p, c.object_type), c.ace, c.behavior);
     // Always keep the raw index: the name is an inference, the index is fact.
     const std::string raw = "#" + std::to_string(c.ace);
     if (call.empty()) call = raw;
@@ -271,7 +280,7 @@ std::string condition_text(const Project& p, const Condition& c, const AceNames&
 
 std::string action_text(const Project& p, const Action& a, const AceNames& names) {
     const std::string target = a.object_type < 0 ? "System" : p.label(a.object_type);
-    std::string call = names.action(plugin_of(p, a.object_type), a.ace);
+    std::string call = names.action(plugin_of(p, a.object_type), a.ace, a.behavior);
     const std::string raw = "#" + std::to_string(a.ace);
     if (call.empty()) call = raw;
     else call += raw;

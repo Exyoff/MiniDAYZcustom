@@ -13,6 +13,7 @@
 #pragma once
 
 #include <map>
+#include <tuple>
 #include <ostream>
 #include <string>
 
@@ -27,13 +28,19 @@ public:
     // back to numeric indices. Returns the number of names loaded.
     size_t load(const std::string& path);
 
-    // Empty when the ACE has no known name.
-    std::string condition(int plugin, int ace) const;
-    std::string action(int plugin, int ace) const;
+    // Empty when the ACE has no known name. A behavior-scoped entry wins over
+    // an unscoped one: the same (plugin, ace) pair means different things
+    // across behaviors, so "SetSpeed" on Bullet is not "SetSpeed" on Car.
+    std::string condition(int plugin, int ace, const std::string& behavior = "") const;
+    std::string action(int plugin, int ace, const std::string& behavior = "") const;
 
 private:
-    std::map<std::pair<int, int>, std::string> conditions_;
-    std::map<std::pair<int, int>, std::string> actions_;
+    // (plugin, ace, behavior) -> name; behavior is empty for unscoped entries.
+    using Key = std::tuple<int, int, std::string>;
+    std::map<Key, std::string> conditions_;
+    std::map<Key, std::string> actions_;
+    std::string lookup(const std::map<Key, std::string>& table, int plugin, int ace,
+                       const std::string& behavior) const;
 };
 
 // Renders one expression as infix text, parenthesised by precedence.

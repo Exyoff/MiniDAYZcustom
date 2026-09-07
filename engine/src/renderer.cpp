@@ -280,7 +280,8 @@ void Renderer::draw_layout(const Project& project, const Layout& layout, const C
         if (!layout.layer_draws(inst->layer)) continue;
         if (inst->object_type < 0 ||
             inst->object_type >= static_cast<int>(project.object_types.size())) continue;
-        const Frame* f = project.type(inst->object_type).first_frame();
+        const Frame* f = project.type(inst->object_type)
+                             .frame_for(inst->animation, inst->frame);
         if (!f) continue;
         auto it = textures_.find(f->image);
         if (it == textures_.end()) continue;

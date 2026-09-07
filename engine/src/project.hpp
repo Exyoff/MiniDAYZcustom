@@ -149,12 +149,32 @@ struct ObjectType {
         if (animations.empty() || animations[0].frames.empty()) return nullptr;
         return &animations[0].frames[0];
     }
+
+    // The frame an instance actually shows: named animation if it resolves,
+    // otherwise the first, with the index clamped into range.
+    const Frame* frame_for(const std::string& anim_name, int index) const {
+        const Animation* anim = nullptr;
+        if (!anim_name.empty())
+            for (const Animation& a : animations)
+                if (a.name == anim_name) { anim = &a; break; }
+        if (!anim && !animations.empty()) anim = &animations[0];
+        if (!anim || anim->frames.empty()) return nullptr;
+        if (index < 0) index = 0;
+        if (index >= static_cast<int>(anim->frames.size()))
+            index = static_cast<int>(anim->frames.size()) - 1;
+        return &anim->frames[static_cast<size_t>(index)];
+    }
 };
 
 struct Instance {
     int uid = -1;
     int object_type = -1;
     int layer = 0;                  // draw order within the layout
+    // Instances pick their own starting animation frame. Drawing frame 0 for
+    // everything is wrong and very visible: the obstacle helper types keep a
+    // flat colour on frame 0 and their real artwork on later frames.
+    std::string animation;
+    int frame = 0;
     double x = 0.0, y = 0.0;
     double width = 0.0, height = 0.0;
     double angle = 0.0;
