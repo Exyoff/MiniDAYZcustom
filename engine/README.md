@@ -46,6 +46,13 @@ The dump is generated, not checked in -- it takes about a second to rebuild.
 It writes one file per event sheet plus `object_index.txt`, which maps every
 minified `tN` to its reconstructed name.
 
+## Differential testing
+
+`docs/differential.md` records what comparing state against the original
+runtime has found, including one wrong answer that full coverage reported as
+fine. Best result so far: 386/401 variables matching after booting the same
+layout chain.
+
 ## Reference capture
 
 `tools/` runs the original browser build in headless Chromium and captures what
