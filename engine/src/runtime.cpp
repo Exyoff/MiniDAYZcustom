@@ -56,9 +56,71 @@ Runtime::Runtime(const Project& project, const AceNames& names)
 // State
 // ---------------------------------------------------------------------------
 
+// Indexes every OnFunction trigger across all sheets. In this project all 275
+// of them are the first condition of their event, so the name is unambiguous.
+void Runtime::index_functions() {
+    functions_.clear();
+    std::function<void(const EventBlock&)> visit = [&](const EventBlock& b) {
+        if (!b.conditions.empty()) {
+            const Condition& c = b.conditions.front();
+            if (c.object_type >= 0 &&
+                names_.condition(project_.type(c.object_type).plugin, c.ace, c.behavior) == "OnFunction" &&
+                !c.params.empty()) {
+                functions_[c.params[0].value.text].push_back(&b);
+            }
+        }
+        for (const EventBlock& s : b.subevents) visit(s);
+    };
+    for (const EventSheet& s : project_.sheets)
+        for (const EventBlock& b : s.blocks) visit(b);
+}
+
+Value Runtime::call_function(const std::string& name, std::vector<Value> args) {
+    auto it = functions_.find(name);
+    if (it == functions_.end()) return Value(0.0);
+    // Recursion is legitimate here, so bound the depth rather than forbid it.
+    if (frames_.size() > 32) return Value(0.0);
+
+    frames_.push_back(CallFrame{std::move(args), Value(0.0)});
+    RunnerHooks hooks = make_hooks();
+    EventRunner runner(engine_, hooks);
+    runner.run_triggers = true;          // the body IS a trigger block
+    for (const EventBlock* b : it->second) {
+        engine_.push_scope();
+        runner.run_block(*b, 0);
+        engine_.pop_scope();
+    }
+    const Value ret = frames_.back().ret;
+    frames_.pop_back();
+    return ret;
+}
+
+int Runtime::create_instance(int object_type, double x, double y, int layer) {
+    if (object_type < 0 || object_type >= static_cast<int>(project_.object_types.size()))
+        return -1;
+    const ObjectType& t = project_.type(object_type);
+    if (t.is_family) return -1;          // families hold no instances of their own
+    Instance inst;
+    inst.object_type = object_type;
+    inst.uid = next_uid_++;
+    inst.x = x;
+    inst.y = y;
+    inst.layer = layer;
+    inst.vars.assign(static_cast<size_t>(t.instance_var_count), 0.0);
+    if (const Frame* f = t.first_frame()) {
+        inst.width = f->w;
+        inst.height = f->h;
+    }
+    const int index = engine_.add_instance(inst);
+    engine_.pick_single(object_type, index);   // C2 picks what it just created
+    return index;
+}
+
 void Runtime::load_layout(const Layout& layout) {
     layout_ = &layout;
     engine_.load_layout(layout);
+    for (const Instance& i : engine_.instances) next_uid_ = std::max(next_uid_, i.uid + 1);
+    index_functions();
 
     // Seed variables from every sheet: an event sheet can read variables that
     // another sheet declares, because sheets include one another.
@@ -280,6 +342,38 @@ RunnerHooks Runtime::make_hooks() {
     return hooks;
 }
 
+bool Runtime::every_seconds(long long sid, double interval) {
+    if (interval <= 0.0) return true;
+    double& acc = accumulators_[sid];
+    acc += dt_;
+    if (acc < interval) return false;
+    // Subtract rather than zero, so long intervals do not drift.
+    acc -= interval;
+    return true;
+}
+
+// Timer state lives on the instance, keyed by behavior and tag so two
+// behaviors on one instance keep separate timers. A timer that elapses sets a
+// "fired" flag that OnTimer consumes during this tick.
+void Runtime::update_timers(double dt) {
+    for (Instance& inst : engine_.instances) {
+        if (inst.destroyed || inst.behavior_state.empty()) continue;
+        std::vector<std::pair<std::string, double>> fires;
+        for (auto& kv : inst.behavior_state) {
+            const std::string& key = kv.first;
+            if (key.size() < 9 || key.compare(key.size() - 9, 9, ".duration") != 0) continue;
+            const std::string base = key.substr(0, key.size() - 9);
+            double& elapsed = inst.behavior_state[base + ".elapsed"];
+            elapsed += dt;
+            if (kv.second > 0.0 && elapsed >= kv.second) {
+                elapsed -= kv.second;
+                fires.emplace_back(base, 1.0);
+            }
+        }
+        for (auto& f : fires) inst.behavior_state[f.first + ".fired"] = f.second;
+    }
+}
+
 bool Runtime::trigger_once(long long sid) {
     const bool was = fired_.count(sid) != 0;
     fired_.insert(sid);
@@ -289,6 +383,12 @@ bool Runtime::trigger_once(long long sid) {
 void Runtime::tick(double dt_seconds) {
     dt_ = dt_seconds;
     time_ += dt_seconds;
+    // Clear last tick's timer flags, then advance.
+    for (Instance& inst : engine_.instances)
+        for (auto& kv : inst.behavior_state)
+            if (kv.first.size() > 6 && kv.first.compare(kv.first.size() - 6, 6, ".fired") == 0)
+                kv.second = 0.0;
+    update_timers(dt_seconds);
     if (!sheet_) return;
     RunnerHooks hooks = make_hooks();
     EventRunner runner(engine_, hooks);
@@ -442,6 +542,105 @@ void Runtime::register_builtins() {
     // gone false, so identity has to be per call site -- hence the SID.
     register_condition("TriggerOnce", [](Runtime& rt, const Condition& c, const Instance*) {
         return rt.trigger_once(c.sid);
+    });
+
+    register_condition("EveryXSeconds", [](Runtime& rt, const Condition& c, const Instance*) {
+        return rt.every_seconds(c.sid, rt.param(c, 0, nullptr).as_number());
+    });
+
+    // --- Timers ------------------------------------------------------------
+    register_action("StartTimer", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const double duration = rt.param(a, 0, nullptr).as_number();
+        const std::string tag = rt.param(a, 2, nullptr).as_text();
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            const std::string base = a.behavior + ".timer." + tag;
+            inst->behavior_state[base + ".duration"] = duration;
+            inst->behavior_state[base + ".elapsed"] = 0.0;
+        }
+    });
+    register_action("StopTimer", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const std::string tag = rt.param(a, 0, nullptr).as_text();
+        for (int i : picked) {
+            Instance* inst = rt.instance(i);
+            if (!inst) continue;
+            inst->behavior_state.erase(a.behavior + ".timer." + tag + ".duration");
+        }
+    });
+    register_condition("OnTimer", [](Runtime& rt, const Condition& c, const Instance* self) {
+        if (!self) return false;
+        const std::string tag = rt.param(c, 0, self).as_text();
+        auto it = self->behavior_state.find(c.behavior + ".timer." + tag + ".fired");
+        return it != self->behavior_state.end() && it->second != 0.0;
+    });
+
+    // --- Behavior properties ------------------------------------------------
+    // These all write one named value into the instance's behavior state. The
+    // behavior name comes from the ACE itself, so a single implementation
+    // serves every behavior that exposes the property -- including the mod
+    // authors' own (b_warn, attack, Run, MainLook, z_walker).
+    auto behavior_setter = [this](const char* ace_name, const char* property) {
+        const std::string prop = property;
+        register_action(ace_name, [prop](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+            const double v = rt.param(a, 0, nullptr).as_number();
+            for (int i : picked)
+                if (Instance* inst = rt.instance(i))
+                    inst->behavior_state[a.behavior + "." + prop] = v;
+        });
+    };
+    behavior_setter("SetSpeed", "speed");
+    behavior_setter("SetMaxSpeed", "maxspeed");
+    behavior_setter("SetAcceleration", "acc");
+    behavior_setter("SetDeceleration", "dec");
+    behavior_setter("SetRange", "range");
+    behavior_setter("SetConeOfView", "cone");
+    behavior_setter("SetEnabled", "enabled");
+    behavior_setter("SetSteerSpeed", "steerSpeed");
+    behavior_setter("SetProjectileSpeed", "projectileSpeed");
+    behavior_setter("SetAngleOfMotion", "angleOfMotion");
+
+    // --- Functions ---------------------------------------------------------
+    register_action("CallFunction", [](Runtime& rt, const Action& a, const std::vector<int>&) {
+        if (a.params.empty()) return;
+        const std::string name = rt.param(a, 0, nullptr).as_text();
+        std::vector<Value> args;
+        for (size_t i = 1; i < a.params.size(); ++i) args.push_back(rt.param(a, i, nullptr));
+        rt.call_function(name, std::move(args));
+    });
+    register_action("SetReturnValue", [](Runtime& rt, const Action& a, const std::vector<int>&) {
+        if (Runtime::CallFrame* f = rt.current_frame()) f->ret = rt.param(a, 0, nullptr);
+    });
+    // The body of a function only ever runs via call_function, which enables
+    // triggers; reaching it any other way means it should not fire.
+    register_condition("OnFunction", [](Runtime& rt, const Condition&, const Instance*) {
+        return rt.current_frame() != nullptr;
+    });
+    register_condition("CompareParam", [](Runtime& rt, const Condition& c, const Instance*) {
+        const Runtime::CallFrame* f = rt.current_frame();
+        if (!f) return false;
+        const size_t i = static_cast<size_t>(rt.param(c, 0, nullptr).as_number());
+        const Value v = i < f->args.size() ? f->args[i] : Value(0.0);
+        return compare_with(param_int(c.params, 1), v, rt.param(c, 2, nullptr));
+    });
+
+    // --- Creation ----------------------------------------------------------
+    register_action("CreateObject", [](Runtime& rt, const Action& a, const std::vector<int>&) {
+        const int t = object_param(a.params);
+        if (t < 0) return;
+        rt.create_instance(t, rt.param(a, 2, nullptr).as_number(),
+                              rt.param(a, 3, nullptr).as_number(), 0);
+    });
+    // Spawns at the spawning instance's position. The real action places the
+    // new object at an image point, which needs the frame's point table.
+    register_action("SpawnObject", [](Runtime& rt, const Action& a, const std::vector<int>& picked) {
+        const int t = object_param(a.params);
+        if (t < 0) return;
+        if (picked.empty()) { rt.create_instance(t, 0, 0, 0); return; }
+        for (int i : picked) {
+            const Instance* src = rt.instance(i);
+            if (src) rt.create_instance(t, src->x, src->y, src->layer);
+        }
     });
 
     // --- System actions ----------------------------------------------------
@@ -667,6 +866,17 @@ void Runtime::register_expression_builtins() {
     });
     register_expression("ImagePointY", [](Runtime&, const Expr&, const Instance* s) {
         return Value(s ? s->y : 0.0);
+    });
+
+    register_expression("Param", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        const Runtime::CallFrame* f = rt.current_frame();
+        if (!f) return Value(0.0);
+        const size_t i = static_cast<size_t>(arg(rt, e, 0, s).as_number());
+        return i < f->args.size() ? f->args[i] : Value(0.0);
+    });
+    register_expression("ReturnValue", [](Runtime& rt, const Expr&, const Instance*) {
+        const Runtime::CallFrame* f = rt.current_frame();
+        return f ? f->ret : Value(0.0);
     });
 
     register_expression("NewLine", [](Runtime&, const Expr&, const Instance*) {

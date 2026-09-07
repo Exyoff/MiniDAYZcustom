@@ -80,8 +80,29 @@ public:
     // asks, identified by its SID.
     bool trigger_once(long long sid);
 
+    // "Every X seconds" accumulates per call site, so it needs the SID too.
+    bool every_seconds(long long sid, double interval);
+
     // Whether the event immediately before this one, at the same level, passed.
     bool last_sibling_passed() const { return last_sibling_passed_; }
+
+    // --- functions ---------------------------------------------------------
+    // A function call runs the events under the matching OnFunction trigger.
+    // Those events are triggers, so the normal top-down pass skips them; they
+    // execute only from here. Calls nest, so parameters and the return value
+    // live on a stack rather than in one slot.
+    // Named CallFrame, not Frame: Frame is already an animation frame, and a
+    // nested type of that name shadows it inside every member function here.
+    struct CallFrame {
+        std::vector<Value> args;
+        Value ret;
+    };
+    Value call_function(const std::string& name, std::vector<Value> args);
+    const CallFrame* current_frame() const { return frames_.empty() ? nullptr : &frames_.back(); }
+    CallFrame* current_frame() { return frames_.empty() ? nullptr : &frames_.back(); }
+
+    // Creates an instance at runtime and picks it, as CreateObject does.
+    int create_instance(int object_type, double x, double y, int layer);
 
     struct Stats {
         size_t conditions_run = 0, actions_run = 0;
@@ -111,11 +132,20 @@ private:
     std::unordered_map<std::string, ActionFn> actions_;
     std::unordered_map<std::string, ExpressionFn> expressions_;
 
+    // Function name -> the events under its OnFunction trigger.
+    std::unordered_map<std::string, std::vector<const EventBlock*>> functions_;
+    std::vector<CallFrame> frames_;
+    int next_uid_ = 1;
+
     std::unordered_set<long long> fired_;
+    std::unordered_map<long long, double> accumulators_;
     bool last_sibling_passed_ = false;
     double time_ = 0.0, dt_ = 0.0;
     mutable Stats stats_;
 
+    void index_functions();
+    // Advances behavior timers and records which fired this tick.
+    void update_timers(double dt);
     void register_builtins();
     void register_expression_builtins();
     // Resolves a call node to its name, then to a handler.
