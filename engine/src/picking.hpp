@@ -51,6 +51,11 @@ public:
     int add_instance(const Instance& inst);   // returns the instance index
     void load_layout(const Layout& layout);
 
+    // Drops every instance and resets all selection state, as if freshly
+    // constructed. Used when changing layout: instances do not survive, but
+    // the engine holds a reference to the project so it cannot be reassigned.
+    void clear();
+
     std::vector<Instance> instances;
 
     // Instances of a concrete type, or of every member of a family.

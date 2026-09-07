@@ -1,6 +1,8 @@
 #include "runtime.hpp"
 
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 namespace mdz {
 namespace {
@@ -60,7 +62,9 @@ Runtime::Runtime(const Project& project, const AceNames& names)
 // of them are the first condition of their event, so the name is unambiguous.
 void Runtime::index_functions() {
     functions_.clear();
+    const EventSheet* current_sheet = nullptr;
     std::function<void(const EventBlock&)> visit = [&](const EventBlock& b) {
+        block_sheet_[&b] = current_sheet;
         if (!b.conditions.empty()) {
             const Condition& c = b.conditions.front();
             if (c.object_type >= 0 &&
@@ -73,30 +77,78 @@ void Runtime::index_functions() {
         // can be dispatched by name.
         if (!b.conditions.empty()) {
             const Condition& c0 = b.conditions.front();
-            if (c0.trigger_mode != 0 && c0.object_type >= 0) {
-                const std::string n = names_.condition(project_.type(c0.object_type).plugin,
-                                                       c0.ace, c0.behavior);
+            if (c0.trigger_mode != 0) {
+                const int pl = c0.object_type < 0 ? -1 : project_.type(c0.object_type).plugin;
+                const std::string n = names_.condition(pl, c0.ace, c0.behavior);
                 if (!n.empty()) triggers_[n].push_back(&b);
+                triggers_by_ace_[std::to_string(pl) + ":" + std::to_string(c0.ace)].push_back(&b);
+                // A System trigger with no parameters and nothing else gating
+                // the block is a layout-lifecycle trigger.
+                if (pl == -1 && c0.params.empty()) start_of_layout_aces_.insert(c0.ace);
             }
         }
         for (const EventBlock& s : b.subevents) visit(s);
     };
     triggers_.clear();
-    for (const EventSheet& s : project_.sheets)
+    triggers_by_ace_.clear();
+    start_of_layout_aces_.clear();
+    block_sheet_.clear();
+    for (const EventSheet& s : project_.sheets) {
+        current_sheet = &s;
         for (const EventBlock& b : s.blocks) visit(b);
+    }
 }
+
+// A layout runs its own sheet plus everything that sheet includes, transitively.
+void Runtime::compute_active_sheets(const Layout& layout) {
+    active_sheets_.clear();
+    std::vector<std::string> pending{layout.event_sheet};
+    while (!pending.empty()) {
+        const std::string name = pending.back();
+        pending.pop_back();
+        for (const EventSheet& s : project_.sheets) {
+            if (s.name != name || active_sheets_.count(&s)) continue;
+            active_sheets_.insert(&s);
+            for (const std::string& inc : s.includes) pending.push_back(inc);
+        }
+    }
+}
+
+bool Runtime::block_is_active(const EventBlock* b) const {
+    auto it = block_sheet_.find(b);
+    if (it == block_sheet_.end() || it->second == nullptr) return true;
+    return active_sheets_.count(it->second) != 0;
+}
+
+namespace {
+void run_trigger_blocks(PickingEngine& engine, RunnerHooks hooks,
+                        const std::vector<const EventBlock*>& blocks) {
+    EventRunner runner(engine, hooks);
+    runner.run_triggers = true;
+    for (const EventBlock* b : blocks) {
+        engine.reset_all();
+        runner.run_block(*b, 0);
+    }
+}
+}  // namespace
 
 void Runtime::fire_trigger(const std::string& ace_name) {
     auto it = triggers_.find(ace_name);
     if (it == triggers_.end()) return;
-    RunnerHooks hooks = make_hooks();
-    EventRunner runner(engine_, hooks);
-    runner.run_triggers = true;
-    for (const EventBlock* b : it->second) {
-        engine_.reset_all();
-        runner.run_block(*b, 0);
-    }
+    std::vector<const EventBlock*> live;
+    for (const EventBlock* b : it->second) if (block_is_active(b)) live.push_back(b);
+    run_trigger_blocks(engine_, make_hooks(), live);
 }
+
+void Runtime::fire_trigger_by_ace(int plugin, int ace) {
+    auto it = triggers_by_ace_.find(std::to_string(plugin) + ":" + std::to_string(ace));
+    if (it == triggers_by_ace_.end()) return;
+    std::vector<const EventBlock*> live;
+    for (const EventBlock* b : it->second) if (block_is_active(b)) live.push_back(b);
+    run_trigger_blocks(engine_, make_hooks(), live);
+}
+
+void Runtime::request_layout(const std::string& name) { pending_layout_ = name; }
 
 bool Runtime::pointer_over(int object_type) const {
     if (object_type < 0) return false;
@@ -120,6 +172,7 @@ Value Runtime::call_function(const std::string& name, std::vector<Value> args) {
     EventRunner runner(engine_, hooks);
     runner.run_triggers = true;          // the body IS a trigger block
     for (const EventBlock* b : it->second) {
+        if (!block_is_active(b)) continue;
         engine_.push_scope();
         runner.run_block(*b, 0);
         engine_.pop_scope();
@@ -151,6 +204,17 @@ int Runtime::create_instance(int object_type, double x, double y, int layer) {
 }
 
 void Runtime::load_layout(const Layout& layout) {
+    // Variables are seeded once, from every sheet, and then persist across
+    // layout changes.
+    for (const EventSheet& s : project_.sheets)
+        for (const EventVariable& v : s.variables)
+            if (!variables_.count(v.name))
+                variables_[v.name] = v.is_text ? Value(v.initial_text) : Value(v.initial_number);
+    index_functions();
+    load_layout_instances(layout);
+}
+
+void Runtime::load_layout_instances(const Layout& layout) {
     layout_ = &layout;
     engine_.load_layout(layout);
 
@@ -179,16 +243,33 @@ void Runtime::load_layout(const Layout& layout) {
     }
     for (const Instance& i : engine_.instances) next_uid_ = std::max(next_uid_, i.uid + 1);
     for (Instance& i : engine_.instances) if (i.uid < 0) i.uid = next_uid_++;
-    index_functions();
-
-    // Seed variables from every sheet: an event sheet can read variables that
-    // another sheet declares, because sheets include one another.
-    for (const EventSheet& s : project_.sheets) {
-        for (const EventVariable& v : s.variables) {
-            variables_[v.name] = v.is_text ? Value(v.initial_text) : Value(v.initial_number);
-        }
+    // Variables are seeded once in load_layout and must NOT be re-seeded here:
+    // they persist across layout changes, as they do in the original.
+    sheet_ = nullptr;
+    for (const EventSheet& s : project_.sheets)
         if (s.name == layout.event_sheet) sheet_ = &s;
+    compute_active_sheets(layout);
+
+    // Fire the System triggers that take no parameters. Construct 2 has
+    // several that fire at or just after layout start (start of layout, loader
+    // layout complete, and so on) and the name table cannot tell them apart:
+    // 27 distinct triggers share one trivial "return true" body, so they
+    // collapsed to a single name. Their blocks are otherwise unreachable,
+    // because the normal pass skips triggers -- which is why the Loading sheet
+    // never reached its GoToLayout.
+    //
+    // Firing all of them is a deliberate over-approximation, checked against
+    // the original runtime by the differential test rather than assumed.
+    if (std::getenv("MDZ_DEBUG_TRIGGERS")) {
+        std::fprintf(stderr, "[layout %s] lifecycle triggers:", layout.name.c_str());
+        for (int ace : start_of_layout_aces_) {
+            auto it = triggers_by_ace_.find("-1:" + std::to_string(ace));
+            std::fprintf(stderr, " #%d(%zu)", ace,
+                         it == triggers_by_ace_.end() ? size_t(0) : it->second.size());
+        }
+        std::fprintf(stderr, "\n");
     }
+    for (int ace : start_of_layout_aces_) fire_trigger_by_ace(-1, ace);
 }
 
 Value Runtime::get_variable(const std::string& name) const {
@@ -525,6 +606,23 @@ void Runtime::tick(double dt_seconds) {
     input.pressed = false;
     input.released = false;
     input.keys_pressed.clear();
+
+    // Apply any layout change the events asked for, now that the tick is over.
+    if (!pending_layout_.empty()) {
+        const std::string want = pending_layout_;
+        pending_layout_.clear();
+        for (const Layout& l : project_.layouts) {
+            if (l.name != want) continue;
+            // Globals persist; instances and per-instance state do not.
+            engine_.clear();
+            dictionaries_.clear();
+            overlaps_prev_.clear();
+            overlaps_new_.clear();
+            collision_done_.clear();
+            load_layout_instances(l);
+            break;
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -951,6 +1049,14 @@ void Runtime::register_builtins() {
         const size_t i = static_cast<size_t>(rt.param(c, 0, nullptr).as_number());
         const Value v = i < f->args.size() ? f->args[i] : Value(0.0);
         return compare_with(param_int(c.params, 1), v, rt.param(c, 2, nullptr));
+    });
+
+    register_action("GoToLayout", [](Runtime& rt, const Action& a, const std::vector<int>&) {
+        if (a.params.empty()) return;
+        rt.request_layout(a.params[0].value.text);
+    });
+    register_action("RestartLayout", [](Runtime& rt, const Action&, const std::vector<int>&) {
+        if (rt.layout()) rt.request_layout(rt.layout()->name);
     });
 
     register_action("SetGroupActive", [](Runtime& rt, const Action& a, const std::vector<int>&) {

@@ -37,6 +37,13 @@ public:
     // Runs one frame of the layout's event sheet.
     void tick(double dt_seconds);
 
+    // Requests a layout change. The switch is deferred to the end of the tick:
+    // applying it mid-run would pull instances out from under the event that
+    // asked for it. Global variables persist across layouts, as they do in the
+    // original; instances do not.
+    void request_layout(const std::string& name);
+    const std::string& pending_layout() const { return pending_layout_; }
+
     // --- state -------------------------------------------------------------
     PickingEngine& engine() { return engine_; }
     const PickingEngine& engine() const { return engine_; }
@@ -132,6 +139,7 @@ public:
     // rather than by letting every trigger run in the normal pass -- that
     // would change semantics for triggers that are not self-gating.
     void fire_trigger(const std::string& ace_name);
+    void fire_trigger_by_ace(int plugin, int ace);
 
     // True when the pointer is over any live instance of `object_type`.
     bool pointer_over(int object_type) const;
@@ -182,6 +190,19 @@ private:
     std::unordered_map<std::string, std::vector<const EventBlock*>> functions_;
     // ACE name of a block's first condition -> those blocks, for trigger dispatch.
     std::unordered_map<std::string, std::vector<const EventBlock*>> triggers_;
+    // Also indexed by "plugin:ace", because several distinct triggers share the
+    // single trivial "return true" body and therefore share one name.
+    std::unordered_map<std::string, std::vector<const EventBlock*>> triggers_by_ace_;
+    std::string pending_layout_;
+    std::set<int> start_of_layout_aces_;
+    // Blocks belong to a sheet, and only the current layout's sheet and the
+    // sheets it includes may run. Without this a trigger from another layout's
+    // sheet fires anyway -- the Loading sheet kept sending the game back to
+    // Menu on every tick.
+    std::unordered_map<const EventBlock*, const EventSheet*> block_sheet_;
+    std::set<const EventSheet*> active_sheets_;
+    void compute_active_sheets(const Layout& layout);
+    bool block_is_active(const EventBlock* b) const;
     std::vector<CallFrame> frames_;
     int next_uid_ = 1;
 
@@ -203,6 +224,7 @@ private:
     mutable Stats stats_;
 
     void index_functions();
+    void load_layout_instances(const Layout& layout);
     // Advances behavior timers and records which fired this tick.
     void update_timers(double dt);
     // Pinned instances follow their target each tick, keeping the offset

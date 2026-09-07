@@ -26,6 +26,16 @@ int PickingEngine::add_instance(const Instance& inst) {
     return idx;
 }
 
+void PickingEngine::clear() {
+    instances.clear();
+    for (std::vector<int>& v : by_type_) v.clear();
+    for (std::vector<int>& v : family_cache_) v.clear();
+    for (std::vector<Sol>& stack : sol_stack_) {
+        stack.clear();
+        stack.push_back(Sol{});
+    }
+}
+
 void PickingEngine::load_layout(const Layout& layout) {
     for (const Instance& inst : layout.instances) add_instance(inst);
 }
