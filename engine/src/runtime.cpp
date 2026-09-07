@@ -300,7 +300,12 @@ Value Runtime::call_expression(const Expr& e, const Instance* self) const {
     if (it == expressions_.end()) it = expressions_.find(name);
     if (it == expressions_.end()) {
         ++stats_.unknown_expressions;
-        ++stats_.missing_expressions[name.empty() ? "<unnamed>" : name];
+        // Identify unnamed ones by their key, so they can be looked up rather
+        // than all collapsing into one anonymous bucket.
+        ++stats_.missing_expressions[
+            name.empty() ? (std::string("<unnamed ") + kind + " plugin=" +
+                            std::to_string(plugin) + " index=" + std::to_string(e.index) + ">")
+                         : name];
         return Value(0.0);
     }
     // The instance in context, or the first one picked for the referenced type.
@@ -1325,6 +1330,25 @@ void Runtime::register_expression_builtins() {
     register_expression("ReturnValue", [](Runtime& rt, const Expr&, const Instance*) {
         const Runtime::CallFrame* f = rt.current_frame();
         return f ? f->ret : Value(0.0);
+    });
+
+    // Assets are loaded synchronously before the first tick, so loading is
+    // always complete. The original ramps this from 0 to 1 while downloading.
+    register_expression("LoadingProgress", [](Runtime&, const Expr&, const Instance*) {
+        return Value(1.0);
+    });
+    register_expression("Lerp", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        const double a = arg(rt, e, 0, s).as_number();
+        const double b = arg(rt, e, 1, s).as_number();
+        const double t = arg(rt, e, 2, s).as_number();
+        return Value(a + (b - a) * t);
+    });
+    register_expression("At", [arg](Runtime& rt, const Expr& e, const Instance* s) {
+        if (!s) return Value(0.0);
+        const int index = static_cast<int>(s - rt.engine().instances.data());
+        auto& d = rt.dictionary(index);
+        auto it = d.find(arg(rt, e, 0, s).as_text());
+        return it == d.end() ? Value(0.0) : it->second;
     });
 
     register_expression("NewLine", [](Runtime&, const Expr&, const Instance*) {

@@ -68,7 +68,10 @@ def main():
     plug = {o[0]: o[1] for o in proj[3]}
     tname = {i: o[0] for i, o in enumerate(proj[3])}
 
-    by_sid, dupes = {}, set()
+    # SIDs are not unique in this export (~2100 collide), and skipping every
+    # collision leaves real expressions unnamed. Keep all candidates per SID
+    # and disambiguate later by tree shape.
+    by_sid = collections.defaultdict(list)
 
     def walk(blocks):
         for b in blocks:
@@ -78,16 +81,12 @@ def main():
                 nodes = []
                 for p in (c[9] if len(c) == 10 else []):
                     emit(p[1] if isinstance(p, list) and len(p) > 1 else None, nodes, plug, tname)
-                if c[7] in by_sid:
-                    dupes.add(c[7])
-                by_sid[c[7]] = nodes
+                by_sid[c[7]].append(nodes)
             for a in b[6]:
                 nodes = []
                 for p in (a[5] if len(a) == 6 else []):
                     emit(p[1] if isinstance(p, list) and len(p) > 1 else None, nodes, plug, tname)
-                if a[3] in by_sid:
-                    dupes.add(a[3])
-                by_sid[a[3]] = nodes
+                by_sid[a[3]].append(nodes)
             if len(b) > 7 and isinstance(b[7], list):
                 walk(b[7])
 
@@ -98,22 +97,40 @@ def main():
     bodies, rows = doc["bodies"], doc["rows"]
 
     table = collections.defaultdict(collections.Counter)
-    joined = skipped = len_mismatch = type_mismatch = paired = 0
+    joined = skipped = len_mismatch = type_mismatch = paired = ambiguous = 0
     for r in rows:
         sid = r["sid"]
-        if sid is None or sid in dupes or sid not in by_sid:
+        rn = r["nodes"]
+        candidates = by_sid.get(sid) if sid is not None else None
+        if not candidates:
             skipped += 1
             continue
-        dn, rn = by_sid[sid], r["nodes"]
+
+        # Keep only candidates whose node-type sequence matches the runtime's.
+        # This is the same self-check that validates the pairing, reused as a
+        # tiebreaker between colliding SIDs.
+        fits = [dn for dn in candidates
+                if len(dn) == len(rn)
+                and not any(d is not None and x["type"] is not None and x["type"] != d
+                            for (d, _), x in zip(dn, rn))]
+        if not fits:
+            if all(len(dn) != len(rn) for dn in candidates):
+                len_mismatch += 1
+            else:
+                type_mismatch += 1
+            continue
+
+        # Several candidates may fit. That is only safe when they agree on the
+        # expression key at every position -- then it does not matter which is
+        # chosen. If they disagree, the SID cannot identify the call site and
+        # the row is dropped rather than guessed.
+        keys = [tuple(k for _, k in dn) for dn in fits]
+        if len(set(keys)) != 1:
+            ambiguous += 1
+            continue
+
         joined += 1
-        if len(dn) != len(rn):
-            len_mismatch += 1
-            continue
-        if any(d is not None and x["type"] is not None and x["type"] != d
-               for (d, _), x in zip(dn, rn)):
-            type_mismatch += 1
-            continue
-        for (dop, dkey), x in zip(dn, rn):
+        for (dop, dkey), x in zip(fits[0], rn):
             if dop is None:
                 continue
             paired += 1
@@ -130,6 +147,7 @@ def main():
 
     print(f"runtime rows {len(rows)}, joined by sid {joined}, skipped {skipped}")
     print(f"  length mismatches {len_mismatch}, type mismatches {type_mismatch}")
+    print(f"  dropped as ambiguous (colliding sids that disagree) {ambiguous}")
     print(f"  nodes paired {paired}")
     print(f"  expression keys {len(out)}, ambiguous {ambiguous}")
     if type_mismatch:

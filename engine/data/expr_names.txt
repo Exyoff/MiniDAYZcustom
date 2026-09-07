@@ -122,3 +122,12 @@ S -1 400 LayerScale
 S -1 409 Right
 S -1 452 Len
 S -1 458 Find
+# The two entries below were NOT extracted from the runtime like the rest --
+# the extractor never saw their call sites. They are inferred from how the
+# decompiled events use them, which is weaker evidence, so they are marked:
+#   465 scales a bar's width to a fraction of a reference width on the loading
+#       screen, so it is a 0..1 progress value.
+#   438 takes (current, current + delta, 0.35) and yields a position, which is
+#       three-argument interpolation with a blend factor.
+S -1 465 LoadingProgress   # [inferred from usage, not extracted]
+S -1 438 Lerp              # [inferred from usage, not extracted]
