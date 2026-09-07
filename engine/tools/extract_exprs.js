@@ -84,14 +84,18 @@ const PATCH = 'var __C2F=f;f=function(a){var o=new __C2F(a);try{window.__c2_rt=o
       let fnId = null;
       try { if (typeof node.Ac === 'function') fnId = bodyId(String(node.Ac)); } catch (e) {}
       out.push({ type: (typeof node.type === 'number' ? node.type : null), fn: fnId });
+      // Children, in the order data.js lists its arguments:
+      //   first, second, then `dq` -- the conditional's third branch, which is
+      //   NOT in `second` and was silently dropped by an earlier version --
+      //   then `ea`, which holds a call's parameter expressions.
+      // `sb` is deliberately excluded: it holds non-node data, and descending
+      // it invented nodes that do not exist in data.js.
       const kids = [];
       if (node.first && typeof node.first === 'object') kids.push(node.first);
       if (node.second && typeof node.second === 'object') kids.push(node.second);
-      for (const listKey of ['ea', 'sb']) {
-        const list = node[listKey];
-        if (Array.isArray(list)) for (const p of list) {
-          if (p && typeof p === 'object') kids.push(p.kf && typeof p.kf === 'object' ? p.kf : p);
-        }
+      if (node.dq && typeof node.dq === 'object') kids.push(node.dq);
+      if (Array.isArray(node.ea)) for (const p of node.ea) {
+        if (p && typeof p === 'object') kids.push(p.kf && typeof p.kf === 'object' ? p.kf : p);
       }
       for (const k of kids) emit(k, out);
     };
