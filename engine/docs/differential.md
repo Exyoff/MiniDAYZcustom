@@ -51,6 +51,44 @@ So the fault is in resolving object expressions for that instance, not in the
 viewport. Height returning 0 while X and Y return non-zero values is the thread
 to pull: they should all resolve against the same instance.
 
+## Open: which lifecycle triggers fire, and a tension worth not resolving yet
+
+Chasing `Loader_city_Height` located the mechanism but not a fix. Only one
+t661 instance exists at runtime in this engine, created rather than loaded:
+position (512,288), size 6144x0. The layout's own instance -- (2073,-1058),
+6953x304 -- has been destroyed. The browser reports 304, which is precisely
+that layout instance's height, so the original still has it.
+
+The type's image is 711x300, not 304 wide-by-tall, so the browser is not
+reading a default size off the texture either. It is reading the surviving
+layout instance.
+
+Destruction is caused by firing System trigger 39 at layout start. But 39
+cannot simply be dropped:
+
+| Lifecycle triggers fired | Overall match | Loader_city_Height |
+|--------------------------|---------------|--------------------|
+| 39 only                  | 381/401 (95.0%) | 0 |
+| 462 only                 | 375/401 (93.5%) | 304 (correct) |
+| 39 and 462               | 386/401 (96.3%) | 0 |
+| all five                 | 386/401 (96.3%) | 0 |
+
+Firing 462 alone gets the variable under investigation exactly right and is six
+variables worse overall. The default stays at all five, because tuning the
+trigger set to fix whichever variable is currently being chased is overfitting
+to the oracle rather than converging on the original's behaviour.
+
+What this actually says is that firing all no-parameter System triggers at
+layout start is too blunt: the original distinguishes them, and something inside
+39's blocks is gated in the original but not here. That gate is the thing to
+find. `MDZ_LIFECYCLE_ACES` overrides the set for experiments and
+`MDZ_DEBUG_TYPE` lists live instances of one object type.
+
+Also worth recording: non-sprite object types keep their image in slot 6 of the
+type entry, not the slot 7 animation list this engine reads. So plugin-14
+objects currently have neither art nor a default size, and instances created at
+runtime come out 0x0.
+
 ## Known-unmatchable
 
 Session and user identifiers are randomly generated per run and can never

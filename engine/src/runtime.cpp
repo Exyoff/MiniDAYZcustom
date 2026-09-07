@@ -1,6 +1,7 @@
 #include "runtime.hpp"
 
 #include <cctype>
+#include <sstream>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -270,7 +271,18 @@ void Runtime::load_layout_instances(const Layout& layout) {
         }
         std::fprintf(stderr, "\n");
     }
-    for (int ace : start_of_layout_aces_) fire_trigger_by_ace(-1, ace);
+    // Which of these actually fire at layout start is an open question -- see
+    // the comment above. MDZ_LIFECYCLE_ACES overrides the set for experiments.
+    if (const char* only = std::getenv("MDZ_LIFECYCLE_ACES")) {
+        std::string spec(only), token;
+        std::istringstream ss(spec);
+        while (std::getline(ss, token, ',')) {
+            if (token.empty()) continue;
+            fire_trigger_by_ace(-1, std::atoi(token.c_str()));
+        }
+    } else {
+        for (int ace : start_of_layout_aces_) fire_trigger_by_ace(-1, ace);
+    }
 }
 
 Value Runtime::get_variable(const std::string& name) const {

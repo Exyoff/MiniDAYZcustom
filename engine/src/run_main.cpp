@@ -138,6 +138,25 @@ int main(int argc, char** argv) {
             std::printf("wrote %s (%zu variables)\n", dump_path, rt.variables().size());
         }
 
+        // Diagnostic: report every live instance of one object type, by its
+        // exported name. Used to check which instance an expression resolves
+        // against.
+        if (const char* want_type = std::getenv("MDZ_DEBUG_TYPE")) {
+            for (const ObjectType& t : project.object_types) {
+                if (t.name != want_type) continue;
+                std::printf("instances of %s (%s), plugin %d:\n", t.name.c_str(),
+                            t.derived_name.empty() ? "-" : t.derived_name.c_str(), t.plugin);
+                int n = 0;
+                for (const Instance& i : rt.engine().instances) {
+                    if (i.object_type != t.index || i.destroyed) continue;
+                    std::printf("   uid=%-6d pos=(%.0f,%.0f) size=%.0fx%.0f layer=%d\n",
+                                i.uid, i.x, i.y, i.width, i.height, i.layer);
+                    if (++n >= 8) { std::printf("   ...\n"); break; }
+                }
+                if (n == 0) std::printf("   (none)\n");
+            }
+        }
+
         const Runtime::Stats& s = rt.stats();
         std::printf("=== after %d ticks ===\n", ticks);
         std::printf("  conditions evaluated  %zu\n", s.conditions_run);
