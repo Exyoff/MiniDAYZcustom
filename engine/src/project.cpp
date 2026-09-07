@@ -220,21 +220,38 @@ void Project::load_object_types(const JsonDoc& doc, uint32_t node) {
         if (is_arr(doc, sids)) ot.instance_var_count = static_cast<int>(doc.size(sids));
 
         // Slot 7 holds plugin-specific data. For sprites that is the animation
-        // list; the first frame's image path is the best name we can recover.
+        // list: [name, ?, ?, ?, ?, ?, sid, frames[]], where each frame is
+        // [image, filesize, x, y, w, h, ?, hotspot_x, hotspot_y, ...].
         uint32_t plugin_data = doc.child_at(t, 7);
         if (is_arr(doc, plugin_data)) {
-            uint32_t anim0 = doc.child_at(plugin_data, 0);
-            if (is_arr(doc, anim0)) {
-                uint32_t frames = doc.child_at(anim0, 7);
+            for (uint32_t a = doc.at(plugin_data).child; a != kNone; a = doc.at(a).next) {
+                if (!is_arr(doc, a)) continue;
+                Animation anim;
+                uint32_t aname = doc.child_at(a, 0);
+                if (is_str(doc, aname)) anim.name = std::string(doc.text_of(aname));
+
+                uint32_t frames = doc.child_at(a, 7);
                 if (is_arr(doc, frames)) {
-                    uint32_t frame0 = doc.child_at(frames, 0);
-                    if (is_arr(doc, frame0)) {
-                        uint32_t path = doc.child_at(frame0, 0);
-                        if (is_str(doc, path))
-                            ot.derived_name = name_from_image_path(doc.text_of(path));
+                    for (uint32_t f = doc.at(frames).child; f != kNone; f = doc.at(f).next) {
+                        if (!is_arr(doc, f)) continue;
+                        uint32_t path = doc.child_at(f, 0);
+                        if (!is_str(doc, path)) continue;
+                        Frame fr;
+                        fr.image = std::string(doc.text_of(path));
+                        fr.x = doc.as_int(doc.child_at(f, 2));
+                        fr.y = doc.as_int(doc.child_at(f, 3));
+                        fr.w = doc.as_int(doc.child_at(f, 4));
+                        fr.h = doc.as_int(doc.child_at(f, 5));
+                        uint32_t hx = doc.child_at(f, 7), hy = doc.child_at(f, 8);
+                        if (is_num(doc, hx)) fr.hotspot_x = doc.num(hx);
+                        if (is_num(doc, hy)) fr.hotspot_y = doc.num(hy);
+                        anim.frames.push_back(std::move(fr));
                     }
                 }
+                ot.animations.push_back(std::move(anim));
             }
+            const Frame* f0 = ot.first_frame();
+            if (f0) ot.derived_name = name_from_image_path(f0->image);
         }
         object_types.push_back(std::move(ot));
     }
@@ -276,7 +293,18 @@ void Project::load_layouts(const JsonDoc& doc, uint32_t node) {
         uint32_t layers = doc.child_at(l, 6);
         if (!is_arr(doc, layers)) { layouts.push_back(std::move(lay)); continue; }
 
-        for (uint32_t lyr = doc.at(layers).child; lyr != kNone; lyr = doc.at(lyr).next) {
+        int layer_index = 0;
+        for (uint32_t lyr = doc.at(layers).child; lyr != kNone; lyr = doc.at(lyr).next, ++layer_index) {
+            LayerInfo info;
+            uint32_t lname = doc.child_at(lyr, 0);
+            if (is_str(doc, lname)) info.name = std::string(doc.text_of(lname));
+            uint32_t vis = doc.child_at(lyr, 3);
+            if (vis != kNone && doc.at(vis).type == JsonDoc::Type::Bool)
+                info.visible = doc.at(vis).boolean;
+            uint32_t op = doc.child_at(lyr, 6);
+            if (is_num(doc, op)) info.opacity = doc.num(op);
+            lay.layers.push_back(std::move(info));
+
             uint32_t insts = doc.child_at(lyr, 14);
             if (!is_arr(doc, insts)) continue;
             for (uint32_t i = doc.at(insts).child; i != kNone; i = doc.at(i).next) {
@@ -290,6 +318,7 @@ void Project::load_layouts(const JsonDoc& doc, uint32_t node) {
                 inst.angle  = doc.num(doc.child_at(world, 5));
                 inst.object_type = doc.as_int(doc.child_at(i, 1));
                 inst.uid         = doc.as_int(doc.child_at(i, 2));
+                inst.layer       = layer_index;
                 if (inst.object_type >= 0 &&
                     inst.object_type < static_cast<int>(object_types.size())) {
                     inst.vars.assign(static_cast<size_t>(

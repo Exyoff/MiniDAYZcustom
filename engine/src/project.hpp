@@ -118,6 +118,20 @@ struct EventSheet {
 // Object types, families, instances
 // ---------------------------------------------------------------------------
 
+// One frame of a sprite animation. Frames are packed into spritesheets, so a
+// frame is a rect inside `image` rather than a whole file. Verified against the
+// real PNGs: every frame rect fits inside its sheet's dimensions.
+struct Frame {
+    std::string image;              // path relative to the game directory
+    int x = 0, y = 0, w = 0, h = 0; // rect within the spritesheet
+    double hotspot_x = 0.5, hotspot_y = 0.5;  // origin, as a fraction of w/h
+};
+
+struct Animation {
+    std::string name;
+    std::vector<Frame> frames;
+};
+
 struct ObjectType {
     int index = -1;
     std::string name;           // as exported: "t0", "t1", ...
@@ -128,22 +142,48 @@ struct ObjectType {
 
     std::vector<int> family_members;   // set when is_family
     std::vector<int> member_of;        // families this type belongs to
+    std::vector<Animation> animations; // sprites only
+
+    // First frame of the first animation, or nullptr when the type has no art.
+    const Frame* first_frame() const {
+        if (animations.empty() || animations[0].frames.empty()) return nullptr;
+        return &animations[0].frames[0];
+    }
 };
 
 struct Instance {
     int uid = -1;
     int object_type = -1;
+    int layer = 0;                  // draw order within the layout
     double x = 0.0, y = 0.0;
     double width = 0.0, height = 0.0;
     double angle = 0.0;
     std::vector<double> vars;
 };
 
+// Layers carry their own visibility and opacity, and the project leans on both:
+// spawn-marker layers ship with visible=false, and UI layers ship at opacity 0
+// and are faded in by events. Ignoring these draws helper objects that a player
+// never sees.
+struct LayerInfo {
+    std::string name;
+    bool visible = true;
+    double opacity = 1.0;
+};
+
 struct Layout {
     std::string name;
     int width = 0, height = 0;
     std::string event_sheet;
+    std::vector<LayerInfo> layers;
     std::vector<Instance> instances;
+
+    // True when the layer would actually put pixels on screen at layout load.
+    bool layer_draws(int layer) const {
+        if (layer < 0 || layer >= static_cast<int>(layers.size())) return true;
+        return layers[static_cast<size_t>(layer)].visible &&
+               layers[static_cast<size_t>(layer)].opacity > 0.0;
+    }
 };
 
 // ---------------------------------------------------------------------------

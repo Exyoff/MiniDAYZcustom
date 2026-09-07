@@ -19,6 +19,19 @@ add_library(mdz_core
 add_executable(mdz_probe src/main.cpp)
 target_link_libraries(mdz_probe PRIVATE mdz_core)
 
+find_package(PkgConfig)
+pkg_check_modules(SDL2 sdl2)
+pkg_check_modules(SDL2IMAGE SDL2_image)
+find_package(OpenGL)
+
+if(SDL2_FOUND AND SDL2IMAGE_FOUND AND OpenGL_FOUND)
+  add_executable(mdz_view src/render_main.cpp src/renderer.cpp)
+  target_include_directories(mdz_view PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+  target_link_libraries(mdz_view PRIVATE mdz_core ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} OpenGL::GL)
+else()
+  message(STATUS "SDL2/SDL2_image/OpenGL not found -- skipping mdz_view")
+endif()
+
 add_executable(mdz_dump src/dump_main.cpp)
 target_link_libraries(mdz_dump PRIVATE mdz_core)
 
