@@ -101,5 +101,10 @@ The decompiler renders all six sheets, and every call site resolves to a name:
 21435/21436 conditions and 44297/44297 actions. The single holdout is the one
 ACE key whose implementation was not consistent across call sites.
 
-Not started: rendering, the 346 plugin ACE implementations, behaviors, audio,
-save/load.
+Expressions are NOT resolved: they are a third index space that the runtime
+discards the index for, and positional correlation was tried and shown to be
+wrong. `docs/expressions.md` records the evidence and what to try next. Until
+that is solved every object and system expression evaluates to zero, which
+`mdz_run` counts rather than hiding.
+
+Not started: audio, save/load, most behavior state.
