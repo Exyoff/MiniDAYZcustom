@@ -1,0 +1,8 @@
+events/
+objects.txt
+globals.txt
+missing.txt
+__pycache__/
+ref/
+shots/
+*.log

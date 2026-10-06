@@ -1,0 +1,1540 @@
+{
+ "plugins": {
+  "AJAX": {
+   "cnds": {
+    "OnComplete": {
+     "src": "function (tag)\n\t{\n\t\treturn tag.toLowerCase() === this.curTag.toLowerCase();\n\t}",
+     "len": 1
+    },
+    "OnError": {
+     "src": "function (tag)\n\t{\n\t\treturn tag.toLowerCase() === this.curTag.toLowerCase();\n\t}",
+     "len": 1
+    },
+    "OnProgress": {
+     "src": "function (tag)\n\t{\n\t\treturn tag.toLowerCase() === this.curTag.toLowerCase();\n\t}",
+     "len": 1
+    }
+   },
+   "acts": {
+    "Request": {
+     "src": "function (tag_, url_)\n\t{\n\t\tthis.doRequest(tag_, url_, \"GET\");\n\t}",
+     "len": 2
+    },
+    "RequestFile": {
+     "src": "function (tag_, file_)\n\t{\n\t\tthis.doRequest(tag_, file_, \"GET\");\n\t}",
+     "len": 2
+    },
+    "Post": {
+     "src": "function (tag_, url_, data_)\n\t{\n\t\tthis.doRequest(tag_, url_, \"POST\", data_);\n\t}",
+     "len": 3
+    }
+   },
+   "exps": {
+    "LastData": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.lastData);\n\t}",
+     "len": 1
+    },
+    "Progress": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.progress);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Dictionary": {
+   "cnds": {
+    "CompareValue": {
+     "src": "function (key_, cmp_, value_)\n\t{\n\t\treturn cr.do_cmp(this.dictionary[key_], cmp_, value_);\n\t}",
+     "len": 3
+    },
+    "ForEachKey": {
+     "src": "function ()\n\t{\n\t\tvar current_event = this.runtime.getCurrentEventStack().current_event;\n\t\tfor (var p in this.dictionary)\n\t\t{\n\t\t\tif (this.dictionary.hasOwnProperty(p))\n\t\t\t{\n\t\t\t\tthis.cur_key = p;\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\tthis.cur_key = \"\";\n\t\treturn false;\n\t}",
+     "len": 0
+    },
+    "CompareCurrentValue": {
+     "src": "function (cmp_, value_)\n\t{\n\t\treturn cr.do_cmp(this.dictionary[this.cur_key], cmp_, value_);\n\t}",
+     "len": 2
+    },
+    "HasKey": {
+     "src": "function (key_)\n\t{\n\t\treturn this.dictionary.hasOwnProperty(key_);\n\t}",
+     "len": 1
+    },
+    "IsEmpty": {
+     "src": "function ()\n\t{\n\t\treturn this.key_count === 0;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "AddKey": {
+     "src": "function (key_, value_)\n\t{\n\t\tif (!this.dictionary.hasOwnProperty(key_))\n\t\t\tthis.key_count++;\n\t\tthis.dictionary[key_] = value_;\n\t}",
+     "len": 2
+    },
+    "SetKey": {
+     "src": "function (key_, value_)\n\t{\n\t\tif (this.dictionary.hasOwnProperty(key_))\n\t\t\tthis.dictionary[key_] = value_;\n\t}",
+     "len": 2
+    },
+    "DeleteKey": {
+     "src": "function (key_)\n\t{\n\t\tif (this.dictionary.hasOwnProperty(key_))\n\t\t{\n\t\t\tdelete this.dictionary[key_];\n\t\t\tthis.key_count--;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "Clear": {
+     "src": "function ()\n\t{\n\t\tcr.wipe(this.dictionary);\t\t// avoid garbaging\n\t\tthis.key_count = 0;\n\t}",
+     "len": 0
+    },
+    "JSONLoad": {
+     "src": "function (json_)\n\t{\n\t\tvar o;\n\t\ttry {\n\t\t\to = JSON.parse(json_);\n\t\t}\n\t\tcatch(e) { return; }\n\t\tif (!o[\"c2dictionary\"])\t\t// presumably not a c2dictionary object\n\t\t\treturn;\n\t\tthis.dictionary = o[\"data\"];\n\t\tthis.key_count = 0;\n\t\tfor (var p in this.dictionary)\n\t\t{\n\t\t\tif (this.dictionary.hasOwnProperty(p))\n\t\t\t\tthis.key_count++;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "JSONDownload": {
+     "src": "function (filename)\n\t{\n\t\tvar a = document.createElement(\"a\");\n\t\tif (typeof a.download === \"undefined\")\n\t\t{\n\t\t\tvar str = 'data:text/html,' + encodeURIComponent(\"<p><a download='data.json' href=\\\"data:application/json,\"\n\t\t\t\t+ encodeURIComponent(JSON.stringify({\n\t\t\t\t\t\t\"c2dictionary\": true,\n\t\t\t\t\t\t\"data\": this.dictionary\n\t\t\t\t\t}))\n\t\t\t\t+ \"\\\">Download link</a></p>\");\n\t\t\twindow.open(str);\n\t\t}\n\t\telse\n\t\t{\n\t\t\tvar body = document.getElementsByTagName(\"body\")[0];\n\t\t\ta.textContent = filename;\n\t\t\ta.href = \"data:application/json,\" + encodeURIComponent(JSON.stringify({\n\t\t\t\t\t\t\"c2dictionary\": true,\n\t\t\t\t\t\t\"data\": this.dictionary\n\t\t\t\t\t}));\n\t\t\ta.download = filename;\n\t\t\tbody.appendChild(a);\n\t\t\tvar clickEvent = document.createEvent(\"MouseEvent\");\n\t\t\tclickEvent.initMouseEvent(\"click\", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);\n\t\t\ta.dispatchEvent(clickEvent);\n\t\t\tbody.removeChild(a);\n\t\t}\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "Get": {
+     "src": "function (ret, key_)\n\t{\n\t\tif (this.dictionary.hasOwnProperty(key_))\n\t\t\tret.set_any(this.dictionary[key_]);\n\t\telse\n\t\t\tret.set_int(0);\n\t}",
+     "len": 2
+    },
+    "KeyCount": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.key_count);\n\t}",
+     "len": 1
+    },
+    "CurrentKey": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.cur_key);\n\t}",
+     "len": 1
+    },
+    "CurrentValue": {
+     "src": "function (ret)\n\t{\n\t\tif (this.dictionary.hasOwnProperty(this.cur_key))\n\t\t\tret.set_any(this.dictionary[this.cur_key]);\n\t\telse\n\t\t\tret.set_int(0);\n\t}",
+     "len": 1
+    },
+    "AsJSON": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(JSON.stringify({\n\t\t\t\"c2dictionary\": true,\n\t\t\t\"data\": this.dictionary\n\t\t}));\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "List": {
+   "cnds": {
+    "CompareSelection": {
+     "src": "function (cmp_, x_)\n\t{\n\t\treturn cr.do_cmp(this.elem.selectedIndex, cmp_, x_);\n\t}",
+     "len": 2
+    },
+    "OnSelectionChanged": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnClicked": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnDoubleClicked": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Select": {
+     "src": "function (i)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.selectedIndex = i;\n\t}",
+     "len": 1
+    },
+    "SetTooltip": {
+     "src": "function (text)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.title = text;\n\t}",
+     "len": 1
+    },
+    "SetVisible": {
+     "src": "function (vis)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.visible = (vis !== 0);\n\t}",
+     "len": 1
+    },
+    "SetEnabled": {
+     "src": "function (en)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.disabled = (en === 0);\n\t}",
+     "len": 1
+    },
+    "SetFocus": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.focus();\n\t}",
+     "len": 0
+    },
+    "SetBlur": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.blur();\n\t}",
+     "len": 0
+    },
+    "SetCSSStyle": {
+     "src": "function (p, v)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tjQuery(this.elem).css(p, v);\n\t}",
+     "len": 2
+    },
+    "AddItem": {
+     "src": "function (text_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tvar o = document.createElement(\"option\");\n\t\to.text = text_;\n\t\tthis.elem.add(o);\n\t}",
+     "len": 1
+    },
+    "AddItemAt": {
+     "src": "function (index_, text_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tindex_ = Math.floor(index_);\n\t\tif (index_ < 0)\n\t\t\tindex_ = 0;\n\t\tvar o = document.createElement(\"option\");\n\t\to.text = text_;\n\t\tif (index_ >= this.elem.length)\n\t\t\tthis.elem.add(o);\n\t\telse\n\t\t{\n\t\t\tthis.elem.add(o, this.elem.options[index_]);\n\t\t}\n\t}",
+     "len": 2
+    },
+    "Remove": {
+     "src": "function (index_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tindex_ = Math.floor(index_);\n\t\tthis.elem.remove(index_);\n\t}",
+     "len": 1
+    },
+    "SetItemText": {
+     "src": "function (index_, text_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tindex_ = Math.floor(index_);\n\t\tif (index_ < 0 || index_ >= this.elem.length)\n\t\t\treturn;\n\t\tthis.elem.options[index_].text = text_;\n\t}",
+     "len": 2
+    },
+    "Clear": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\twhile (this.elem.length)\n\t\t\tthis.elem.remove(0);\n\t}",
+     "len": 0
+    }
+   },
+   "exps": {
+    "ItemCount": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tret.set_int(this.elem.length);\n\t}",
+     "len": 1
+    },
+    "ItemTextAt": {
+     "src": "function (ret, i)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\ti = Math.floor(i);\n\t\tif (i < 0 || i >= this.elem.length)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tret.set_string(this.elem.options[i].text);\n\t}",
+     "len": 2
+    },
+    "SelectedIndex": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tret.set_int(this.elem.selectedIndex);\n\t}",
+     "len": 1
+    },
+    "SelectedText": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tvar i = this.elem.selectedIndex;\n\t\tif (i < 0 || i >= this.elem.length)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tret.set_string(this.elem.options[i].text);\n\t}",
+     "len": 1
+    },
+    "SelectedCount": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tvar i, len, count = 0;\n\t\tfor (i = 0, len = this.elem.length; i < len; i++)\n\t\t{\n\t\t\tif (this.elem.options[i].selected)\n\t\t\t\tcount++;\n\t\t}\n\t\tret.set_int(count);\n\t}",
+     "len": 1
+    },
+    "SelectedIndexAt": {
+     "src": "function (ret, index_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tindex_ = Math.floor(index_);\n\t\tvar i, len, count = 0, result = 0;\n\t\tfor (i = 0, len = this.elem.length; i < len; i++)\n\t\t{\n\t\t\tif (this.elem.options[i].selected)\n\t\t\t{\n\t\t\t\tif (count === index_)\n\t\t\t\t{\n\t\t\t\t\tresult = i;\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t\tcount++;\n\t\t\t}\n\t\t}\n\t\tret.set_int(result);\n\t}",
+     "len": 2
+    },
+    "SelectedTextAt": {
+     "src": "function (ret, index_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tindex_ = Math.floor(index_);\n\t\tvar i, len, count = 0, result = \"\";\n\t\tfor (i = 0, len = this.elem.length; i < len; i++)\n\t\t{\n\t\t\tif (this.elem.options[i].selected)\n\t\t\t{\n\t\t\t\tif (count === index_)\n\t\t\t\t{\n\t\t\t\t\tresult = this.elem.options[i].text;\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t\tcount++;\n\t\t\t}\n\t\t}\n\t\tret.set_string(result);\n\t}",
+     "len": 2
+    }
+   }
+  },
+  "Sprite": {
+   "cnds": {
+    "OnCollision": {
+     "src": "function (rtype)\n\t{\n\t\tif (!rtype)\n\t\t\treturn false;\n\t\tvar runtime = this.runtime;\n\t\tvar cnd = runtime.getCurrentCondition();\n\t\tvar ltype = cnd.type;\n\t\tif (!cnd.extra.collmemory)\n\t\t{\n\t\t\tcnd.extra.collmemory = [];\n\t\t\truntime.addDestroyCallback((function (collmemory) {\n\t\t\t\treturn function(inst) {\n\t\t\t\t\tcollmemory_removeInstance(collmemory, inst);\n\t\t\t\t};\n\t\t\t})(cnd.extra.collmemory));\n\t\t}\n\t\tvar lsol = ltype.getCurrentSol();\n\t\tvar rsol = rtype.getCurrentSol();\n\t\tvar linstances = lsol.getObjects();\n\t\tvar rinstances = rsol.getObjects();\n\t\tvar l, linst, r, rinst;\n\t\tvar curlsol, currsol;\n\t\tvar current_event = runtime.getCurrentEventStack().current_event;\n\t\tvar orblock = current_event.orblock;\n\t\tfor (l = 0; l < linstances.length; l++)\n\t\t{\n\t\t\tlinst = linstances[l];\n\t\t\tfor (r = 0; r < rinstances.length; r++)\n\t\t\t{\n\t\t\t\trinst = rinstances[r];\n\t\t\t\tif (runtime.testOverlap(linst, rinst) || runtime.checkRegisteredCollision(linst, rinst))\n\t\t\t\t{\n\t\t\t\t\tif (!collmemory_has(cnd.extra.collmemory, linst, rinst))\n\t\t\t\t\t{\n\t\t\t\t\t\tcollmemory_add(cnd.extra.collmemory, linst, rinst);\n\t\t\t\t\t\truntime.pushCopySol(current_event.solModifiers);\n\t\t\t\t\t\tcurlsol = ltype.getCurrentSol();\n\t\t\t\t\t\tcurrsol = rtype.getCurrentSol();\n\t\t\t\t\t\tcurlsol.select_all = false;\n\t\t\t\t\t\tcurrsol.select_all = false;\n\t\t\t\t\t\tif (ltype === rtype)\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\tcurlsol.instances.length = 2;\t// just use lsol, is same reference as rsol\n\t\t\t\t\t\t\tcurlsol.instances[0] = linst;\n\t\t\t\t\t\t\tcurlsol.instances[1] = rinst;\n\t\t\t\t\t\t\tltype.applySolToContainer();\n\t\t\t\t\t\t}\n\t\t\t\t\t\telse\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\tcurlsol.instances.length = 1;\n\t\t\t\t\t\t\tcurrsol.instances.length = 1;\n\t\t\t\t\t\t\tcurlsol.instances[0] = linst;\n\t\t\t\t\t\t\tcurrsol.instances[0] = rinst;\n\t\t\t\t\t\t\tltype.applySolToContainer();\n\t\t\t\t\t\t\trtype.applySolToContainer();\n\t\t\t\t\t\t}\n\t\t\t\t\t\tcurrent_event.retrigger();\n\t\t\t\t\t\truntime.popSol(current_event.solModifiers);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tcollmemory_remove(cnd.extra.collmemory, linst, rinst);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn false;\n\t}",
+     "len": 1
+    },
+    "IsOverlapping": {
+     "src": "function (rtype)\n\t{\n\t\treturn DoOverlapCondition.call(this, rtype, 0, 0);\n\t}",
+     "len": 1
+    },
+    "IsOverlappingOffset": {
+     "src": "function (rtype, offx, offy)\n\t{\n\t\treturn DoOverlapCondition.call(this, rtype, offx, offy);\n\t}",
+     "len": 3
+    },
+    "IsAnimPlaying": {
+     "src": "function (animname)\n\t{\n\t\tif (this.changeAnimName.length)\n\t\t\treturn this.changeAnimName.toLowerCase() === animname.toLowerCase();\n\t\telse\n\t\t\treturn this.cur_animation.name.toLowerCase() === animname.toLowerCase();\n\t}",
+     "len": 1
+    },
+    "CompareFrame": {
+     "src": "function (cmp, framenum)\n\t{\n\t\treturn cr.do_cmp(this.cur_frame, cmp, framenum);\n\t}",
+     "len": 2
+    },
+    "OnAnimFinished": {
+     "src": "function (animname)\n\t{\n\t\treturn this.animTriggerName.toLowerCase() === animname.toLowerCase();\n\t}",
+     "len": 1
+    },
+    "OnAnyAnimFinished": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnFrameChanged": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "IsMirrored": {
+     "src": "function ()\n\t{\n\t\treturn this.width < 0;\n\t}",
+     "len": 0
+    },
+    "IsFlipped": {
+     "src": "function ()\n\t{\n\t\treturn this.height < 0;\n\t}",
+     "len": 0
+    },
+    "OnURLLoaded": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "IsCollisionEnabled": {
+     "src": "function ()\n\t{\n\t\treturn this.collisionsEnabled;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Spawn": {
+     "src": "function (obj, layer, imgpt)\n\t{\n\t\tif (!obj || !layer)\n\t\t\treturn;\n\t\tvar inst = this.runtime.createInstance(obj, layer, this.getImagePoint(imgpt, true), this.getImagePoint(imgpt, false));\n\t\tif (!inst)\n\t\t\treturn;\n\t\tif (typeof inst.angle !== \"undefined\")\n\t\t{\n\t\t\tinst.angle = this.angle;\n\t\t\tinst.set_bbox_changed();\n\t\t}\n\t\tthis.runtime.isInOnDestroy++;\n\t\tvar i, len, s;\n\t\tthis.runtime.trigger(Object.getPrototypeOf(obj.plugin).cnds.OnCreated, inst);\n\t\tif (inst.is_contained)\n\t\t{\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\n\t\t\t{\n\t\t\t\ts = inst.siblings[i];\n\t\t\t\tthis.runtime.trigger(Object.getPrototypeOf(s.type.plugin).cnds.OnCreated, s);\n\t\t\t}\n\t\t}\n\t\tthis.runtime.isInOnDestroy--;\n\t\tvar cur_act = this.runtime.getCurrentAction();\n\t\tvar reset_sol = false;\n\t\tif (cr.is_undefined(cur_act.extra.Spawn_LastExec) || cur_act.extra.Spawn_LastExec < this.runtime.execcount)\n\t\t{\n\t\t\treset_sol = true;\n\t\t\tcur_act.extra.Spawn_LastExec = this.runtime.execcount;\n\t\t}\n\t\tvar sol;\n\t\tif (obj != this.type)\n\t\t{\n\t\t\tsol = obj.getCurrentSol();\n\t\t\tsol.select_all = false;\n\t\t\tif (reset_sol)\n\t\t\t{\n\t\t\t\tsol.instances.length = 1;\n\t\t\t\tsol.instances[0] = inst;\n\t\t\t}\n\t\t\telse\n\t\t\t\tsol.instances.push(inst);\n\t\t\tif (inst.is_contained)\n\t\t\t{\n\t\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\n\t\t\t\t{\n\t\t\t\t\ts = inst.siblings[i];\n\t\t\t\t\tsol = s.type.getCurrentSol();\n\t\t\t\t\tsol.select_all = false;\n\t\t\t\t\tif (reset_sol)\n\t\t\t\t\t{\n\t\t\t\t\t\tsol.instances.length = 1;\n\t\t\t\t\t\tsol.instances[0] = s;\n\t\t\t\t\t}\n\t\t\t\t\telse\n\t\t\t\t\t\tsol.instances.push(s);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}",
+     "len": 3
+    },
+    "SetEffect": {
+     "src": "function (effect)\n\t{\n\t\tthis.compositeOp = cr.effectToCompositeOp(effect);\n\t\tcr.setGLBlend(this, effect, this.runtime.gl);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "StopAnim": {
+     "src": "function ()\n\t{\n\t\tthis.animPlaying = false;\n\t}",
+     "len": 0
+    },
+    "StartAnim": {
+     "src": "function (from)\n\t{\n\t\tthis.animPlaying = true;\n\t\tthis.frameStart = this.getNowTime();\n\t\tif (from === 1 && this.cur_frame !== 0)\n\t\t{\n\t\t\tthis.changeAnimFrame = 0;\n\t\t\tif (!this.inAnimTrigger)\n\t\t\t\tthis.doChangeAnimFrame();\n\t\t}\n\t\tif (!this.isTicking)\n\t\t{\n\t\t\tthis.runtime.tickMe(this);\n\t\t\tthis.isTicking = true;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "SetAnim": {
+     "src": "function (animname, from)\n\t{\n\t\tthis.changeAnimName = animname;\n\t\tthis.changeAnimFrom = from;\n\t\tif (!this.isTicking)\n\t\t{\n\t\t\tthis.runtime.tickMe(this);\n\t\t\tthis.isTicking = true;\n\t\t}\n\t\tif (!this.inAnimTrigger)\n\t\t\tthis.doChangeAnim();\n\t}",
+     "len": 2
+    },
+    "SetAnimFrame": {
+     "src": "function (framenumber)\n\t{\n\t\tthis.changeAnimFrame = framenumber;\n\t\tif (!this.isTicking)\n\t\t{\n\t\t\tthis.runtime.tickMe(this);\n\t\t\tthis.isTicking = true;\n\t\t}\n\t\tif (!this.inAnimTrigger)\n\t\t\tthis.doChangeAnimFrame();\n\t}",
+     "len": 1
+    },
+    "SetAnimSpeed": {
+     "src": "function (s)\n\t{\n\t\tthis.cur_anim_speed = cr.abs(s);\n\t\tthis.animForwards = (s >= 0);\n\t\tif (!this.isTicking)\n\t\t{\n\t\t\tthis.runtime.tickMe(this);\n\t\t\tthis.isTicking = true;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "SetMirrored": {
+     "src": "function (m)\n\t{\n\t\tvar neww = cr.abs(this.width) * (m === 0 ? -1 : 1);\n\t\tif (this.width === neww)\n\t\t\treturn;\n\t\tthis.width = neww;\n\t\tthis.set_bbox_changed();\n\t}",
+     "len": 1
+    },
+    "SetFlipped": {
+     "src": "function (f)\n\t{\n\t\tvar newh = cr.abs(this.height) * (f === 0 ? -1 : 1);\n\t\tif (this.height === newh)\n\t\t\treturn;\n\t\tthis.height = newh;\n\t\tthis.set_bbox_changed();\n\t}",
+     "len": 1
+    },
+    "SetScale": {
+     "src": "function (s)\n\t{\n\t\tvar cur_frame = this.curFrame;\n\t\tvar mirror_factor = (this.width < 0 ? -1 : 1);\n\t\tvar flip_factor = (this.height < 0 ? -1 : 1);\n\t\tvar new_width = cur_frame.width * s * mirror_factor;\n\t\tvar new_height = cur_frame.height * s * flip_factor;\n\t\tif (this.width !== new_width || this.height !== new_height)\n\t\t{\n\t\t\tthis.width = new_width;\n\t\t\tthis.height = new_height;\n\t\t\tthis.set_bbox_changed();\n\t\t}\n\t}",
+     "len": 1
+    },
+    "LoadURL": {
+     "src": "function (url_, resize_)\n\t{\n\t\tvar img = new Image();\n\t\tvar self = this;\n\t\tvar curFrame_ = this.curFrame;\n\t\timg.onload = function ()\n\t\t{\n\t\t\tif (curFrame_.texture_img.src === img.src)\n\t\t\t{\n\t\t\t\tif (self.runtime.glwrap && self.curFrame === curFrame_)\n\t\t\t\t\tself.curWebGLTexture = curFrame_.webGL_texture;\n\t\t\t\tself.runtime.redraw = true;\n\t\t\t\tself.runtime.trigger(cr.plugins_.Sprite.prototype.cnds.OnURLLoaded, self);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tcurFrame_.texture_img = img;\n\t\t\tcurFrame_.offx = 0;\n\t\t\tcurFrame_.offy = 0;\n\t\t\tcurFrame_.width = img.width;\n\t\t\tcurFrame_.height = img.height;\n\t\t\tcurFrame_.spritesheeted = false;\n\t\t\tcurFrame_.datauri = \"\";\n\t\t\tif (self.runtime.glwrap)\n\t\t\t{\n\t\t\t\tif (curFrame_.webGL_texture)\n\t\t\t\t\tself.runtime.glwrap.deleteTexture(curFrame_.webGL_texture);\n\t\t\t\tcurFrame_.webGL_texture = self.runtime.glwrap.loadTexture(img, false, self.runtime.linearSampling);\n\t\t\t\tif (self.curFrame === curFrame_)\n\t\t\t\t\tself.curWebGLTexture = curFrame_.webGL_texture;\n\t\t\t\tself.type.updateAllCurrentTexture();\n\t\t\t}\n\t\t\tif (resize_ === 0)\t\t// resize to image size\n\t\t\t{\n\t\t\t\tself.width = img.width;\n\t\t\t\tself.height = img.height;\n\t\t\t\tself.set_bbox_changed();\n\t\t\t}\n\t\t\tself.runtime.redraw = true;\n\t\t\tself.runtime.trigger(cr.plugins_.Sprite.prototype.cnds.OnURLLoaded, self);\n\t\t};\n\t\tif (url_.substr(0, 5) !== \"data:\")\n\t\t\timg.crossOrigin = 'anonymous';\n\t\timg.src = url_;\n\t}",
+     "len": 2
+    },
+    "SetCollisions": {
+     "src": "function (set_)\n\t{\n\t\tthis.collisionsEnabled = (set_ !== 0);\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "AnimationFrame": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.cur_frame);\n\t}",
+     "len": 1
+    },
+    "AnimationFrameCount": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.cur_animation.frames.length);\n\t}",
+     "len": 1
+    },
+    "AnimationName": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.cur_animation.name);\n\t}",
+     "len": 1
+    },
+    "AnimationSpeed": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.cur_anim_speed);\n\t}",
+     "len": 1
+    },
+    "ImagePointX": {
+     "src": "function (ret, imgpt)\n\t{\n\t\tret.set_float(this.getImagePoint(imgpt, true));\n\t}",
+     "len": 2
+    },
+    "ImagePointY": {
+     "src": "function (ret, imgpt)\n\t{\n\t\tret.set_float(this.getImagePoint(imgpt, false));\n\t}",
+     "len": 2
+    },
+    "ImagePointCount": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.curFrame.image_points.length);\n\t}",
+     "len": 1
+    },
+    "ImageWidth": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.curFrame.width);\n\t}",
+     "len": 1
+    },
+    "ImageHeight": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.curFrame.height);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Text": {
+   "cnds": {
+    "CompareText": {
+     "src": "function(text_to_compare, case_sensitive)\n\t{\n\t\tif (case_sensitive)\n\t\t\treturn this.text == text_to_compare;\n\t\telse\n\t\t\treturn this.text.toLowerCase() == text_to_compare.toLowerCase();\n\t}",
+     "len": 2
+    }
+   },
+   "acts": {
+    "SetText": {
+     "src": "function(param)\n\t{\n\t\tif (cr.is_number(param) && param < 1e9)\n\t\t\tparam = Math.round(param * 1e10) / 1e10;\t// round to nearest ten billionth - hides floating point errors\n\t\tvar text_to_set = param.toString();\n\t\tif (this.text !== text_to_set)\n\t\t{\n\t\t\tthis.text = text_to_set;\n\t\t\tthis.text_changed = true;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "AppendText": {
+     "src": "function(param)\n\t{\n\t\tif (cr.is_number(param))\n\t\t\tparam = Math.round(param * 1e10) / 1e10;\t// round to nearest ten billionth - hides floating point errors\n\t\tvar text_to_append = param.toString();\n\t\tif (text_to_append)\t// not empty\n\t\t{\n\t\t\tthis.text += text_to_append;\n\t\t\tthis.text_changed = true;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "SetFontFace": {
+     "src": "function (face_, style_)\n\t{\n\t\tvar newstyle = \"\";\n\t\tswitch (style_) {\n\t\tcase 1: newstyle = \"bold\"; break;\n\t\tcase 2: newstyle = \"italic\"; break;\n\t\tcase 3: newstyle = \"bold italic\"; break;\n\t\t}\n\t\tif (face_ === this.facename && newstyle === this.fontstyle)\n\t\t\treturn;\t\t// no change\n\t\tthis.facename = face_;\n\t\tthis.fontstyle = newstyle;\n\t\tthis.updateFont();\n\t}",
+     "len": 2
+    },
+    "SetFontSize": {
+     "src": "function (size_)\n\t{\n\t\tif (this.ptSize === size_)\n\t\t\treturn;\n\t\tthis.ptSize = size_;\n\t\tthis.pxHeight = Math.ceil((this.ptSize / 72.0) * 96.0) + 4;\t// assume 96dpi...\n\t\tthis.updateFont();\n\t}",
+     "len": 1
+    },
+    "SetFontColor": {
+     "src": "function (rgb)\n\t{\n\t\tvar newcolor = \"rgb(\" + cr.GetRValue(rgb).toString() + \",\" + cr.GetGValue(rgb).toString() + \",\" + cr.GetBValue(rgb).toString() + \")\";\n\t\tif (newcolor === this.color)\n\t\t\treturn;\n\t\tthis.color = newcolor;\n\t\tthis.need_text_redraw = true;\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "SetWebFont": {
+     "src": "function (familyname_, cssurl_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tcr.logexport(\"[Construct 2] Text plugin: 'Set web font' not supported on this platform - the action has been ignored\");\n\t\t\treturn;\t\t// DC todo\n\t\t}\n\t\tvar self = this;\n\t\tvar refreshFunc = (function () {\n\t\t\t\t\t\t\tself.runtime.redraw = true;\n\t\t\t\t\t\t\tself.text_changed = true;\n\t\t\t\t\t\t});\n\t\tif (requestedWebFonts.hasOwnProperty(cssurl_))\n\t\t{\n\t\t\tvar newfacename = \"'\" + familyname_ + \"'\";\n\t\t\tif (this.facename === newfacename)\n\t\t\t\treturn;\t// no change\n\t\t\tthis.facename = newfacename;\n\t\t\tthis.updateFont();\n\t\t\tfor (var i = 1; i < 10; i++)\n\t\t\t{\n\t\t\t\tsetTimeout(refreshFunc, i * 100);\n\t\t\t\tsetTimeout(refreshFunc, i * 1000);\n\t\t\t}\n\t\t\treturn;\n\t\t}\n\t\tvar wf = document.createElement(\"link\");\n\t\twf.href = cssurl_;\n\t\twf.rel = \"stylesheet\";\n\t\twf.type = \"text/css\";\n\t\twf.onload = refreshFunc;\n\t\tdocument.getElementsByTagName('head')[0].appendChild(wf);\n\t\trequestedWebFonts[cssurl_] = true;\n\t\tthis.facename = \"'\" + familyname_ + \"'\";\n\t\tthis.updateFont();\n\t\tfor (var i = 1; i < 10; i++)\n\t\t{\n\t\t\tsetTimeout(refreshFunc, i * 100);\n\t\t\tsetTimeout(refreshFunc, i * 1000);\n\t\t}\n;\n\t}",
+     "len": 2
+    }
+   },
+   "exps": {
+    "Text": {
+     "src": "function(ret)\n\t{\n\t\tret.set_string(this.text);\n\t}",
+     "len": 1
+    },
+    "FaceName": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.facename);\n\t}",
+     "len": 1
+    },
+    "FaceSize": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.ptSize);\n\t}",
+     "len": 1
+    },
+    "TextWidth": {
+     "src": "function (ret)\n\t{\n\t\tvar w = 0;\n\t\tvar i, len, x;\n\t\tfor (i = 0, len = this.lines.length; i < len; i++)\n\t\t{\n\t\t\tx = this.lines[i].width;\n\t\t\tif (w < x)\n\t\t\t\tw = x;\n\t\t}\n\t\tret.set_int(w);\n\t}",
+     "len": 1
+    },
+    "TextHeight": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.lines.length * this.pxHeight);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "TextBox": {
+   "cnds": {
+    "CompareText": {
+     "src": "function (text, case_)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn false;\n\t\tif (case_ === 0)\t// insensitive\n\t\t\treturn this.elem.value.toLowerCase() === text.toLowerCase();\n\t\telse\n\t\t\treturn this.elem.value === text;\n\t}",
+     "len": 2
+    },
+    "OnTextChanged": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnClicked": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnDoubleClicked": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "SetText": {
+     "src": "function (text)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.value = text;\n\t}",
+     "len": 1
+    },
+    "SetPlaceholder": {
+     "src": "function (text)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.placeholder = text;\n\t}",
+     "len": 1
+    },
+    "SetTooltip": {
+     "src": "function (text)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.title = text;\n\t}",
+     "len": 1
+    },
+    "SetVisible": {
+     "src": "function (vis)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.visible = (vis !== 0);\n\t}",
+     "len": 1
+    },
+    "SetEnabled": {
+     "src": "function (en)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.disabled = (en === 0);\n\t}",
+     "len": 1
+    },
+    "SetReadOnly": {
+     "src": "function (ro)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.readOnly = (ro === 0);\n\t}",
+     "len": 1
+    },
+    "SetFocus": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.focus();\n\t}",
+     "len": 0
+    },
+    "SetBlur": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tthis.elem.blur();\n\t}",
+     "len": 0
+    },
+    "SetCSSStyle": {
+     "src": "function (p, v)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tjQuery(this.elem).css(p, v);\n\t}",
+     "len": 2
+    }
+   },
+   "exps": {
+    "Text": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tret.set_string(this.elem.value);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "XML": {
+   "cnds": {
+    "ForEach": {
+     "src": "function (xpath)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn false;\n\t\tvar current_event = this.runtime.getCurrentEventStack().current_event;\n\t\tvar result = this.xpath_eval_many(xpath, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);\n\t\tvar i, len, x;\n\t\tif (!result)\n\t\t\treturn false;\n\t\telse\n\t\t{\n\t\t\tvar current_loop = this.runtime.pushLoopStack();\n\t\t\tif (this.runtime.isIE)\n\t\t\t{\n\t\t\t\tfor (i = 0, len = result.length; i < len; i++)\n\t\t\t\t{\n\t\t\t\t\tcurrent_loop.index = i;\n\t\t\t\t\tthis.doForEachIteration(current_event, result[i]);\n\t\t\t\t}\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tfor (i = 0, len = result.snapshotLength; i < len; i++)\n\t\t\t\t{\n\t\t\t\t\tcurrent_loop.index = i;\n\t\t\t\t\tthis.doForEachIteration(current_event, result.snapshotItem(i));\n\t\t\t\t}\n\t\t\t}\n\t\t\tthis.runtime.popLoopStack();\n\t\t}\n\t\treturn false;\n\t}",
+     "len": 1
+    }
+   },
+   "acts": {
+    "Load": {
+     "src": "function (str)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t\treturn;\n\t\tvar xml, tmp;\n\t\tvar isWindows8 = !!(typeof window[\"c2isWindows8\"] !== \"undefined\" && window[\"c2isWindows8\"]);\n\t\ttry {\n\t\t\tif (isWindows8)\n\t        {\n\t            xml = new Windows[\"Data\"][\"Xml\"][\"Dom\"][\"XmlDocument\"]()\n\t            xml[\"loadXml\"](str);\n\t        }\n\t\t\telse if (this.runtime.isIE)\n\t\t\t{\n\t\t\t\tvar versions = [\"MSXML2.DOMDocument.6.0\",\n                        \"MSXML2.DOMDocument.3.0\",\n                        \"MSXML2.DOMDocument\"];\n\t\t\t\tfor (var i = 0; i < 3; i++){\n\t\t\t\t\ttry {\n\t\t\t\t\t\txml = new ActiveXObject(versions[i]);\n\t\t\t\t\t\tif (xml)\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t} catch (ex){\n\t\t\t\t\t\txml = null;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif (xml)\n\t\t\t\t{\n\t\t\t\t\txml.async = \"false\";\n\t\t\t\t\txml[\"loadXML\"](str);\n\t\t\t\t}\n\t\t\t}\n\t\t\telse {\n\t\t\t\ttmp = new DOMParser();\n\t\t\t\txml = tmp.parseFromString(str, \"text/xml\");\n\t\t\t}\n\t\t} catch(e) {\n\t\t\txml = null;\n\t\t}\n\t\tif (xml)\n\t\t{\n\t\t\tthis.xmlDoc = xml;\n\t\t\tif (this.runtime.isIE && !isWindows8)\n\t\t\t\tthis.xmlDoc[\"setProperty\"](\"SelectionLanguage\",\"XPath\");\n\t\t}\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "NumberValue": {
+     "src": "function (ret, xpath)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tvar result = this.xpath_eval_one(xpath, XPathResult.NUMBER_TYPE);\n\t\tif (!result)\n\t\t\tret.set_int(0);\n\t\telse if (this.runtime.isIE)\n\t\t\tret.set_int(parseInt(result.nodeValue, 10));\n\t\telse\n\t\t\tret.set_int(result.numberValue || 0);\n\t}",
+     "len": 2
+    },
+    "StringValue": {
+     "src": "function (ret, xpath)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_string(\"\");\n\t\t\treturn;\n\t\t}\n\t\tvar result;\n\t\tif (/firefox/i.test(navigator.userAgent))\n\t\t{\n\t\t\tresult = this.xpath_eval_one(xpath, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);\n\t\t\tif (!result)\n\t\t\t\tret.set_string(\"\");\n\t\t\telse\n\t\t\t{\n\t\t\t\tvar i, len, totalstr = \"\";\n\t\t\t\tfor (i = 0, len = result.snapshotLength; i < len; i++)\n\t\t\t\t{\n\t\t\t\t\ttotalstr += result.snapshotItem(i).textContent;\n\t\t\t\t}\n\t\t\t\tret.set_string(totalstr);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tresult = this.xpath_eval_one(xpath, XPathResult.STRING_TYPE);\n\t\t\tif (!result)\n\t\t\t\tret.set_string(\"\");\n\t\t\telse if (this.runtime.isIE)\n\t\t\t\tret.set_string(result.nodeValue || \"\");\n\t\t\telse\n\t\t\t\tret.set_string(result.stringValue || \"\");\n\t\t}\n\t}",
+     "len": 2
+    },
+    "NodeCount": {
+     "src": "function (ret, xpath)\n\t{\n\t\tif (this.runtime.isDomFree)\n\t\t{\n\t\t\tret.set_int(0);\n\t\t\treturn;\n\t\t}\n\t\tvar result = this.xpath_eval_many(xpath, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE);\n\t\tif (!result)\n\t\t\tret.set_int(0);\n\t\telse if (this.runtime.isIE)\n\t\t\tret.set_int(result.length || 0);\n\t\telse\n\t\t\tret.set_int(result.snapshotLength || 0);\n\t}",
+     "len": 2
+    }
+   }
+  },
+  "c2canvas": {
+   "cnds": {},
+   "acts": {
+    "SetEffect": {
+     "src": "function (effect)\n\t{\n\t\tthis.compositeOp = this.effectToCompositeOp(effect);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "DrawPoint": {
+     "src": "function (x,y, color)\n\t{\n\t\tvar ctx=this.ctx;\n\t\tctx.fillStyle = color;\n\t\tctx.fillRect(x,y,1,1);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 3
+    },
+    "ResizeCanvas": {
+     "src": "function (width, height)\n\t{\n\t\tthis.canvas.width=width;\n\t\tthis.canvas.height=height;\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 2
+    },
+    "PasteObject": {
+     "src": "function (object)\n\t{\n\t\tvar ctx=this.ctx;\n\t\tthis.update_bbox();\n\t\tvar sol = object.getCurrentSol();\n\t\tvar instances;\n\t\tif (sol.select_all)\n\t\t\tinstances = sol.type.instances;\n\t\telse\n\t\t\tinstances = sol.instances;\n\t\tthis.draw_instances(instances, ctx);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "PasteLayer": {
+     "src": "function (layer)\n\t{\n\t\tif (!layer || !layer.visible)\n\t\t\treturn false;\n\t\tvar ctx=this.ctx;\n\t\tthis.update_bbox();\n\t\tthis.tCanvas.width=this.canvas.width;\n\t\tthis.tCanvas.height=this.canvas.height;\n \t\tvar t=this.tCtx;\n\t\tt.clearRect(0,0,this.tCanvas.width, this.tCanvas.height);\n\t\tthis.draw_instances(layer.instances, t);\n\t\tctx.drawImage(this.tCanvas,0,0,this.width,this.height);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "DrawBox": {
+     "src": "function (x, y, width, height, color)\n\t{\n\t\tthis.ctx.fillStyle = color;\n\t\tthis.ctx.fillRect(x,y,width,height);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 5
+    },
+    "DrawLine": {
+     "src": "function (x1, y1, x2, y2, color, line_width)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tctx.strokeStyle = color;\n\t\tctx.lineWidth = line_width;\n\t\tctx.beginPath();\n\t\tctx.moveTo(x1,y1);\n\t\tctx.lineTo(x2, y2);\n\t\tctx.stroke();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 6
+    },
+    "ClearCanvas": {
+     "src": "function ()\n\t{\n\t\tthis.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 0
+    },
+    "FillColor": {
+     "src": "function (color)\n\t{\n\t\tthis.ctx.fillStyle = color;\n\t\tthis.ctx.fillRect(0,0,this.canvas.width, this.canvas.height);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "fillGradient": {
+     "src": "function (gradient_style, color1, color2)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tvar w =this.canvas.width;\n\t\tvar h=this.canvas.height;\n\t\tvar gradient;\n\t\tswitch(gradient_style)\n\t\t{\n\t\tcase 0: //horizontal\n\t\t\tgradient = ctx.createLinearGradient(0,0,w,0);\n\t\t\tbreak;\n\t\tcase 1: //vertical\n\t\t\tgradient = ctx.createLinearGradient(0,0,0,h);\n\t\t\tbreak;\n\t\tcase 2: //diagonal_down_right\n\t\t\tgradient = ctx.createLinearGradient(0,0,w,h);\n\t\t\tbreak;\n\t\tcase 3: //diagonal_down_left\n\t\t\tgradient = ctx.createLinearGradient(w,0,0,h);\n\t\t\tbreak;\n\t\tcase 4: //radial\n\t\t\tgradient = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2, Math.sqrt(w^2+h^2)/2);\n\t\t\tbreak;\n\t\t}\n\t\tgradient.addColorStop(0, color1);\n\t\tgradient.addColorStop(1, color2);\n\t\tthis.ctx.fillStyle = gradient;\n\t\tthis.ctx.fillRect(0, 0, w, h);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 3
+    },
+    "beginPath": {
+     "src": "function ()\n\t{\n\t\tthis.ctx.beginPath();\n\t}",
+     "len": 0
+    },
+    "drawPath": {
+     "src": "function (color, line_width)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tctx.strokeStyle = color;\n\t\tctx.lineWidth = line_width;\n\t\tctx.stroke();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 2
+    },
+    "setLineSettings": {
+     "src": "function (line_cap, line_joint)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tctx.lineCap = [\"butt\",\"round\",\"square\"][line_cap];\n\t\tctx.lineJoin = [\"round\",\"bevel\",\"milet\"][line_joint];\n\t}",
+     "len": 2
+    },
+    "fillPath": {
+     "src": "function (color)\n\t{\n\t\tthis.ctx.fillStyle = color;\n\t\tthis.ctx.fill();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 1
+    },
+    "moveTo": {
+     "src": "function (x, y)\n\t{\n\t\tthis.ctx.moveTo(x, y);\n\t}",
+     "len": 2
+    },
+    "lineTo": {
+     "src": "function (x, y)\n\t{\n\t\tthis.ctx.lineTo(x, y);\n\t}",
+     "len": 2
+    },
+    "arc": {
+     "src": "function (x, y, radius, start_angle, end_angle, arc_direction)\n\t{\n\t\tthis.ctx.arc(x, y, radius, cr.to_radians(start_angle), cr.to_radians(end_angle), arc_direction==1);\n\t}",
+     "len": 6
+    },
+    "drawCircle": {
+     "src": "function (x, y, radius, color, line_width)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tctx.strokeStyle = color;\n\t\tctx.lineWidth = line_width;\n\t\tctx.beginPath();\n\t\tctx.arc(x, y, radius, 0, cr.to_radians(360), true);\n\t\tctx.stroke();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 5
+    },
+    "bezierCurveTo": {
+     "src": "function (cp1x, cp1y, cp2x, cp2y, x, y)\n\t{\n\t\tthis.ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);\n\t}",
+     "len": 6
+    },
+    "quadraticCurveTo": {
+     "src": "function (cpx, cpy, x, y)\n\t{\n\t\tthis.ctx.quadraticCurveTo(cpx, cpy, x, y);\n\t}",
+     "len": 4
+    },
+    "rectPath": {
+     "src": "function (x, y, width, height)\n\t{\n\t\tthis.ctx.rect(x,y,width,height);\n\t}",
+     "len": 4
+    },
+    "FloodFill": {
+     "src": "function (x,y,color)\n\t{\n\t\tvar ctx = this.ctx;\n\t\tvar I = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);\n\t\tflood_fill(I.data, this.canvas.width, this.canvas.height, x, y, color);\n\t\tctx.putImageData(I,0,0);\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 3
+    }
+   },
+   "exps": {
+    "rgbaAt": {
+     "src": "function (ret, x, y)\n\t{\n\t\tvar imageData= this.ctx.getImageData(x,y,1,1);\n\t\tvar data= imageData.data;\n\t\tret.set_string(\"rgba(\" + data[0] + \",\" + data[1] + \",\" + data[2] + \",\" + data[3]/255 + \")\");\n\t}",
+     "len": 3
+    },
+    "imageUrl": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.canvas.toDataURL());\n\t}",
+     "len": 1
+    },
+    "AsJSON": {
+     "src": "function(ret)\n    {\n        ret.set_string( JSON.stringify({\n\t\t\t\"c2array\": true,\n\t\t\t\"size\": [1, 1, this.canvas.width * this.canvas.height * 4],\n\t\t\t\"data\": [[this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data]]\n\t\t}));\n    }",
+     "len": 1
+    }
+   }
+  },
+  "System": {
+   "cnds": {
+    "EveryTick": {
+     "src": "function()\n    {\n        return true;\n    }",
+     "len": 0
+    },
+    "OnLayoutStart": {
+     "src": "function()\n    {\n        return true;\n    }",
+     "len": 0
+    },
+    "OnLayoutEnd": {
+     "src": "function()\n    {\n        return true;\n    }",
+     "len": 0
+    },
+    "Compare": {
+     "src": "function(x, cmp, y)\n    {\n        return cr.do_cmp(x, cmp, y);\n    }",
+     "len": 3
+    },
+    "CompareTime": {
+     "src": "function (cmp, t)\n    {\n        var elapsed = this.runtime.kahanTime.sum;\n        if (cmp === 0)\n        {\n            var cnd = this.runtime.getCurrentCondition();\n            if (!cnd.extra.CompareTime_executed)\n            {\n                if (elapsed >= t)\n                {\n                    cnd.extra.CompareTime_executed = true;\n                    return true;\n                }\n            }\n            return false;\n        }\n        return cr.do_cmp(elapsed, cmp, t);\n    }",
+     "len": 2
+    },
+    "LayerVisible": {
+     "src": "function (layer)\n    {\n        if (!layer)\n            return false;\n        else\n            return layer.visible;\n    }",
+     "len": 1
+    },
+    "LayerCmpOpacity": {
+     "src": "function (layer, cmp, opacity_)\n\t{\n\t\tif (!layer)\n\t\t\treturn false;\n\t\treturn cr.do_cmp(layer.opacity * 100, cmp, opacity_);\n\t}",
+     "len": 3
+    },
+    "Repeat": {
+     "src": "function (count)\n    {\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\n        var current_loop = this.runtime.pushLoopStack();\n        var i;\n\t\tif (solModifierAfterCnds)\n\t\t{\n\t\t\tfor (i = 0; i < count && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tfor (i = 0; i < count && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t}\n\t\t}\n        this.runtime.popLoopStack();\n\t\treturn false;\n    }",
+     "len": 1
+    },
+    "While": {
+     "src": "function (count)\n    {\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\n        var current_loop = this.runtime.pushLoopStack();\n        var i;\n\t\tif (solModifierAfterCnds)\n\t\t{\n\t\t\tfor (i = 0; !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tif (!current_event.retrigger())\t\t// one of the other conditions returned false\n\t\t\t\t\tcurrent_loop.stopped = true;\t// break\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tfor (i = 0; !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tif (!current_event.retrigger())\n\t\t\t\t\tcurrent_loop.stopped = true;\n\t\t\t}\n\t\t}\n        this.runtime.popLoopStack();\n\t\treturn false;\n    }",
+     "len": 1
+    },
+    "For": {
+     "src": "function (name, start, end)\n    {\n        var current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\n        var current_loop = this.runtime.pushLoopStack(name);\n        var i;\n\t\tif (solModifierAfterCnds)\n\t\t{\n\t\t\tfor (i = start; i <= end && !current_loop.stopped; i++)  // inclusive to end\n\t\t\t{\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tfor (i = start; i <= end && !current_loop.stopped; i++)  // inclusive to end\n\t\t\t{\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t}\n\t\t}\n        this.runtime.popLoopStack();\n\t\treturn false;\n    }",
+     "len": 3
+    },
+    "ForEach": {
+     "src": "function (obj)\n    {\n        var sol = obj.getCurrentSol();\n\t\tforeach_instanceptr++;\n\t\tif (foreach_instancestack.length === foreach_instanceptr)\n\t\t\tforeach_instancestack.push([]);\n\t\tvar instances = foreach_instancestack[foreach_instanceptr];\n\t\tcr.shallowAssignArray(instances, sol.getObjects());\n        var current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\n        var current_loop = this.runtime.pushLoopStack();\n        var i, len, j, lenj, inst, s, sol2;\n\t\tvar is_contained = obj.is_contained;\n\t\tif (solModifierAfterCnds)\n\t\t{\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tinst = instances[i];\n\t\t\t\tsol = obj.getCurrentSol();\n\t\t\t\tsol.select_all = false;\n\t\t\t\tsol.instances.length = 1;\n\t\t\t\tsol.instances[0] = inst;\n\t\t\t\tif (is_contained)\n\t\t\t\t{\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\n\t\t\t\t\t{\n\t\t\t\t\t\ts = inst.siblings[j];\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\n\t\t\t\t\t\tsol2.select_all = false;\n\t\t\t\t\t\tsol2.instances.length = 1;\n\t\t\t\t\t\tsol2.instances[0] = s;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tsol.select_all = false;\n\t\t\tsol.instances.length = 1;\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tinst = instances[i];\n\t\t\t\tsol.instances[0] = inst;\n\t\t\t\tif (is_contained)\n\t\t\t\t{\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\n\t\t\t\t\t{\n\t\t\t\t\t\ts = inst.siblings[j];\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\n\t\t\t\t\t\tsol2.select_all = false;\n\t\t\t\t\t\tsol2.instances.length = 1;\n\t\t\t\t\t\tsol2.instances[0] = s;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t}\n\t\t}\n        this.runtime.popLoopStack();\n\t\tforeach_instanceptr--;\n\t\treturn false;\n    }",
+     "len": 1
+    },
+    "ForEachOrdered": {
+     "src": "function (obj, exp, order)\n    {\n        var sol = obj.getCurrentSol();\n\t\tforeach_instanceptr++;\n\t\tif (foreach_instancestack.length === foreach_instanceptr)\n\t\t\tforeach_instancestack.push([]);\n\t\tvar instances = foreach_instancestack[foreach_instanceptr];\n\t\tcr.shallowAssignArray(instances, sol.getObjects());\n        var current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar current_condition = this.runtime.getCurrentCondition();\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\n        var current_loop = this.runtime.pushLoopStack();\n\t\tvar i, len, j, lenj, inst, s, sol2;\n\t\tfor (i = 0, len = instances.length; i < len; i++)\n\t\t{\n\t\t\tinstances[i].extra.c2_foreachordered_val = current_condition.parameters[1].get(i);\n\t\t}\n\t\tinstances.sort(foreach_sortinstances);\n\t\tif (order === 1)\n\t\t\tinstances.reverse();\n\t\tvar is_contained = obj.is_contained;\n\t\tif (solModifierAfterCnds)\n\t\t{\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\n\t\t\t\tinst = instances[i];\n\t\t\t\tsol = obj.getCurrentSol();\n\t\t\t\tsol.select_all = false;\n\t\t\t\tsol.instances.length = 1;\n\t\t\t\tsol.instances[0] = inst;\n\t\t\t\tif (is_contained)\n\t\t\t\t{\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\n\t\t\t\t\t{\n\t\t\t\t\t\ts = inst.siblings[j];\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\n\t\t\t\t\t\tsol2.select_all = false;\n\t\t\t\t\t\tsol2.instances.length = 1;\n\t\t\t\t\t\tsol2.instances[0] = s;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\n\t\t\t}\n\t\t}\n\t\telse\n\t\t{\n\t\t\tsol.select_all = false;\n\t\t\tsol.instances.length = 1;\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\n\t\t\t{\n\t\t\t\tinst = instances[i];\n\t\t\t\tsol.instances[0] = inst;\n\t\t\t\tif (is_contained)\n\t\t\t\t{\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\n\t\t\t\t\t{\n\t\t\t\t\t\ts = inst.siblings[j];\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\n\t\t\t\t\t\tsol2.select_all = false;\n\t\t\t\t\t\tsol2.instances.length = 1;\n\t\t\t\t\t\tsol2.instances[0] = s;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tcurrent_loop.index = i;\n\t\t\t\tcurrent_event.retrigger();\n\t\t\t}\n\t\t}\n        this.runtime.popLoopStack();\n\t\tforeach_instanceptr--;\n\t\treturn false;\n    }",
+     "len": 3
+    },
+    "TriggerOnce": {
+     "src": "function ()\n    {\n        var cndextra = this.runtime.getCurrentCondition().extra;\n\t\tif (typeof cndextra.TriggerOnce_lastTick === \"undefined\")\n\t\t\tcndextra.TriggerOnce_lastTick = -1;\n        var last_tick = cndextra.TriggerOnce_lastTick;\n        var cur_tick = this.runtime.tickcount;\n        cndextra.TriggerOnce_lastTick = cur_tick;\n        return this.runtime.layout_first_tick || last_tick !== cur_tick - 1;\n    }",
+     "len": 0
+    },
+    "Every": {
+     "src": "function (seconds)\n    {\n        var cnd = this.runtime.getCurrentCondition();\n        var last_time = cnd.extra.Every_lastTime || 0;\n        var cur_time = this.runtime.kahanTime.sum;\n        if (cur_time >= last_time + seconds)\n        {\n            cnd.extra.Every_lastTime = last_time + seconds;\n\t\t\tif (cur_time >= cnd.extra.Every_lastTime + seconds)\n\t\t\t\tcnd.extra.Every_lastTime = cur_time;\n            return true;\n        }\n        else\n            return false;\n    }",
+     "len": 1
+    },
+    "PickNth": {
+     "src": "function (obj, index)\n    {\n        if (!obj)\n            return false;\n        var sol = obj.getCurrentSol();\n        var instances = sol.getObjects();\n\t\tindex = cr.floor(index);\n        if (index < 0 || index >= instances.length)\n            return false;\n\t\tvar inst = instances[index];\n        sol.pick_one(inst);\n\t\tobj.applySolToContainer();\n        return true;\n    }",
+     "len": 2
+    },
+    "PickRandom": {
+     "src": "function (obj)\n    {\n        if (!obj)\n            return false;\n        var sol = obj.getCurrentSol();\n        var instances = sol.getObjects();\n\t\tvar index = cr.floor(Math.random() * instances.length);\n        if (index >= instances.length)\n            return false;\n\t\tvar inst = instances[index];\n        sol.pick_one(inst);\n\t\tobj.applySolToContainer();\n        return true;\n    }",
+     "len": 1
+    },
+    "CompareVar": {
+     "src": "function (v, cmp, val)\n    {\n        return cr.do_cmp(v.getValue(), cmp, val);\n    }",
+     "len": 3
+    },
+    "IsGroupActive": {
+     "src": "function (group)\n    {\n        return this.runtime.activeGroups[(/*this.runtime.getCurrentCondition().sheet.name + \"|\" + */group).toLowerCase()];\n    }",
+     "len": 1
+    },
+    "IsPreview": {
+     "src": "function ()\n\t{\n\t\treturn typeof cr_is_preview !== \"undefined\";\n\t}",
+     "len": 0
+    },
+    "PickAll": {
+     "src": "function (obj)\n    {\n        if (!obj)\n            return false;\n\t\tif (!obj.instances.length)\n\t\t\treturn false;\n        var sol = obj.getCurrentSol();\n        sol.select_all = true;\n\t\tobj.applySolToContainer();\n        return true;\n    }",
+     "len": 1
+    },
+    "IsMobile": {
+     "src": "function ()\n\t{\n\t\treturn this.runtime.isMobile;\n\t}",
+     "len": 0
+    },
+    "CompareBetween": {
+     "src": "function (x, a, b)\n\t{\n\t\treturn x >= a && x <= b;\n\t}",
+     "len": 3
+    },
+    "Else": {
+     "src": "function ()\n\t{\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\n\t\tif (current_frame.else_branch_ran)\n\t\t\treturn false;\t\t// another event in this else-if chain has run\n\t\telse\n\t\t\treturn !current_frame.last_event_true;\n\t\t/*\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\n        var current_event = current_frame.current_event;\n\t\tvar prev_event = current_event.prev_block;\n\t\tif (!prev_event)\n\t\t\treturn false;\n\t\tif (prev_event.is_logical)\n\t\t\treturn !this.runtime.last_event_true;\n\t\tvar i, len, j, lenj, s, sol, temp, inst, any_picked = false;\n\t\tfor (i = 0, len = prev_event.cndReferences.length; i < len; i++)\n\t\t{\n\t\t\ts = prev_event.cndReferences[i];\n\t\t\tsol = s.getCurrentSol();\n\t\t\tif (sol.select_all || sol.instances.length === s.instances.length)\n\t\t\t{\n\t\t\t\tsol.select_all = false;\n\t\t\t\tsol.instances.length = 0;\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tif (sol.instances.length === 1 && sol.else_instances.length === 0 && s.instances.length >= 2)\n\t\t\t\t{\n\t\t\t\t\tinst = sol.instances[0];\n\t\t\t\t\tsol.instances.length = 0;\n\t\t\t\t\tfor (j = 0, lenj = s.instances.length; j < lenj; j++)\n\t\t\t\t\t{\n\t\t\t\t\t\tif (s.instances[j] != inst)\n\t\t\t\t\t\t\tsol.instances.push(s.instances[j]);\n\t\t\t\t\t}\n\t\t\t\t\tany_picked = true;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\ttemp = sol.instances;\n\t\t\t\t\tsol.instances = sol.else_instances;\n\t\t\t\t\tsol.else_instances = temp;\n\t\t\t\t\tany_picked = true;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn any_picked;\n\t\t*/\n\t}",
+     "len": 0
+    },
+    "OnLoadFinished": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnCanvasSnapshot": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "EffectsSupported": {
+     "src": "function ()\n\t{\n\t\treturn !!this.runtime.glwrap;\n\t}",
+     "len": 0
+    },
+    "OnSaveComplete": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnLoadComplete": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnLoadFailed": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "GoToLayout": {
+     "src": "function(to)\n    {\n\t\tif (this.runtime.isloading)\n\t\t\treturn;\t\t// cannot change layout while loading on loader layout\n\t\tif (this.runtime.changelayout)\n\t\t\treturn;\t\t// already changing to a different layout\n;\n        this.runtime.changelayout = to;\n    }",
+     "len": 1
+    },
+    "CreateObject": {
+     "src": "function (obj, layer, x, y)\n    {\n        if (!layer || !obj)\n            return;\n        var inst = this.runtime.createInstance(obj, layer, x, y);\n\t\tif (!inst)\n\t\t\treturn;\n\t\tthis.runtime.isInOnDestroy++;\n\t\tvar i, len, s;\n\t\tthis.runtime.trigger(Object.getPrototypeOf(obj.plugin).cnds.OnCreated, inst);\n\t\tif (inst.is_contained)\n\t\t{\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\n\t\t\t{\n\t\t\t\ts = inst.siblings[i];\n\t\t\t\tthis.runtime.trigger(Object.getPrototypeOf(s.type.plugin).cnds.OnCreated, s);\n\t\t\t}\n\t\t}\n\t\tthis.runtime.isInOnDestroy--;\n        var sol = obj.getCurrentSol();\n        sol.select_all = false;\n\t\tsol.instances.length = 1;\n\t\tsol.instances[0] = inst;\n\t\tif (inst.is_contained)\n\t\t{\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\n\t\t\t{\n\t\t\t\ts = inst.siblings[i];\n\t\t\t\tsol = s.type.getCurrentSol();\n\t\t\t\tsol.select_all = false;\n\t\t\t\tsol.instances.length = 1;\n\t\t\t\tsol.instances[0] = s;\n\t\t\t}\n\t\t}\n    }",
+     "len": 4
+    },
+    "SetLayerVisible": {
+     "src": "function (layer, visible_)\n    {\n        if (!layer)\n            return;\n\t\tif (layer.visible !== visible_)\n\t\t{\n\t\t\tlayer.visible = visible_;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n    }",
+     "len": 2
+    },
+    "SetLayerOpacity": {
+     "src": "function (layer, opacity_)\n\t{\n\t\tif (!layer)\n\t\t\treturn;\n\t\topacity_ = cr.clamp(opacity_ / 100, 0, 1);\n\t\tif (layer.opacity !== opacity_)\n\t\t{\n\t\t\tlayer.opacity = opacity_;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n\t}",
+     "len": 2
+    },
+    "SetLayerScaleRate": {
+     "src": "function (layer, sr)\n\t{\n\t\tif (!layer)\n\t\t\treturn;\n\t\tif (layer.zoomRate !== sr)\n\t\t{\n\t\t\tlayer.zoomRate = sr;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n\t}",
+     "len": 2
+    },
+    "SetLayoutScale": {
+     "src": "function (s)\n\t{\n\t\tif (!this.runtime.running_layout)\n\t\t\treturn;\n\t\tif (this.runtime.running_layout.scale !== s)\n\t\t{\n\t\t\tthis.runtime.running_layout.scale = s;\n\t\t\tthis.runtime.redraw = true;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "ScrollX": {
+     "src": "function(x)\n    {\n        this.runtime.running_layout.scrollToX(x);\n    }",
+     "len": 1
+    },
+    "ScrollY": {
+     "src": "function(y)\n    {\n        this.runtime.running_layout.scrollToY(y);\n    }",
+     "len": 1
+    },
+    "Scroll": {
+     "src": "function(x, y)\n    {\n        this.runtime.running_layout.scrollToX(x);\n        this.runtime.running_layout.scrollToY(y);\n    }",
+     "len": 2
+    },
+    "ScrollToObject": {
+     "src": "function(obj)\n    {\n        var inst = obj.getFirstPicked();\n        if (inst)\n        {\n            this.runtime.running_layout.scrollToX(inst.x);\n            this.runtime.running_layout.scrollToY(inst.y);\n        }\n    }",
+     "len": 1
+    },
+    "SetVar": {
+     "src": "function(v, x)\n\t{\n;\n\t\tif (v.vartype === 0)\n\t\t{\n\t\t\tif (cr.is_number(x))\n\t\t\t\tv.setValue(x);\n\t\t\telse\n\t\t\t\tv.setValue(parseFloat(x));\n\t\t}\n\t\telse if (v.vartype === 1)\n\t\t\tv.setValue(x.toString());\n\t}",
+     "len": 2
+    },
+    "AddVar": {
+     "src": "function(v, x)\n\t{\n;\n\t\tif (v.vartype === 0)\n\t\t{\n\t\t\tif (cr.is_number(x))\n\t\t\t\tv.setValue(v.getValue() + x);\n\t\t\telse\n\t\t\t\tv.setValue(v.getValue() + parseFloat(x));\n\t\t}\n\t\telse if (v.vartype === 1)\n\t\t\tv.setValue(v.getValue() + x.toString());\n\t}",
+     "len": 2
+    },
+    "SubVar": {
+     "src": "function(v, x)\n\t{\n;\n\t\tif (v.vartype === 0)\n\t\t{\n\t\t\tif (cr.is_number(x))\n\t\t\t\tv.setValue(v.getValue() - x);\n\t\t\telse\n\t\t\t\tv.setValue(v.getValue() - parseFloat(x));\n\t\t}\n\t}",
+     "len": 2
+    },
+    "SetGroupActive": {
+     "src": "function (group, active)\n    {\n\t\tvar activeGroups = this.runtime.activeGroups;\n\t\tvar groupkey = (/*this.runtime.getCurrentAction().sheet.name + \"|\" + */group).toLowerCase();\n\t\tswitch (active) {\n\t\tcase 0:\n\t\t\tactiveGroups[groupkey] = false;\n\t\t\tbreak;\n\t\tcase 1:\n\t\t\tactiveGroups[groupkey] = true;\n\t\t\tbreak;\n\t\tcase 2:\n\t\t\tactiveGroups[groupkey] = !activeGroups[groupkey];\n\t\t\tbreak;\n\t\t}\n    }",
+     "len": 2
+    },
+    "SetTimescale": {
+     "src": "function (ts_)\n    {\n        var ts = ts_;\n        if (ts < 0)\n            ts = 0;\n        this.runtime.timescale = ts;\n    }",
+     "len": 1
+    },
+    "SetObjectTimescale": {
+     "src": "function (obj, ts_)\n    {\n        var ts = ts_;\n        if (ts < 0)\n            ts = 0;\n        if (!obj)\n            return;\n        var sol = obj.getCurrentSol();\n        var instances = sol.getObjects();\n        var i, len;\n        for (i = 0, len = instances.length; i < len; i++)\n        {\n            instances[i].my_timescale = ts;\n        }\n    }",
+     "len": 2
+    },
+    "RestoreObjectTimescale": {
+     "src": "function (obj)\n    {\n        if (!obj)\n            return false;\n        var sol = obj.getCurrentSol();\n        var instances = sol.getObjects();\n        var i, len;\n        for (i = 0, len = instances.length; i < len; i++)\n        {\n            instances[i].my_timescale = -1.0;\n        }\n    }",
+     "len": 1
+    },
+    "Wait": {
+     "src": "function (seconds)\n\t{\n\t\tif (seconds < 0)\n\t\t\treturn;\n\t\tvar i, len, s, t, ss;\n\t\tvar evinfo = this.runtime.getCurrentEventStack();\n\t\tvar waitobj = allocWaitObject();\n\t\twaitobj.time = this.runtime.kahanTime.sum + seconds;\n\t\twaitobj.ev = evinfo.current_event;\n\t\twaitobj.actindex = evinfo.actindex + 1;\t// pointing at next action\n\t\tfor (i = 0, len = this.runtime.types_by_index.length; i < len; i++)\n\t\t{\n\t\t\tt = this.runtime.types_by_index[i];\n\t\t\ts = t.getCurrentSol();\n\t\t\tif (s.select_all && evinfo.current_event.solModifiers.indexOf(t) === -1)\n\t\t\t\tcontinue;\n\t\t\twaitobj.solModifiers.push(t);\n\t\t\tss = allocSolStateObject();\n\t\t\tss.sa = s.select_all;\n\t\t\tcr.shallowAssignArray(ss.insts, s.instances);\n\t\t\twaitobj.sols[i.toString()] = ss;\n\t\t}\n\t\tthis.waits.push(waitobj);\n\t\treturn true;\n\t}",
+     "len": 1
+    },
+    "SetLayerScale": {
+     "src": "function (layer, scale)\n    {\n        if (!layer)\n            return;\n\t\tif (layer.scale === scale)\n\t\t\treturn;\n        layer.scale = scale;\n        this.runtime.redraw = true;\n    }",
+     "len": 2
+    },
+    "ResetGlobals": {
+     "src": "function ()\n\t{\n\t\tvar i, len, g;\n\t\tfor (i = 0, len = this.runtime.all_global_vars.length; i < len; i++)\n\t\t{\n\t\t\tg = this.runtime.all_global_vars[i];\n\t\t\tg.data = g.initial;\n\t\t}\n\t}",
+     "len": 0
+    },
+    "SetLayoutAngle": {
+     "src": "function (a)\n\t{\n\t\ta = cr.to_radians(a);\n\t\ta = cr.clamp_angle(a);\n\t\tif (this.runtime.running_layout)\n\t\t{\n\t\t\tif (this.runtime.running_layout.angle !== a)\n\t\t\t{\n\t\t\t\tthis.runtime.running_layout.angle = a;\n\t\t\t\tthis.runtime.redraw = true;\n\t\t\t}\n\t\t}\n\t}",
+     "len": 1
+    },
+    "SetLayerAngle": {
+     "src": "function (layer, a)\n    {\n        if (!layer)\n            return;\n\t\ta = cr.to_radians(a);\n\t\ta = cr.clamp_angle(a);\n\t\tif (layer.angle === a)\n\t\t\treturn;\n        layer.angle = a;\n        this.runtime.redraw = true;\n    }",
+     "len": 2
+    },
+    "SetLayerParallax": {
+     "src": "function (layer, px, py)\n    {\n        if (!layer)\n            return;\n\t\tif (layer.parallaxX === px / 100 && layer.parallaxY === py / 100)\n\t\t\treturn;\n        layer.parallaxX = px / 100;\n\t\tlayer.parallaxY = py / 100;\n        this.runtime.redraw = true;\n    }",
+     "len": 3
+    },
+    "SetLayerBackground": {
+     "src": "function (layer, c)\n    {\n        if (!layer)\n            return;\n\t\tvar r = cr.GetRValue(c);\n\t\tvar g = cr.GetGValue(c);\n\t\tvar b = cr.GetBValue(c);\n\t\tif (layer.background_color[0] === r && layer.background_color[1] === g && layer.background_color[2] === b)\n\t\t\treturn;\n        layer.background_color[0] = r;\n\t\tlayer.background_color[1] = g;\n\t\tlayer.background_color[2] = b;\n        this.runtime.redraw = true;\n    }",
+     "len": 2
+    },
+    "SetLayerTransparent": {
+     "src": "function (layer, t)\n    {\n        if (!layer)\n            return;\n\t\tif (!!t === !!layer.transparent)\n\t\t\treturn;\n\t\tlayer.transparent = !!t;\n        this.runtime.redraw = true;\n    }",
+     "len": 2
+    },
+    "StopLoop": {
+     "src": "function ()\n\t{\n\t\tif (this.runtime.loop_stack_index < 0)\n\t\t\treturn;\t\t// no loop currently running\n\t\tthis.runtime.getCurrentLoop().stopped = true;\n\t}",
+     "len": 0
+    },
+    "GoToLayoutByName": {
+     "src": "function (layoutname)\n\t{\n\t\tif (this.runtime.isloading)\n\t\t\treturn;\t\t// cannot change layout while loading on loader layout\n\t\tif (this.runtime.changelayout)\n\t\t\treturn;\t\t// already changing to different layout\n;\n\t\tvar l;\n\t\tfor (l in this.runtime.layouts)\n\t\t{\n\t\t\tif (this.runtime.layouts.hasOwnProperty(l) && l.toLowerCase() === layoutname.toLowerCase())\n\t\t\t{\n\t\t\t\tthis.runtime.changelayout = this.runtime.layouts[l];\n\t\t\t\treturn;\n\t\t\t}\n\t\t}\n\t}",
+     "len": 1
+    },
+    "RestartLayout": {
+     "src": "function (layoutname)\n\t{\n\t\tif (this.runtime.isloading)\n\t\t\treturn;\t\t// cannot restart loader layouts\n\t\tif (this.runtime.changelayout)\n\t\t\treturn;\t\t// already changing to a different layout\n;\n\t\tif (!this.runtime.running_layout)\n\t\t\treturn;\n\t\tthis.runtime.changelayout = this.runtime.running_layout;\n\t\tvar i, len, g;\n\t\tfor (i = 0, len = this.runtime.allGroups.length; i < len; i++)\n\t\t{\n\t\t\tg = this.runtime.allGroups[i];\n\t\t\tthis.runtime.activeGroups[g.group_name.toLowerCase()] = g.initially_activated;\n\t\t}\n\t}",
+     "len": 1
+    },
+    "SnapshotCanvas": {
+     "src": "function (format_, quality_)\n\t{\n\t\tthis.runtime.snapshotCanvas = [format_ === 0 ? \"image/png\" : \"image/jpeg\", quality_ / 100];\n\t\tthis.runtime.redraw = true;\t\t// force redraw so snapshot is always taken\n\t}",
+     "len": 2
+    },
+    "SetCanvasSize": {
+     "src": "function (w, h)\n\t{\n\t\tif (w <= 0 || h <= 0)\n\t\t\treturn;\n\t\tthis.runtime[\"setSize\"](w, h);\n\t}",
+     "len": 2
+    },
+    "SetLayoutEffectEnabled": {
+     "src": "function (enable_, effectname_)\n\t{\n\t\tif (!this.runtime.running_layout || !this.runtime.glwrap)\n\t\t\treturn;\n\t\tvar et = this.runtime.running_layout.getEffectByName(effectname_);\n\t\tif (!et)\n\t\t\treturn;\t\t// effect name not found\n\t\tvar enable = (enable_ === 1);\n\t\tif (et.active == enable)\n\t\t\treturn;\t\t// no change\n\t\tet.active = enable;\n\t\tthis.runtime.running_layout.updateActiveEffects();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 2
+    },
+    "SetLayerEffectEnabled": {
+     "src": "function (layer, enable_, effectname_)\n\t{\n\t\tif (!layer || !this.runtime.glwrap)\n\t\t\treturn;\n\t\tvar et = layer.getEffectByName(effectname_);\n\t\tif (!et)\n\t\t\treturn;\t\t// effect name not found\n\t\tvar enable = (enable_ === 1);\n\t\tif (et.active == enable)\n\t\t\treturn;\t\t// no change\n\t\tet.active = enable;\n\t\tlayer.updateActiveEffects();\n\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 3
+    },
+    "SetLayoutEffectParam": {
+     "src": "function (effectname_, index_, value_)\n\t{\n\t\tif (!this.runtime.running_layout || !this.runtime.glwrap)\n\t\t\treturn;\n\t\tvar et = this.runtime.running_layout.getEffectByName(effectname_);\n\t\tif (!et)\n\t\t\treturn;\t\t// effect name not found\n\t\tvar params = this.runtime.running_layout.effect_params[et.index];\n\t\tindex_ = Math.floor(index_);\n\t\tif (index_ < 0 || index_ >= params.length)\n\t\t\treturn;\t\t// effect index out of bounds\n\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\n\t\t\tvalue_ /= 100.0;\n\t\tif (params[index_] === value_)\n\t\t\treturn;\t\t// no change\n\t\tparams[index_] = value_;\n\t\tif (et.active)\n\t\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 3
+    },
+    "SetLayerEffectParam": {
+     "src": "function (layer, effectname_, index_, value_)\n\t{\n\t\tif (!layer || !this.runtime.glwrap)\n\t\t\treturn;\n\t\tvar et = layer.getEffectByName(effectname_);\n\t\tif (!et)\n\t\t\treturn;\t\t// effect name not found\n\t\tvar params = layer.effect_params[et.index];\n\t\tindex_ = Math.floor(index_);\n\t\tif (index_ < 0 || index_ >= params.length)\n\t\t\treturn;\t\t// effect index out of bounds\n\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\n\t\t\tvalue_ /= 100.0;\n\t\tif (params[index_] === value_)\n\t\t\treturn;\t\t// no change\n\t\tparams[index_] = value_;\n\t\tif (et.active)\n\t\t\tthis.runtime.redraw = true;\n\t}",
+     "len": 4
+    },
+    "SaveState": {
+     "src": "function (slot_)\n\t{\n\t\tthis.runtime.saveToSlot = slot_;\n\t}",
+     "len": 1
+    },
+    "LoadState": {
+     "src": "function (slot_)\n\t{\n\t\tthis.runtime.loadFromSlot = slot_;\n\t}",
+     "len": 1
+    },
+    "LoadStateJSON": {
+     "src": "function (jsonstr_)\n\t{\n\t\tthis.runtime.loadFromJson = jsonstr_;\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "int": {
+     "src": "function(ret, x)\n    {\n        if (cr.is_string(x))\n        {\n            ret.set_int(parseInt(x, 10));\n            if (isNaN(ret.data))\n                ret.data = 0;\n        }\n        else\n            ret.set_int(x);\n    }",
+     "len": 2
+    },
+    "float": {
+     "src": "function(ret, x)\n    {\n        if (cr.is_string(x))\n        {\n            ret.set_float(parseFloat(x));\n            if (isNaN(ret.data))\n                ret.data = 0;\n        }\n        else\n            ret.set_float(x);\n    }",
+     "len": 2
+    },
+    "str": {
+     "src": "function(ret, x)\n    {\n        if (cr.is_string(x))\n            ret.set_string(x);\n        else\n            ret.set_string(x.toString());\n    }",
+     "len": 2
+    },
+    "len": {
+     "src": "function(ret, x)\n    {\n        ret.set_int(x.length || 0);\n    }",
+     "len": 2
+    },
+    "random": {
+     "src": "function (ret, a, b)\n    {\n        if (b === undefined)\n        {\n            ret.set_float(Math.random() * a);\n        }\n        else\n        {\n            ret.set_float(Math.random() * (b - a) + a);\n        }\n    }",
+     "len": 3
+    },
+    "sqrt": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.sqrt(x));\n    }",
+     "len": 2
+    },
+    "abs": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.abs(x));\n    }",
+     "len": 2
+    },
+    "round": {
+     "src": "function(ret, x)\n    {\n        ret.set_int(Math.round(x));\n    }",
+     "len": 2
+    },
+    "floor": {
+     "src": "function(ret, x)\n    {\n        ret.set_int(Math.floor(x));\n    }",
+     "len": 2
+    },
+    "ceil": {
+     "src": "function(ret, x)\n    {\n        ret.set_int(Math.ceil(x));\n    }",
+     "len": 2
+    },
+    "sin": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.sin(cr.to_radians(x)));\n    }",
+     "len": 2
+    },
+    "cos": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.cos(cr.to_radians(x)));\n    }",
+     "len": 2
+    },
+    "tan": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.tan(cr.to_radians(x)));\n    }",
+     "len": 2
+    },
+    "asin": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(cr.to_degrees(Math.asin(x)));\n    }",
+     "len": 2
+    },
+    "acos": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(cr.to_degrees(Math.acos(x)));\n    }",
+     "len": 2
+    },
+    "atan": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(cr.to_degrees(Math.atan(x)));\n    }",
+     "len": 2
+    },
+    "exp": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.exp(x));\n    }",
+     "len": 2
+    },
+    "ln": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.log(x));\n    }",
+     "len": 2
+    },
+    "log10": {
+     "src": "function(ret, x)\n    {\n        ret.set_float(Math.log(x) / Math.LN10);\n    }",
+     "len": 2
+    },
+    "max": {
+     "src": "function(ret)\n    {\n\t\tvar max_ = arguments[1];\n\t\tvar i, len;\n\t\tfor (i = 2, len = arguments.length; i < len; i++)\n\t\t{\n\t\t\tif (max_ < arguments[i])\n\t\t\t\tmax_ = arguments[i];\n\t\t}\n\t\tret.set_float(max_);\n    }",
+     "len": 1
+    },
+    "min": {
+     "src": "function(ret)\n    {\n        var min_ = arguments[1];\n\t\tvar i, len;\n\t\tfor (i = 2, len = arguments.length; i < len; i++)\n\t\t{\n\t\t\tif (min_ > arguments[i])\n\t\t\t\tmin_ = arguments[i];\n\t\t}\n\t\tret.set_float(min_);\n    }",
+     "len": 1
+    },
+    "dt": {
+     "src": "function(ret)\n    {\n        ret.set_float(this.runtime.dt);\n    }",
+     "len": 1
+    },
+    "timescale": {
+     "src": "function(ret)\n    {\n        ret.set_float(this.runtime.timescale);\n    }",
+     "len": 1
+    },
+    "wallclocktime": {
+     "src": "function(ret)\n    {\n        ret.set_float((Date.now() - this.runtime.start_time) / 1000.0);\n    }",
+     "len": 1
+    },
+    "time": {
+     "src": "function(ret)\n    {\n        ret.set_float(this.runtime.kahanTime.sum);\n    }",
+     "len": 1
+    },
+    "tickcount": {
+     "src": "function(ret)\n    {\n        ret.set_int(this.runtime.tickcount);\n    }",
+     "len": 1
+    },
+    "objectcount": {
+     "src": "function(ret)\n    {\n        ret.set_int(this.runtime.objectcount);\n    }",
+     "len": 1
+    },
+    "fps": {
+     "src": "function(ret)\n    {\n        ret.set_int(this.runtime.fps);\n    }",
+     "len": 1
+    },
+    "loopindex": {
+     "src": "function(ret, name_)\n    {\n\t\tvar loop, i, len;\n        if (!this.runtime.loop_stack.length)\n        {\n            ret.set_int(0);\n            return;\n        }\n        if (name_)\n        {\n            for (i = 0, len = this.runtime.loop_stack.length; i < len; i++)\n            {\n                loop = this.runtime.loop_stack[i];\n                if (loop.name === name_)\n                {\n                    ret.set_int(loop.index);\n                    return;\n                }\n            }\n            ret.set_int(0);\n        }\n        else\n        {\n\t\t\tloop = this.runtime.getCurrentLoop();\n\t\t\tret.set_int(loop ? loop.index : -1);\n        }\n    }",
+     "len": 2
+    },
+    "distance": {
+     "src": "function(ret, x1, y1, x2, y2)\n    {\n        ret.set_float(cr.distanceTo(x1, y1, x2, y2));\n    }",
+     "len": 5
+    },
+    "angle": {
+     "src": "function(ret, x1, y1, x2, y2)\n    {\n        ret.set_float(cr.to_degrees(cr.angleTo(x1, y1, x2, y2)));\n    }",
+     "len": 5
+    },
+    "scrollx": {
+     "src": "function(ret)\n    {\n        ret.set_float(this.runtime.running_layout.scrollX);\n    }",
+     "len": 1
+    },
+    "scrolly": {
+     "src": "function(ret)\n    {\n        ret.set_float(this.runtime.running_layout.scrollY);\n    }",
+     "len": 1
+    },
+    "newline": {
+     "src": "function(ret)\n    {\n        ret.set_string(\"\\n\");\n    }",
+     "len": 1
+    },
+    "lerp": {
+     "src": "function(ret, a, b, x)\n    {\n        ret.set_float(cr.lerp(a, b, x));\n    }",
+     "len": 4
+    },
+    "windowwidth": {
+     "src": "function(ret)\n    {\n        ret.set_int(this.runtime.width);\n    }",
+     "len": 1
+    },
+    "windowheight": {
+     "src": "function(ret)\n    {\n        ret.set_int(this.runtime.height);\n    }",
+     "len": 1
+    },
+    "uppercase": {
+     "src": "function(ret, str)\n\t{\n\t\tret.set_string(cr.is_string(str) ? str.toUpperCase() : \"\");\n\t}",
+     "len": 2
+    },
+    "lowercase": {
+     "src": "function(ret, str)\n\t{\n\t\tret.set_string(cr.is_string(str) ? str.toLowerCase() : \"\");\n\t}",
+     "len": 2
+    },
+    "clamp": {
+     "src": "function(ret, x, l, u)\n\t{\n\t\tif (x < l)\n\t\t\tret.set_float(l);\n\t\telse if (x > u)\n\t\t\tret.set_float(u);\n\t\telse\n\t\t\tret.set_float(x);\n\t}",
+     "len": 4
+    },
+    "layerscale": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tif (!layer)\n\t\t\tret.set_float(0);\n\t\telse\n\t\t\tret.set_float(layer.scale);\n\t}",
+     "len": 2
+    },
+    "layeropacity": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tif (!layer)\n\t\t\tret.set_float(0);\n\t\telse\n\t\t\tret.set_float(layer.opacity * 100);\n\t}",
+     "len": 2
+    },
+    "layerscalerate": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tif (!layer)\n\t\t\tret.set_float(0);\n\t\telse\n\t\t\tret.set_float(layer.zoomRate);\n\t}",
+     "len": 2
+    },
+    "layoutscale": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.running_layout)\n\t\t\tret.set_float(this.runtime.running_layout.scale);\n\t\telse\n\t\t\tret.set_float(0);\n\t}",
+     "len": 1
+    },
+    "layoutangle": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(cr.to_degrees(this.runtime.running_layout.angle));\n\t}",
+     "len": 1
+    },
+    "layerangle": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tif (!layer)\n\t\t\tret.set_float(0);\n\t\telse\n\t\t\tret.set_float(cr.to_degrees(layer.angle));\n\t}",
+     "len": 2
+    },
+    "layoutwidth": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.runtime.running_layout.width);\n\t}",
+     "len": 1
+    },
+    "layoutheight": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.runtime.running_layout.height);\n\t}",
+     "len": 1
+    },
+    "find": {
+     "src": "function (ret, text, searchstr)\n\t{\n\t\tif (cr.is_string(text) && cr.is_string(searchstr))\n\t\t\tret.set_int(text.search(new RegExp(cr.regexp_escape(searchstr), \"i\")));\n\t\telse\n\t\t\tret.set_int(-1);\n\t}",
+     "len": 3
+    },
+    "left": {
+     "src": "function (ret, text, n)\n\t{\n\t\tret.set_string(cr.is_string(text) ? text.substr(0, n) : \"\");\n\t}",
+     "len": 3
+    },
+    "right": {
+     "src": "function (ret, text, n)\n\t{\n\t\tret.set_string(cr.is_string(text) ? text.substr(text.length - n) : \"\");\n\t}",
+     "len": 3
+    },
+    "mid": {
+     "src": "function (ret, text, index_, length_)\n\t{\n\t\tret.set_string(cr.is_string(text) ? text.substr(index_, length_) : \"\");\n\t}",
+     "len": 4
+    },
+    "tokenat": {
+     "src": "function (ret, text, index_, sep)\n\t{\n\t\tif (cr.is_string(text) && cr.is_string(sep))\n\t\t{\n\t\t\tvar arr = text.split(sep);\n\t\t\tvar i = cr.floor(index_);\n\t\t\tif (i < 0 || i >= arr.length)\n\t\t\t\tret.set_string(\"\");\n\t\t\telse\n\t\t\t\tret.set_string(arr[i]);\n\t\t}\n\t\telse\n\t\t\tret.set_string(\"\");\n\t}",
+     "len": 4
+    },
+    "tokencount": {
+     "src": "function (ret, text, sep)\n\t{\n\t\tif (cr.is_string(text) && text.length)\n\t\t\tret.set_int(text.split(sep).length);\n\t\telse\n\t\t\tret.set_int(0);\n\t}",
+     "len": 3
+    },
+    "replace": {
+     "src": "function (ret, text, find_, replace_)\n\t{\n\t\tif (cr.is_string(text) && cr.is_string(find_) && cr.is_string(replace_))\n\t\t\tret.set_string(text.replace(new RegExp(cr.regexp_escape(find_), \"gi\"), replace_));\n\t\telse\n\t\t\tret.set_string(cr.is_string(text) ? text : \"\");\n\t}",
+     "len": 4
+    },
+    "trim": {
+     "src": "function (ret, text)\n\t{\n\t\tret.set_string(cr.is_string(text) ? text.trim() : \"\");\n\t}",
+     "len": 2
+    },
+    "pi": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(cr.PI);\n\t}",
+     "len": 1
+    },
+    "layoutname": {
+     "src": "function (ret)\n\t{\n\t\tif (this.runtime.running_layout)\n\t\t\tret.set_string(this.runtime.running_layout.name);\n\t\telse\n\t\t\tret.set_string(\"\");\n\t}",
+     "len": 1
+    },
+    "renderer": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.runtime.gl ? \"webgl\" : \"canvas2d\");\n\t}",
+     "len": 1
+    },
+    "anglediff": {
+     "src": "function (ret, a, b)\n\t{\n\t\tret.set_float(cr.to_degrees(cr.angleDiff(cr.to_radians(a), cr.to_radians(b))));\n\t}",
+     "len": 3
+    },
+    "choose": {
+     "src": "function (ret)\n\t{\n\t\tvar index = cr.floor(Math.random() * (arguments.length - 1));\n\t\tret.set_any(arguments[index + 1]);\n\t}",
+     "len": 1
+    },
+    "rgb": {
+     "src": "function (ret, r, g, b)\n\t{\n\t\tret.set_int(cr.RGB(r, g, b));\n\t}",
+     "len": 4
+    },
+    "projectversion": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.runtime.versionstr);\n\t}",
+     "len": 1
+    },
+    "anglelerp": {
+     "src": "function (ret, a, b, x)\n\t{\n\t\ta = cr.to_radians(a);\n\t\tb = cr.to_radians(b);\n\t\tvar diff = cr.angleDiff(a, b);\n\t\tif (cr.angleClockwise(b, a))\n\t\t{\n\t\t\tret.set_float(cr.to_clamped_degrees(a + diff * x));\n\t\t}\n\t\telse\n\t\t{\n\t\t\tret.set_float(cr.to_clamped_degrees(a - diff * x));\n\t\t}\n\t}",
+     "len": 4
+    },
+    "anglerotate": {
+     "src": "function (ret, a, b, c)\n\t{\n\t\ta = cr.to_radians(a);\n\t\tb = cr.to_radians(b);\n\t\tc = cr.to_radians(c);\n\t\tret.set_float(cr.to_clamped_degrees(cr.angleRotate(a, b, c)));\n\t}",
+     "len": 4
+    },
+    "zeropad": {
+     "src": "function (ret, n, d)\n\t{\n\t\tvar s = (n < 0 ? \"-\" : \"\");\n\t\tif (n < 0) n = -n;\n\t\tvar zeroes = d - n.toString().length;\n\t\tfor (var i = 0; i < zeroes; i++)\n\t\t\ts += \"0\";\n\t\tret.set_string(s + n.toString());\n\t}",
+     "len": 3
+    },
+    "cpuutilisation": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.runtime.cpuutilisation / 1000);\n\t}",
+     "len": 1
+    },
+    "viewportleft": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.viewLeft : 0);\n\t}",
+     "len": 2
+    },
+    "viewporttop": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.viewTop : 0);\n\t}",
+     "len": 2
+    },
+    "viewportright": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.viewRight : 0);\n\t}",
+     "len": 2
+    },
+    "viewportbottom": {
+     "src": "function (ret, layerparam)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.viewBottom : 0);\n\t}",
+     "len": 2
+    },
+    "loadingprogress": {
+     "src": "function (ret)\n\t{\n\t\tret.set_float(this.runtime.loadingprogress);\n\t}",
+     "len": 1
+    },
+    "unlerp": {
+     "src": "function(ret, a, b, y)\n    {\n        ret.set_float((y - a) / (b - a));\n    }",
+     "len": 4
+    },
+    "canvassnapshot": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.runtime.snapshotData);\n\t}",
+     "len": 1
+    },
+    "urlencode": {
+     "src": "function (ret, s)\n\t{\n\t\tret.set_string(encodeURIComponent(s));\n\t}",
+     "len": 2
+    },
+    "urldecode": {
+     "src": "function (ret, s)\n\t{\n\t\tret.set_string(decodeURIComponent(s));\n\t}",
+     "len": 2
+    },
+    "canvastolayerx": {
+     "src": "function (ret, layerparam, x, y)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.canvasToLayer(x, y, true) : 0);\n\t}",
+     "len": 4
+    },
+    "canvastolayery": {
+     "src": "function (ret, layerparam, x, y)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.canvasToLayer(x, y, false) : 0);\n\t}",
+     "len": 4
+    },
+    "layertocanvasx": {
+     "src": "function (ret, layerparam, x, y)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.layerToCanvas(x, y, true) : 0);\n\t}",
+     "len": 4
+    },
+    "layertocanvasy": {
+     "src": "function (ret, layerparam, x, y)\n\t{\n\t\tvar layer = this.runtime.getLayer(layerparam);\n\t\tret.set_float(layer ? layer.layerToCanvas(x, y, false) : 0);\n\t}",
+     "len": 4
+    },
+    "savestatejson": {
+     "src": "function (ret)\n\t{\n\t\tret.set_string(this.runtime.lastSaveJson);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Common": {
+   "cnds": {
+    "CompareX": {
+     "src": "function (cmp, x)\n        {\n            return cr.do_cmp(this.x, cmp, x);\n        }",
+     "len": 2
+    },
+    "CompareY": {
+     "src": "function (cmp, y)\n        {\n            return cr.do_cmp(this.y, cmp, y);\n        }",
+     "len": 2
+    },
+    "IsOnScreen": {
+     "src": "function ()\n        {\n\t\t\tvar layer = this.layer;\n            this.update_bbox();\n            var bbox = this.bbox;\n            return !(bbox.right < layer.viewLeft || bbox.bottom < layer.viewTop || bbox.left > layer.viewRight || bbox.top > layer.viewBottom);\n        }",
+     "len": 0
+    },
+    "IsOutsideLayout": {
+     "src": "function ()\n        {\n            this.update_bbox();\n            var bbox = this.bbox;\n            var layout = this.runtime.running_layout;\n            return (bbox.right < 0 || bbox.bottom < 0 || bbox.left > layout.width || bbox.top > layout.height);\n        }",
+     "len": 0
+    },
+    "PickDistance": {
+     "src": "function (which, x, y)\n\t\t{\n\t\t\tvar sol = this.getCurrentSol();\n\t\t\tvar instances = sol.getObjects();\n\t\t\tif (!instances.length)\n\t\t\t\treturn false;\n\t\t\tvar inst = instances[0];\n\t\t\tvar pickme = inst;\n\t\t\tvar dist = cr.distanceTo(inst.x, inst.y, x, y);\n\t\t\tvar i, len, d;\n\t\t\tfor (i = 1, len = instances.length; i < len; i++)\n\t\t\t{\n\t\t\t\tinst = instances[i];\n\t\t\t\td = cr.distanceTo(inst.x, inst.y, x, y);\n\t\t\t\tif ((which === 0 && d < dist) || (which === 1 && d > dist))\n\t\t\t\t{\n\t\t\t\t\tdist = d;\n\t\t\t\t\tpickme = inst;\n\t\t\t\t}\n\t\t\t}\n\t\t\tsol.pick_one(pickme);\n\t\t\treturn true;\n\t\t}",
+     "len": 3
+    },
+    "CompareWidth": {
+     "src": "function (cmp, w)\n        {\n            return cr.do_cmp(this.width, cmp, w);\n        }",
+     "len": 2
+    },
+    "CompareHeight": {
+     "src": "function (cmp, h)\n        {\n            return cr.do_cmp(this.height, cmp, h);\n        }",
+     "len": 2
+    },
+    "AngleWithin": {
+     "src": "function (within, a)\n        {\n            return cr.angleDiff(this.angle, cr.to_radians(a)) <= cr.to_radians(within);\n        }",
+     "len": 2
+    },
+    "IsClockwiseFrom": {
+     "src": "function (a)\n        {\n            return cr.angleClockwise(this.angle, cr.to_radians(a));\n        }",
+     "len": 1
+    },
+    "IsBetweenAngles": {
+     "src": "function (a, b)\n\t\t{\n\t\t\tvar lower = cr.to_clamped_radians(a);\n\t\t\tvar upper = cr.to_clamped_radians(b);\n\t\t\tvar angle = cr.clamp_angle(this.angle);\n\t\t\tvar obtuse = (!cr.angleClockwise(upper, lower));\n\t\t\tif (obtuse)\n\t\t\t\treturn !(!cr.angleClockwise(angle, lower) && cr.angleClockwise(angle, upper));\n\t\t\telse\n\t\t\t\treturn cr.angleClockwise(angle, lower) && !cr.angleClockwise(angle, upper);\n\t\t}",
+     "len": 2
+    },
+    "CompareInstanceVar": {
+     "src": "function (iv, cmp, val)\n        {\n            return cr.do_cmp(this.instance_vars[iv], cmp, val);\n        }",
+     "len": 3
+    },
+    "IsBoolInstanceVarSet": {
+     "src": "function (iv)\n        {\n            return this.instance_vars[iv];\n        }",
+     "len": 1
+    },
+    "PickByUID": {
+     "src": "function (u)\n\t\t{\n\t\t\treturn this.uid === u;\n\t\t}",
+     "len": 1
+    },
+    "OnCreated": {
+     "src": "function ()\n\t\t{\n\t\t\treturn true;\n\t\t}",
+     "len": 0
+    },
+    "OnDestroyed": {
+     "src": "function ()\n\t\t{\n\t\t\treturn true;\n\t\t}",
+     "len": 0
+    },
+    "IsVisible": {
+     "src": "function ()\n        {\n            return this.visible;\n        }",
+     "len": 0
+    },
+    "CompareOpacity": {
+     "src": "function (cmp, x)\n        {\n            return cr.do_cmp(cr.round6dp(this.opacity * 100), cmp, x);\n        }",
+     "len": 2
+    },
+    "IsOnLayer": {
+     "src": "function (layer_)\n\t\t{\n\t\t\tif (!layer_)\n\t\t\t\treturn false;\n\t\t\treturn this.layer === layer_;\n\t\t}",
+     "len": 1
+    },
+    "PickTopBottom": {
+     "src": "function (which_)\n\t\t{\n\t\t\tvar sol = this.getCurrentSol();\n\t\t\tvar instances = sol.getObjects();\n\t\t\tif (!instances.length)\n\t\t\t\treturn false;\n\t\t\tvar inst = instances[0];\n\t\t\tvar pickme = inst;\n\t\t\tvar i, len;\n\t\t\tfor (i = 1, len = instances.length; i < len; i++)\n\t\t\t{\n\t\t\t\tinst = instances[i];\n\t\t\t\tif (which_ === 0)\n\t\t\t\t{\n\t\t\t\t\tif (inst.layer.index > pickme.layer.index || (inst.layer.index === pickme.layer.index && inst.get_zindex() > pickme.get_zindex()))\n\t\t\t\t\t{\n\t\t\t\t\t\tpickme = inst;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tif (inst.layer.index < pickme.layer.index || (inst.layer.index === pickme.layer.index && inst.get_zindex() < pickme.get_zindex()))\n\t\t\t\t\t{\n\t\t\t\t\t\tpickme = inst;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\tsol.pick_one(pickme);\n\t\t\treturn true;\n\t\t}",
+     "len": 1
+    }
+   },
+   "acts": {
+    "SetX": {
+     "src": "function (x)\n        {\n            if (this.x !== x)\n            {\n                this.x = x;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "SetY": {
+     "src": "function (y)\n        {\n            if (this.y !== y)\n            {\n                this.y = y;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "SetPos": {
+     "src": "function (x, y)\n        {\n            if (this.x !== x || this.y !== y)\n            {\n                this.x = x;\n                this.y = y;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "SetPosToObject": {
+     "src": "function (obj, imgpt)\n        {\n            var inst = obj.getPairedInstance(this);\n            if (!inst)\n\t\t\t\treturn;\n\t\t\tvar newx, newy;\n\t\t\tif (inst.getImagePoint)\n\t\t\t{\n\t\t\t\tnewx = inst.getImagePoint(imgpt, true);\n\t\t\t\tnewy = inst.getImagePoint(imgpt, false);\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tnewx = inst.x;\n\t\t\t\tnewy = inst.y;\n\t\t\t}\n\t\t\tif (this.x !== newx || this.y !== newy)\n            {\n\t\t\t\tthis.x = newx;\n\t\t\t\tthis.y = newy;\n\t\t\t\tthis.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "MoveForward": {
+     "src": "function (dist)\n        {\n            if (dist !== 0)\n            {\n                this.x += Math.cos(this.angle) * dist;\n                this.y += Math.sin(this.angle) * dist;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "MoveAtAngle": {
+     "src": "function (a, dist)\n        {\n            if (dist !== 0)\n            {\n                this.x += Math.cos(cr.to_radians(a)) * dist;\n                this.y += Math.sin(cr.to_radians(a)) * dist;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "SetWidth": {
+     "src": "function (w)\n        {\n            if (this.width !== w)\n            {\n                this.width = w;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "SetHeight": {
+     "src": "function (h)\n        {\n            if (this.height !== h)\n            {\n                this.height = h;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "SetSize": {
+     "src": "function (w, h)\n        {\n            if (this.width !== w || this.height !== h)\n            {\n                this.width = w;\n                this.height = h;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "SetAngle": {
+     "src": "function (a)\n        {\n            var newangle = cr.to_radians(cr.clamp_angle_degrees(a));\n            if (isNaN(newangle))\n                return;\n            if (this.angle !== newangle)\n            {\n                this.angle = newangle;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "RotateClockwise": {
+     "src": "function (a)\n        {\n            if (a !== 0 && !isNaN(a))\n            {\n                this.angle += cr.to_radians(a);\n                this.angle = cr.clamp_angle(this.angle);\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "RotateCounterclockwise": {
+     "src": "function (a)\n        {\n            if (a !== 0 && !isNaN(a))\n            {\n                this.angle -= cr.to_radians(a);\n                this.angle = cr.clamp_angle(this.angle);\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 1
+    },
+    "RotateTowardAngle": {
+     "src": "function (amt, target)\n        {\n            var newangle = cr.angleRotate(this.angle, cr.to_radians(target), cr.to_radians(amt));\n            if (isNaN(newangle))\n                return;\n            if (this.angle !== newangle)\n            {\n                this.angle = newangle;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "RotateTowardPosition": {
+     "src": "function (amt, x, y)\n        {\n            var dx = x - this.x;\n            var dy = y - this.y;\n            var target = Math.atan2(dy, dx);\n            var newangle = cr.angleRotate(this.angle, target, cr.to_radians(amt));\n            if (isNaN(newangle))\n                return;\n            if (this.angle !== newangle)\n            {\n                this.angle = newangle;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 3
+    },
+    "SetTowardPosition": {
+     "src": "function (x, y)\n        {\n            var dx = x - this.x;\n            var dy = y - this.y;\n            var newangle = Math.atan2(dy, dx);\n            if (isNaN(newangle))\n                return;\n            if (this.angle !== newangle)\n            {\n                this.angle = newangle;\n                this.set_bbox_changed();\n            }\n        }",
+     "len": 2
+    },
+    "SetInstanceVar": {
+     "src": "function (iv, val)\n        {\n\t\t\tvar myinstvars = this.instance_vars;\n            if (cr.is_number(myinstvars[iv]))\n            {\n                if (cr.is_number(val))\n                    myinstvars[iv] = val;\n                else\n                    myinstvars[iv] = parseFloat(val);\n            }\n            else if (cr.is_string(myinstvars[iv]))\n            {\n                if (cr.is_string(val))\n                    myinstvars[iv] = val;\n                else\n                    myinstvars[iv] = val.toString();\n            }\n            else\n;\n        }",
+     "len": 2
+    },
+    "AddInstanceVar": {
+     "src": "function (iv, val)\n        {\n\t\t\tvar myinstvars = this.instance_vars;\n            if (cr.is_number(myinstvars[iv]))\n            {\n                if (cr.is_number(val))\n                    myinstvars[iv] += val;\n                else\n                    myinstvars[iv] += parseFloat(val);\n            }\n            else if (cr.is_string(myinstvars[iv]))\n            {\n                if (cr.is_string(val))\n                    myinstvars[iv] += val;\n                else\n                    myinstvars[iv] += val.toString();\n            }\n            else\n;\n        }",
+     "len": 2
+    },
+    "SubInstanceVar": {
+     "src": "function (iv, val)\n        {\n\t\t\tvar myinstvars = this.instance_vars;\n            if (cr.is_number(myinstvars[iv]))\n            {\n                if (cr.is_number(val))\n                    myinstvars[iv] -= val;\n                else\n                    myinstvars[iv] -= parseFloat(val);\n            }\n            else\n;\n        }",
+     "len": 2
+    },
+    "SetBoolInstanceVar": {
+     "src": "function (iv, val)\n        {\n            this.instance_vars[iv] = val ? 1 : 0;\n        }",
+     "len": 2
+    },
+    "ToggleBoolInstanceVar": {
+     "src": "function (iv)\n        {\n            this.instance_vars[iv] = 1 - this.instance_vars[iv];\n        }",
+     "len": 1
+    },
+    "Destroy": {
+     "src": "function ()\n        {\n            this.runtime.DestroyInstance(this);\n        }",
+     "len": 0
+    },
+    "SetVisible": {
+     "src": "function (v)\n        {\n\t\t\tif (!v !== !this.visible)\n\t\t\t{\n\t\t\t\tthis.visible = v;\n\t\t\t\tthis.runtime.redraw = true;\n\t\t\t}\n        }",
+     "len": 1
+    },
+    "SetOpacity": {
+     "src": "function (x)\n        {\n            var new_opacity = x / 100.0;\n            if (new_opacity < 0)\n                new_opacity = 0;\n            else if (new_opacity > 1)\n                new_opacity = 1;\n            if (new_opacity !== this.opacity)\n            {\n                this.opacity = new_opacity;\n                this.runtime.redraw = true;\n            }\n        }",
+     "len": 1
+    },
+    "MoveToTop": {
+     "src": "function ()\n\t\t{\n\t\t\tvar zindex = this.get_zindex();\n\t\t\tif (zindex === this.layer.instances.length - 1)\n\t\t\t\treturn;\n\t\t\tcr.arrayRemove(this.layer.instances, zindex);\n\t\t\tthis.layer.instances.push(this);\n\t\t\tthis.runtime.redraw = true;\n\t\t\tthis.layer.zindices_stale = true;\n\t\t}",
+     "len": 0
+    },
+    "MoveToBottom": {
+     "src": "function ()\n\t\t{\n\t\t\tvar zindex = this.get_zindex();\n\t\t\tif (zindex === 0)\n\t\t\t\treturn;\n\t\t\tcr.arrayRemove(this.layer.instances, zindex);\n\t\t\tthis.layer.instances.unshift(this);\n\t\t\tthis.runtime.redraw = true;\n\t\t\tthis.layer.zindices_stale = true;\n\t\t}",
+     "len": 0
+    },
+    "MoveToLayer": {
+     "src": "function (layerMove)\n\t\t{\n\t\t\tif (!layerMove || layerMove == this.layer)\n\t\t\t\treturn;\n\t\t\tcr.arrayRemove(this.layer.instances, this.get_zindex());\n\t\t\tthis.layer.zindices_stale = true;\n\t\t\tthis.layer = layerMove;\n\t\t\tthis.zindex = layerMove.instances.length;\n\t\t\tlayerMove.instances.push(this);\n\t\t\tthis.runtime.redraw = true;\n\t\t}",
+     "len": 1
+    },
+    "ZMoveToObject": {
+     "src": "function (where_, obj_)\n\t\t{\n\t\t\tvar isafter = (where_ === 0);\n\t\t\tif (!obj_)\n\t\t\t\treturn;\n\t\t\tvar other = obj_.getFirstPicked(this);\n\t\t\tif (!other || other.uid === this.uid)\n\t\t\t\treturn;\n\t\t\tif (this.layer.index !== other.layer.index)\n\t\t\t{\n\t\t\t\tcr.arrayRemove(this.layer.instances, this.get_zindex());\n\t\t\t\tthis.layer.zindices_stale = true;\n\t\t\t\tthis.layer = other.layer;\n\t\t\t\tthis.zindex = other.layer.instances.length;\n\t\t\t\tother.layer.instances.push(this);\n\t\t\t}\n\t\t\tvar myZ = this.get_zindex();\n\t\t\tvar insertZ = other.get_zindex();\n\t\t\tcr.arrayRemove(this.layer.instances, myZ);\n\t\t\tif (myZ < insertZ)\n\t\t\t\tinsertZ--;\n\t\t\tif (isafter)\n\t\t\t\tinsertZ++;\n\t\t\tif (insertZ === this.layer.instances.length)\n\t\t\t\tthis.layer.instances.push(this);\n\t\t\telse\n\t\t\t\tthis.layer.instances.splice(insertZ, 0, this);\n\t\t\tthis.layer.zindices_stale = true;\n\t\t\tthis.runtime.redraw = true;\n\t\t}",
+     "len": 2
+    },
+    "SetEffectEnabled": {
+     "src": "function (enable_, effectname_)\n\t\t{\n\t\t\tif (!this.runtime.glwrap)\n\t\t\t\treturn;\n\t\t\tvar i = this.type.getEffectIndexByName(effectname_);\n\t\t\tif (i < 0)\n\t\t\t\treturn;\t\t// effect name not found\n\t\t\tvar enable = (enable_ === 1);\n\t\t\tif (this.active_effect_flags[i] === enable)\n\t\t\t\treturn;\t\t// no change\n\t\t\tthis.active_effect_flags[i] = enable;\n\t\t\tthis.updateActiveEffects();\n\t\t\tthis.runtime.redraw = true;\n\t\t}",
+     "len": 2
+    },
+    "SetEffectParam": {
+     "src": "function (effectname_, index_, value_)\n\t\t{\n\t\t\tif (!this.runtime.glwrap)\n\t\t\t\treturn;\n\t\t\tvar i = this.type.getEffectIndexByName(effectname_);\n\t\t\tif (i < 0)\n\t\t\t\treturn;\t\t// effect name not found\n\t\t\tvar et = this.type.effect_types[i];\n\t\t\tvar params = this.effect_params[i];\n\t\t\tindex_ = Math.floor(index_);\n\t\t\tif (index_ < 0 || index_ >= params.length)\n\t\t\t\treturn;\t\t// effect index out of bounds\n\t\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\n\t\t\t\tvalue_ /= 100.0;\n\t\t\tif (params[index_] === value_)\n\t\t\t\treturn;\t\t// no change\n\t\t\tparams[index_] = value_;\n\t\t\tif (et.active)\n\t\t\t\tthis.runtime.redraw = true;\n\t\t}",
+     "len": 3
+    }
+   },
+   "exps": {
+    "X": {
+     "src": "function (ret)\n        {\n            ret.set_float(this.x);\n        }",
+     "len": 1
+    },
+    "Y": {
+     "src": "function (ret)\n        {\n            ret.set_float(this.y);\n        }",
+     "len": 1
+    },
+    "dt": {
+     "src": "function (ret)\n        {\n            ret.set_float(this.runtime.getDt(this));\n        }",
+     "len": 1
+    },
+    "Width": {
+     "src": "function (ret)\n        {\n            ret.set_float(this.width);\n        }",
+     "len": 1
+    },
+    "Height": {
+     "src": "function (ret)\n        {\n            ret.set_float(this.height);\n        }",
+     "len": 1
+    },
+    "BBoxLeft": {
+     "src": "function (ret)\n        {\n\t\t\tthis.update_bbox();\n            ret.set_float(this.bbox.left);\n        }",
+     "len": 1
+    },
+    "BBoxTop": {
+     "src": "function (ret)\n        {\n\t\t\tthis.update_bbox();\n            ret.set_float(this.bbox.top);\n        }",
+     "len": 1
+    },
+    "BBoxRight": {
+     "src": "function (ret)\n        {\n\t\t\tthis.update_bbox();\n            ret.set_float(this.bbox.right);\n        }",
+     "len": 1
+    },
+    "BBoxBottom": {
+     "src": "function (ret)\n        {\n\t\t\tthis.update_bbox();\n            ret.set_float(this.bbox.bottom);\n        }",
+     "len": 1
+    },
+    "Angle": {
+     "src": "function (ret)\n        {\n            ret.set_float(cr.to_clamped_degrees(this.angle));\n        }",
+     "len": 1
+    },
+    "Count": {
+     "src": "function (ret)\n        {\n\t\t\tvar count = ret.object_class.instances.length;\n\t\t\tvar i, len, inst;\n\t\t\tfor (i = 0, len = this.runtime.createRow.length; i < len; i++)\n\t\t\t{\n\t\t\t\tinst = this.runtime.createRow[i];\n\t\t\t\tif (ret.object_class.is_family)\n\t\t\t\t{\n\t\t\t\t\tif (inst.type.families.indexOf(ret.object_class) >= 0)\n\t\t\t\t\t\tcount++;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tif (inst.type === ret.object_class)\n\t\t\t\t\t\tcount++;\n\t\t\t\t}\n\t\t\t}\n            ret.set_int(count);\n        }",
+     "len": 1
+    },
+    "PickedCount": {
+     "src": "function (ret)\n        {\n            ret.set_int(ret.object_class.getCurrentSol().getObjects().length);\n        }",
+     "len": 1
+    },
+    "UID": {
+     "src": "function (ret)\n\t\t{\n\t\t\tret.set_int(this.uid);\n\t\t}",
+     "len": 1
+    },
+    "IID": {
+     "src": "function (ret)\n\t\t{\n\t\t\tret.set_int(this.get_iid());\n\t\t}",
+     "len": 1
+    },
+    "Opacity": {
+     "src": "function (ret)\n        {\n            ret.set_float(cr.round6dp(this.opacity * 100.0));\n        }",
+     "len": 1
+    },
+    "LayerNumber": {
+     "src": "function (ret)\n\t\t{\n\t\t\tret.set_int(this.layer.number);\n\t\t}",
+     "len": 1
+    },
+    "LayerName": {
+     "src": "function (ret)\n\t\t{\n\t\t\tret.set_string(this.layer.name);\n\t\t}",
+     "len": 1
+    },
+    "ZIndex": {
+     "src": "function (ret)\n\t\t{\n\t\t\tret.set_int(this.get_zindex());\n\t\t}",
+     "len": 1
+    }
+   }
+  }
+ },
+ "behaviors": {
+  "DragnDrop": {
+   "cnds": {
+    "IsDragging": {
+     "src": "function ()\n\t{\n\t\treturn this.dragging;\n\t}",
+     "len": 0
+    },
+    "OnDragStart": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "OnDrop": {
+     "src": "function ()\n\t{\n\t\treturn true;\n\t}",
+     "len": 0
+    },
+    "IsEnabled": {
+     "src": "function ()\n\t{\n\t\treturn !!this.enabled;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "SetEnabled": {
+     "src": "function (s)\n\t{\n\t\tthis.enabled = (s !== 0);\n\t\tif (!this.enabled)\n\t\t\tthis.dragging = false;\n\t}",
+     "len": 1
+    },
+    "Drop": {
+     "src": "function ()\n\t{\n\t\tif (this.dragging)\n\t\t\tthis.onUp();\n\t}",
+     "len": 0
+    }
+   },
+   "exps": {}
+  },
+  "Pin": {
+   "cnds": {
+    "IsPinned": {
+     "src": "function ()\n\t{\n\t\treturn !!this.pinObject;\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Pin": {
+     "src": "function (obj, mode_)\n\t{\n\t\tif (!obj)\n\t\t\treturn;\n\t\tvar otherinst = obj.getFirstPicked(this.inst);\n\t\tif (!otherinst)\n\t\t\treturn;\n\t\tthis.pinObject = otherinst;\n\t\tthis.pinAngle = cr.angleTo(otherinst.x, otherinst.y, this.inst.x, this.inst.y) - otherinst.angle;\n\t\tthis.pinDist = cr.distanceTo(otherinst.x, otherinst.y, this.inst.x, this.inst.y);\n\t\tthis.myStartAngle = this.inst.angle;\n\t\tthis.lastKnownAngle = this.inst.angle;\n\t\tthis.theirStartAngle = otherinst.angle;\n\t\tthis.mode = mode_;\n\t}",
+     "len": 2
+    },
+    "Unpin": {
+     "src": "function ()\n\t{\n\t\tthis.pinObject = null;\n\t}",
+     "len": 0
+    }
+   },
+   "exps": {
+    "PinnedUID": {
+     "src": "function (ret)\n\t{\n\t\tret.set_int(this.pinObject ? this.pinObject.uid : -1);\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "bound": {}
+ },
+ "table": [
+  "attr"
+ ]
+}

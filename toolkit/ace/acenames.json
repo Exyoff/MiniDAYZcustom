@@ -1,0 +1,4336 @@
+{
+ "ctors": {
+  "Mc": "NinePatch",
+  "Ac": "AJAX",
+  "Bc": "Arr",
+  "Cc": "Audio",
+  "Dc": "Browser",
+  "Ec": "Dictionary",
+  "Nc": "Particles",
+  "Lc": "Mouse",
+  "Gc": "List",
+  "Kc": "LocalStorage",
+  "zc": "Function",
+  "Fc": "Keyboard",
+  "W": "Sprite",
+  "Pc": "TextBox",
+  "Qc": "TiledBg",
+  "Oc": "Spritefont2",
+  "Rc": "Tilemap",
+  "Tc": "XML",
+  "Y": "Text",
+  "Sc": "Touch",
+  "bd": "Pin",
+  "Xc": "DragnDrop",
+  "$c": "Flash",
+  "md": "destroy",
+  "ld": "bound",
+  "od": "scrollto",
+  "jd": "Timer",
+  "ad": "LOS",
+  "xc": "solid",
+  "yc": "NoSave",
+  "Yc": "EightDir",
+  "Zc": "Fade",
+  "Vc": "Bullet",
+  "kd": "Turret",
+  "Uc": "Anchor",
+  "cd": "Rotate",
+  "dd": "Sin",
+  "Wc": "Car"
+ },
+ "table": [
+  {
+   "i": 0,
+   "expr": "Mc",
+   "kind": "plugin",
+   "name": "NinePatch"
+  },
+  {
+   "i": 1,
+   "expr": "Ac",
+   "kind": "plugin",
+   "name": "AJAX"
+  },
+  {
+   "i": 2,
+   "expr": "Bc",
+   "kind": "plugin",
+   "name": "Arr"
+  },
+  {
+   "i": 3,
+   "expr": "Cc",
+   "kind": "plugin",
+   "name": "Audio"
+  },
+  {
+   "i": 4,
+   "expr": "Dc",
+   "kind": "plugin",
+   "name": "Browser"
+  },
+  {
+   "i": 5,
+   "expr": "Ec",
+   "kind": "plugin",
+   "name": "Dictionary"
+  },
+  {
+   "i": 6,
+   "expr": "Nc",
+   "kind": "plugin",
+   "name": "Particles"
+  },
+  {
+   "i": 7,
+   "expr": "Lc",
+   "kind": "plugin",
+   "name": "Mouse"
+  },
+  {
+   "i": 8,
+   "expr": "Gc",
+   "kind": "plugin",
+   "name": "List"
+  },
+  {
+   "i": 9,
+   "expr": "Kc",
+   "kind": "plugin",
+   "name": "LocalStorage"
+  },
+  {
+   "i": 10,
+   "expr": "zc",
+   "kind": "plugin",
+   "name": "Function"
+  },
+  {
+   "i": 11,
+   "expr": "Fc",
+   "kind": "plugin",
+   "name": "Keyboard"
+  },
+  {
+   "i": 12,
+   "expr": "W",
+   "kind": "plugin",
+   "name": "Sprite"
+  },
+  {
+   "i": 13,
+   "expr": "Pc",
+   "kind": "plugin",
+   "name": "TextBox"
+  },
+  {
+   "i": 14,
+   "expr": "Qc",
+   "kind": "plugin",
+   "name": "TiledBg"
+  },
+  {
+   "i": 15,
+   "expr": "Oc",
+   "kind": "plugin",
+   "name": "Spritefont2"
+  },
+  {
+   "i": 16,
+   "expr": "Rc",
+   "kind": "plugin",
+   "name": "Tilemap"
+  },
+  {
+   "i": 17,
+   "expr": "Tc",
+   "kind": "plugin",
+   "name": "XML"
+  },
+  {
+   "i": 18,
+   "expr": "Y",
+   "kind": "plugin",
+   "name": "Text"
+  },
+  {
+   "i": 19,
+   "expr": "Sc",
+   "kind": "plugin",
+   "name": "Touch"
+  },
+  {
+   "i": 20,
+   "expr": "bd",
+   "kind": "behavior",
+   "name": "Pin"
+  },
+  {
+   "i": 21,
+   "expr": "Xc",
+   "kind": "behavior",
+   "name": "DragnDrop"
+  },
+  {
+   "i": 22,
+   "expr": "$c",
+   "kind": "behavior",
+   "name": "Flash"
+  },
+  {
+   "i": 23,
+   "expr": "md",
+   "kind": "behavior",
+   "name": "destroy"
+  },
+  {
+   "i": 24,
+   "expr": "ld",
+   "kind": "behavior",
+   "name": "bound"
+  },
+  {
+   "i": 25,
+   "expr": "od",
+   "kind": "behavior",
+   "name": "scrollto"
+  },
+  {
+   "i": 26,
+   "expr": "jd",
+   "kind": "behavior",
+   "name": "Timer"
+  },
+  {
+   "i": 27,
+   "expr": "ad",
+   "kind": "behavior",
+   "name": "LOS"
+  },
+  {
+   "i": 28,
+   "expr": "xc",
+   "kind": "behavior",
+   "name": "solid"
+  },
+  {
+   "i": 29,
+   "expr": "yc",
+   "kind": "behavior",
+   "name": "NoSave"
+  },
+  {
+   "i": 30,
+   "expr": "Yc",
+   "kind": "behavior",
+   "name": "EightDir"
+  },
+  {
+   "i": 31,
+   "expr": "Zc",
+   "kind": "behavior",
+   "name": "Fade"
+  },
+  {
+   "i": 32,
+   "expr": "Vc",
+   "kind": "behavior",
+   "name": "Bullet"
+  },
+  {
+   "i": 33,
+   "expr": "kd",
+   "kind": "behavior",
+   "name": "Turret"
+  },
+  {
+   "i": 34,
+   "expr": "Uc",
+   "kind": "behavior",
+   "name": "Anchor"
+  },
+  {
+   "i": 35,
+   "expr": "cd",
+   "kind": "behavior",
+   "name": "Rotate"
+  },
+  {
+   "i": 36,
+   "expr": "dd",
+   "kind": "behavior",
+   "name": "Sin"
+  },
+  {
+   "i": 37,
+   "expr": "Wc",
+   "kind": "behavior",
+   "name": "Car"
+  },
+  {
+   "i": 38,
+   "expr": "H.prototype.k.qA",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "IsGroupActive",
+   "how": 0.885,
+   "len": 1
+  },
+  {
+   "i": 39,
+   "expr": "H.prototype.k.Iu",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "OnLayoutStart",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 40,
+   "expr": "zc.prototype.k.qn",
+   "kind": "cnds",
+   "owner": "Function",
+   "name": "OnFunction",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 41,
+   "expr": "H.prototype.n.GC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetVar",
+   "how": 0.615,
+   "len": 2
+  },
+  {
+   "i": 42,
+   "expr": "H.prototype.A.zH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "viewportright",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 43,
+   "expr": "H.prototype.A.yH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "viewportleft",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 44,
+   "expr": "H.prototype.A.xH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "viewportbottom",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 45,
+   "expr": "H.prototype.A.AH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "viewporttop",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 46,
+   "expr": "H.prototype.k.Iz",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "CompareVar",
+   "how": 0.824,
+   "len": 3
+  },
+  {
+   "i": 47,
+   "expr": "W.prototype.n.Ek",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetPos",
+   "how": 0.755,
+   "len": 2
+  },
+  {
+   "i": 48,
+   "expr": "H.prototype.n.iC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayerScale",
+   "how": 0.501,
+   "len": 2
+  },
+  {
+   "i": 49,
+   "expr": "H.prototype.k.yz",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "CompareBetween",
+   "how": 0.528,
+   "len": 3
+  },
+  {
+   "i": 50,
+   "expr": "Xc.prototype.n.od",
+   "kind": "acts",
+   "owner": "DragnDrop",
+   "name": "SetEnabled",
+   "how": 0.744,
+   "len": 1
+  },
+  {
+   "i": 51,
+   "expr": "H.prototype.k.xz",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "Compare",
+   "how": "manual",
+   "len": 3
+  },
+  {
+   "i": 52,
+   "expr": "H.prototype.A.XF",
+   "kind": "exps",
+   "owner": "System",
+   "name": "layoutname",
+   "how": 0.886,
+   "len": 1
+  },
+  {
+   "i": 53,
+   "expr": "W.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 54,
+   "expr": "H.prototype.n.fD",
+   "kind": "acts",
+   "owner": "System",
+   "name": "Wait",
+   "how": 0.796,
+   "len": 1
+  },
+  {
+   "i": 55,
+   "expr": "W.prototype.n.xn",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetY",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 56,
+   "expr": "W.prototype.n.$i",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetX",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 57,
+   "expr": "bd.prototype.n.rB",
+   "kind": "acts",
+   "owner": "Pin",
+   "name": "Pin",
+   "how": 0.887,
+   "len": 2
+  },
+  {
+   "i": 58,
+   "expr": "Y.prototype.n.Ek",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetPos",
+   "how": 0.755,
+   "len": 2
+  },
+  {
+   "i": 59,
+   "expr": "W.prototype.A.jA",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "ImagePointX",
+   "how": 0.884,
+   "len": 2
+  },
+  {
+   "i": 60,
+   "expr": "W.prototype.A.kA",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "ImagePointY",
+   "how": 0.884,
+   "len": 2
+  },
+  {
+   "i": 61,
+   "expr": "W.prototype.A.Wi",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "Height",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 62,
+   "expr": "W.prototype.n.$u",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetPosToObject",
+   "how": 0.769,
+   "len": 2
+  },
+  {
+   "i": 63,
+   "expr": "W.prototype.n.Bq",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "MoveToBottom",
+   "how": 0.716,
+   "len": 0
+  },
+  {
+   "i": 64,
+   "expr": "W.prototype.k.Az",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareFrame",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 65,
+   "expr": "W.prototype.A.bf",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 66,
+   "expr": "W.prototype.A.cf",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 67,
+   "expr": "Dc.prototype.k.Ak",
+   "kind": "cnds",
+   "owner": "Browser",
+   "name": "OnBackButton",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 68,
+   "expr": "W.prototype.k.pn",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsOnScreen",
+   "how": 0.718,
+   "len": 0
+  },
+  {
+   "i": 69,
+   "expr": "zc.prototype.n.CallFunction",
+   "kind": "acts",
+   "owner": "Function",
+   "name": "CallFunction",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 70,
+   "expr": "H.prototype.k.lu",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "Else",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 71,
+   "expr": "W.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 72,
+   "expr": "W.prototype.n.QB",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetAnimFrame",
+   "how": 0.831,
+   "len": 1
+  },
+  {
+   "i": 73,
+   "expr": "W.prototype.n.MC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "Spawn",
+   "how": 0.851,
+   "len": 3
+  },
+  {
+   "i": 74,
+   "expr": "H.prototype.n.bC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetGroupActive",
+   "how": 0.964,
+   "len": 2
+  },
+  {
+   "i": 75,
+   "expr": "W.prototype.n.Gk",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetVisible",
+   "how": 0.88,
+   "len": 1
+  },
+  {
+   "i": 76,
+   "expr": "Oc.prototype.n.Gk",
+   "kind": "acts",
+   "owner": "Spritefont2",
+   "name": "SetVisible",
+   "how": 0.88,
+   "len": 1
+  },
+  {
+   "i": 77,
+   "expr": "H.prototype.k.Vz",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "Every",
+   "how": 0.644,
+   "len": 1
+  },
+  {
+   "i": 78,
+   "expr": "W.prototype.k.oB",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "PickDistance",
+   "how": 0.635,
+   "len": 3
+  },
+  {
+   "i": 79,
+   "expr": "H.prototype.A.QD",
+   "kind": "exps",
+   "owner": "System",
+   "name": "distance",
+   "how": 0.874,
+   "len": 5
+  },
+  {
+   "i": 80,
+   "expr": "H.prototype.A.round",
+   "kind": "exps",
+   "owner": "System",
+   "name": "round",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 81,
+   "expr": "Cc.prototype.n.wB",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "PlayByName",
+   "how": 0.698,
+   "len": 5
+  },
+  {
+   "i": 82,
+   "expr": "H.prototype.A.Fv",
+   "kind": "exps",
+   "owner": "System",
+   "name": "choose",
+   "how": 0.91,
+   "len": 1
+  },
+  {
+   "i": 83,
+   "expr": "W.prototype.n.du",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "AddInstanceVar",
+   "how": 0.65,
+   "len": 2
+  },
+  {
+   "i": 84,
+   "expr": "W.prototype.n.Hk",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetWidth",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 85,
+   "expr": "Oc.prototype.n.Fk",
+   "kind": "acts",
+   "owner": "Spritefont2",
+   "name": "SetText",
+   "how": 0.746,
+   "len": 1
+  },
+  {
+   "i": 86,
+   "expr": "H.prototype.A.abs",
+   "kind": "exps",
+   "owner": "System",
+   "name": "abs",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 87,
+   "expr": "W.prototype.n.XC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SubInstanceVar",
+   "how": 0.681,
+   "len": 2
+  },
+  {
+   "i": 88,
+   "expr": "W.prototype.n.Dk",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetInstanceVar",
+   "how": 0.572,
+   "len": 2
+  },
+  {
+   "i": 89,
+   "expr": "H.prototype.k.nB",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "PickByComparison",
+   "how": 0.854,
+   "len": 4
+  },
+  {
+   "i": 90,
+   "expr": "H.prototype.k.Aq",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "ForEach",
+   "how": 0.72,
+   "len": 1
+  },
+  {
+   "i": 91,
+   "expr": "W.prototype.k.ou",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsBoolInstanceVarSet",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 92,
+   "expr": "W.prototype.k.Oq",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "PickByUID",
+   "how": 0.688,
+   "len": 1
+  },
+  {
+   "i": 93,
+   "expr": "zc.prototype.A.lB",
+   "kind": "exps",
+   "owner": "Function",
+   "name": "Param",
+   "how": 0.692,
+   "len": 2
+  },
+  {
+   "i": 94,
+   "expr": "H.prototype.n.Oz",
+   "kind": "acts",
+   "owner": "System",
+   "name": "CreateObject",
+   "how": 0.867,
+   "len": 4
+  },
+  {
+   "i": 95,
+   "expr": "H.prototype.A.random",
+   "kind": "exps",
+   "owner": "System",
+   "name": "random",
+   "how": "preserved",
+   "len": 3
+  },
+  {
+   "i": 96,
+   "expr": "W.prototype.k.nn",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareX",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 97,
+   "expr": "W.prototype.n.KA",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "MoveAtAngle",
+   "how": 0.773,
+   "len": 2
+  },
+  {
+   "i": 98,
+   "expr": "W.prototype.A.GA",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "LayerName",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 99,
+   "expr": "W.prototype.n.av",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetScale",
+   "how": 0.754,
+   "len": 1
+  },
+  {
+   "i": 100,
+   "expr": "H.prototype.k.cD",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "TriggerOnce",
+   "how": 0.874,
+   "len": 0
+  },
+  {
+   "i": 101,
+   "expr": "H.prototype.A.u",
+   "kind": "exps",
+   "owner": "System",
+   "name": "angle",
+   "how": 0.858,
+   "len": 5
+  },
+  {
+   "i": 102,
+   "expr": "W.prototype.n.Dq",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "MoveToTop",
+   "how": 0.751,
+   "len": 0
+  },
+  {
+   "i": 103,
+   "expr": "W.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetSize",
+   "how": 0.868,
+   "len": 2
+  },
+  {
+   "i": 104,
+   "expr": "od.prototype.n.LC",
+   "kind": "acts",
+   "owner": "scrollto",
+   "name": "Shake",
+   "how": "manual",
+   "len": 3
+  },
+  {
+   "i": 105,
+   "expr": "W.prototype.n.FC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetTowardPosition",
+   "how": 0.615,
+   "len": 2
+  },
+  {
+   "i": 106,
+   "expr": "jd.prototype.n.QC",
+   "kind": "acts",
+   "owner": "Timer",
+   "name": "StartTimer",
+   "how": "manual",
+   "len": 3
+  },
+  {
+   "i": 107,
+   "expr": "jd.prototype.k.iB",
+   "kind": "cnds",
+   "owner": "Timer",
+   "name": "OnTimer",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 108,
+   "expr": "W.prototype.k.wA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsOverlapping",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 109,
+   "expr": "W.prototype.n.un",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetAngle",
+   "how": 0.731,
+   "len": 1
+  },
+  {
+   "i": 110,
+   "expr": "Nc.prototype.n.un",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetAngle",
+   "how": 0.731,
+   "len": 1
+  },
+  {
+   "i": 111,
+   "expr": "Cc.prototype.n.tB",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "PlayAtObjectByName",
+   "how": 0.704,
+   "len": 9
+  },
+  {
+   "i": 112,
+   "expr": "zc.prototype.k.Dz",
+   "kind": "cnds",
+   "owner": "Function",
+   "name": "CompareParam",
+   "how": 0.804,
+   "len": 3
+  },
+  {
+   "i": 113,
+   "expr": "bd.prototype.n.dD",
+   "kind": "acts",
+   "owner": "Pin",
+   "name": "Unpin",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 114,
+   "expr": "Cc.prototype.n.sB",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "PlayAtObject",
+   "how": 0.657,
+   "len": 8
+  },
+  {
+   "i": 115,
+   "expr": "Y.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 116,
+   "expr": "Y.prototype.n.xn",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetY",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 117,
+   "expr": "Y.prototype.A.cf",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 118,
+   "expr": "Y.prototype.n.Fk",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetText",
+   "how": 0.746,
+   "len": 1
+  },
+  {
+   "i": 119,
+   "expr": "Bc.prototype.A.oz",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "At",
+   "how": 0.649,
+   "len": 4
+  },
+  {
+   "i": 120,
+   "expr": "H.prototype.A.lG",
+   "kind": "exps",
+   "owner": "System",
+   "name": "newline",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 121,
+   "expr": "Zc.prototype.n.JC",
+   "kind": "acts",
+   "owner": "Fade",
+   "name": "SetWaitTime",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 122,
+   "expr": "H.prototype.n.jz",
+   "kind": "acts",
+   "owner": "System",
+   "name": "AddVar",
+   "how": 0.725,
+   "len": 2
+  },
+  {
+   "i": 123,
+   "expr": "H.prototype.k.EB",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "Repeat",
+   "how": 0.836,
+   "len": 1
+  },
+  {
+   "i": 124,
+   "expr": "H.prototype.k.pB",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "PickRandom",
+   "how": 0.766,
+   "len": 1
+  },
+  {
+   "i": 125,
+   "expr": "W.prototype.A.eu",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "Angle",
+   "how": 0.972,
+   "len": 1
+  },
+  {
+   "i": 126,
+   "expr": "Vc.prototype.n.OB",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "SetAngleOfMotion",
+   "how": 0.989,
+   "len": 1
+  },
+  {
+   "i": 127,
+   "expr": "W.prototype.A.Nz",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "Count",
+   "how": 0.791,
+   "len": 1
+  },
+  {
+   "i": 128,
+   "expr": "H.prototype.n.JA",
+   "kind": "acts",
+   "owner": "System",
+   "name": "LoadState",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 129,
+   "expr": "Cc.prototype.n.RC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "StopAll",
+   "how": 0.833,
+   "len": 0
+  },
+  {
+   "i": 130,
+   "expr": "Vc.prototype.n.pz",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "Bounce",
+   "how": 0.773,
+   "len": 1
+  },
+  {
+   "i": 131,
+   "expr": "kd.prototype.n.iz",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "AddTarget",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 132,
+   "expr": "W.prototype.n.Xu",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetEffectEnabled",
+   "how": 0.747,
+   "len": 2
+  },
+  {
+   "i": 133,
+   "expr": "H.prototype.n.kC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayoutEffectParam",
+   "how": 0.677,
+   "len": 3
+  },
+  {
+   "i": 134,
+   "expr": "Bc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 135,
+   "expr": "Y.prototype.n.$u",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetPosToObject",
+   "how": 0.769,
+   "len": 2
+  },
+  {
+   "i": 136,
+   "expr": "Kc.prototype.n.bA",
+   "kind": "acts",
+   "owner": "LocalStorage",
+   "name": "GetItem",
+   "how": 0.763,
+   "len": 1
+  },
+  {
+   "i": 137,
+   "expr": "W.prototype.n.Cq",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "MoveToLayer",
+   "how": 0.827,
+   "len": 1
+  },
+  {
+   "i": 138,
+   "expr": "H.prototype.n.nC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetMinimumFramerate",
+   "how": 0.691,
+   "len": 1
+  },
+  {
+   "i": 139,
+   "expr": "ad.prototype.n.hz",
+   "kind": "acts",
+   "owner": "LOS",
+   "name": "AddObstacle",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 140,
+   "expr": "Pc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "TextBox",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 141,
+   "expr": "Oc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Spritefont2",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 142,
+   "expr": "H.prototype.k.mB",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "PickAll",
+   "how": 0.871,
+   "len": 1
+  },
+  {
+   "i": 143,
+   "expr": "W.prototype.k.mA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsAnimPlaying",
+   "how": 0.809,
+   "len": 1
+  },
+  {
+   "i": 144,
+   "expr": "Y.prototype.A.bf",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 145,
+   "expr": "Y.prototype.A.zn",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "UID",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 146,
+   "expr": "Kc.prototype.n.dC",
+   "kind": "acts",
+   "owner": "LocalStorage",
+   "name": "SetItem",
+   "how": 0.726,
+   "len": 2
+  },
+  {
+   "i": 147,
+   "expr": "Cc.prototype.n.zC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetSilent",
+   "how": 0.689,
+   "len": 1
+  },
+  {
+   "i": 148,
+   "expr": "Cc.prototype.n.pC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetMuted",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 149,
+   "expr": "H.prototype.n.hC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayerParallax",
+   "how": 0.676,
+   "len": 3
+  },
+  {
+   "i": 150,
+   "expr": "H.prototype.A.eG",
+   "kind": "exps",
+   "owner": "System",
+   "name": "loopindex",
+   "how": 0.882,
+   "len": 2
+  },
+  {
+   "i": 151,
+   "expr": "W.prototype.A.zn",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "UID",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 152,
+   "expr": "H.prototype.A.WF",
+   "kind": "exps",
+   "owner": "System",
+   "name": "layoutheight",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 153,
+   "expr": "Cc.prototype.n.lC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetListenerObject",
+   "how": 0.588,
+   "len": 1
+  },
+  {
+   "i": 154,
+   "expr": "Bc.prototype.n.$i",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "SetX",
+   "how": 0.864,
+   "len": 2
+  },
+  {
+   "i": 155,
+   "expr": "Bc.prototype.k.Oq",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "PickByUID",
+   "how": 0.688,
+   "len": 1
+  },
+  {
+   "i": 156,
+   "expr": "Qc.prototype.n.Hk",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetWidth",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 157,
+   "expr": "Qc.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "TiledBg",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 158,
+   "expr": "W.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 159,
+   "expr": "W.prototype.n.oC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetMirrored",
+   "how": 0.781,
+   "len": 1
+  },
+  {
+   "i": 160,
+   "expr": "W.prototype.n.PB",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetAnim",
+   "how": 0.809,
+   "len": 2
+  },
+  {
+   "i": 161,
+   "expr": "W.prototype.n.Vu",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetBoolInstanceVar",
+   "how": 0.864,
+   "len": 2
+  },
+  {
+   "i": 162,
+   "expr": "H.prototype.n.jC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayerVisible",
+   "how": 0.573,
+   "len": 2
+  },
+  {
+   "i": 163,
+   "expr": "W.prototype.n.Zu",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetOpacity",
+   "how": 0.649,
+   "len": 1
+  },
+  {
+   "i": 164,
+   "expr": "H.prototype.k.Ju",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "OnLoadComplete",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 165,
+   "expr": "H.prototype.n.EC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetTimescale",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 166,
+   "expr": "Qc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 167,
+   "expr": "Zc.prototype.n.PC",
+   "kind": "acts",
+   "owner": "Fade",
+   "name": "StartFade",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 168,
+   "expr": "Zc.prototype.n.XB",
+   "kind": "acts",
+   "owner": "Fade",
+   "name": "SetFadeInTime",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 169,
+   "expr": "W.prototype.n.wn",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetHeight",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 170,
+   "expr": "Qc.prototype.n.$i",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetX",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 171,
+   "expr": "Qc.prototype.n.xn",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetY",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 172,
+   "expr": "Qc.prototype.n.wn",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetHeight",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 173,
+   "expr": "Vc.prototype.n.Hh",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "SetSpeed",
+   "how": 1.015,
+   "len": 1
+  },
+  {
+   "i": 174,
+   "expr": "Vc.prototype.n.od",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "SetEnabled",
+   "how": 0.786,
+   "len": 1
+  },
+  {
+   "i": 175,
+   "expr": "H.prototype.n.fC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayerForceOwnTexture",
+   "how": 0.589,
+   "len": 2
+  },
+  {
+   "i": 176,
+   "expr": "Kc.prototype.k.Cu",
+   "kind": "cnds",
+   "owner": "LocalStorage",
+   "name": "OnItemGet",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 177,
+   "expr": "Kc.prototype.A.BA",
+   "kind": "exps",
+   "owner": "LocalStorage",
+   "name": "ItemValue",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 178,
+   "expr": "W.prototype.k.TA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "OnCollision",
+   "how": 0.729,
+   "len": 1
+  },
+  {
+   "i": 179,
+   "expr": "H.prototype.A.WG",
+   "kind": "exps",
+   "owner": "System",
+   "name": "rgb",
+   "how": 0.801,
+   "len": 4
+  },
+  {
+   "i": 180,
+   "expr": "Rc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "Tilemap",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 181,
+   "expr": "Rc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "Tilemap",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 182,
+   "expr": "Cc.prototype.n.yn",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "Stop",
+   "how": 0.697,
+   "len": 1
+  },
+  {
+   "i": 183,
+   "expr": "Cc.prototype.n.Play",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "Play",
+   "how": "preserved",
+   "len": 4
+  },
+  {
+   "i": 184,
+   "expr": "Rc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Tilemap",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 185,
+   "expr": "W.prototype.k.iu",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareY",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 186,
+   "expr": "zc.prototype.A.KB",
+   "kind": "exps",
+   "owner": "Function",
+   "name": "ReturnValue",
+   "how": 0.495,
+   "len": 1
+  },
+  {
+   "i": 187,
+   "expr": "xc.prototype.n.od",
+   "kind": "acts",
+   "owner": "solid",
+   "name": "SetEnabled",
+   "how": 0.841,
+   "len": 1
+  },
+  {
+   "i": 188,
+   "expr": "W.prototype.k.Fh",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "OnCreated",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 189,
+   "expr": "Rc.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "Tilemap",
+   "name": "SetSize",
+   "how": 0.868,
+   "len": 2
+  },
+  {
+   "i": 190,
+   "expr": "Qc.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetSize",
+   "how": 0.868,
+   "len": 2
+  },
+  {
+   "i": 191,
+   "expr": "Qc.prototype.n.Bq",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "MoveToBottom",
+   "how": 0.716,
+   "len": 0
+  },
+  {
+   "i": 192,
+   "expr": "Rc.prototype.n.CC",
+   "kind": "acts",
+   "owner": "Tilemap",
+   "name": "SetTile",
+   "how": "manual",
+   "len": 4
+  },
+  {
+   "i": 193,
+   "expr": "ad.prototype.k.hA",
+   "kind": "cnds",
+   "owner": "LOS",
+   "name": "HasLOSToPosition",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 194,
+   "expr": "cd.prototype.n.Hh",
+   "kind": "acts",
+   "owner": "Rotate",
+   "name": "SetSpeed",
+   "how": 0.919,
+   "len": 1
+  },
+  {
+   "i": 195,
+   "expr": "W.prototype.k.su",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "OnAnimFinished",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 196,
+   "expr": "W.prototype.k.Cz",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareOpacity",
+   "how": 0.68,
+   "len": 2
+  },
+  {
+   "i": 197,
+   "expr": "W.prototype.n.SB",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetCollisions",
+   "how": 0.741,
+   "len": 1
+  },
+  {
+   "i": 198,
+   "expr": "Bc.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 199,
+   "expr": "Bc.prototype.n.KC",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "SetXY",
+   "how": 0.635,
+   "len": 3
+  },
+  {
+   "i": 200,
+   "expr": "Rc.prototype.A.zn",
+   "kind": "exps",
+   "owner": "Tilemap",
+   "name": "UID",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 201,
+   "expr": "Rc.prototype.k.Oq",
+   "kind": "cnds",
+   "owner": "Tilemap",
+   "name": "PickByUID",
+   "how": 0.688,
+   "len": 1
+  },
+  {
+   "i": 202,
+   "expr": "Rc.prototype.n.DC",
+   "kind": "acts",
+   "owner": "Tilemap",
+   "name": "SetTileRange",
+   "how": "manual",
+   "len": 6
+  },
+  {
+   "i": 203,
+   "expr": "Bc.prototype.k.Kz",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "CompareXY",
+   "how": 0.753,
+   "len": 4
+  },
+  {
+   "i": 204,
+   "expr": "H.prototype.A.floor",
+   "kind": "exps",
+   "owner": "System",
+   "name": "floor",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 205,
+   "expr": "Rc.prototype.k.Gz",
+   "kind": "cnds",
+   "owner": "Tilemap",
+   "name": "CompareTileAt",
+   "how": "manual",
+   "len": 4
+  },
+  {
+   "i": 206,
+   "expr": "Rc.prototype.n.Uz",
+   "kind": "acts",
+   "owner": "Tilemap",
+   "name": "EraseTileRange",
+   "how": "manual",
+   "len": 4
+  },
+  {
+   "i": 207,
+   "expr": "Zc.prototype.n.YB",
+   "kind": "acts",
+   "owner": "Fade",
+   "name": "SetFadeOutTime",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 208,
+   "expr": "W.prototype.n.vn",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetEffectParam",
+   "how": 0.669,
+   "len": 3
+  },
+  {
+   "i": 209,
+   "expr": "Rc.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "Tilemap",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 210,
+   "expr": "Bc.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "SetSize",
+   "how": 0.876,
+   "len": 3
+  },
+  {
+   "i": 211,
+   "expr": "Bc.prototype.n.yq",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "Clear",
+   "how": 0.648,
+   "len": 0
+  },
+  {
+   "i": 212,
+   "expr": "Y.prototype.n.Dq",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "MoveToTop",
+   "how": 0.751,
+   "len": 0
+  },
+  {
+   "i": 213,
+   "expr": "Qc.prototype.n.un",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetAngle",
+   "how": 0.731,
+   "len": 1
+  },
+  {
+   "i": 214,
+   "expr": "H.prototype.k.gD",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "While",
+   "how": 0.777,
+   "len": 0
+  },
+  {
+   "i": 215,
+   "expr": "H.prototype.n.YC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SubVar",
+   "how": 0.723,
+   "len": 2
+  },
+  {
+   "i": 216,
+   "expr": "Bc.prototype.k.nz",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "ArrForEach",
+   "how": 0.86,
+   "len": 1
+  },
+  {
+   "i": 217,
+   "expr": "Bc.prototype.A.Qz",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "CurX",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 218,
+   "expr": "Bc.prototype.A.Rz",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "CurY",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 219,
+   "expr": "Bc.prototype.k.zz",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "CompareCurrent",
+   "how": 1.006,
+   "len": 2
+  },
+  {
+   "i": 220,
+   "expr": "Rc.prototype.A.yB",
+   "kind": "exps",
+   "owner": "Tilemap",
+   "name": "PositionToTileX",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 221,
+   "expr": "Rc.prototype.A.zB",
+   "kind": "exps",
+   "owner": "Tilemap",
+   "name": "PositionToTileY",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 222,
+   "expr": "Bc.prototype.A.lA",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "IndexOf",
+   "how": 0.891,
+   "len": 2
+  },
+  {
+   "i": 223,
+   "expr": "H.prototype.k.$z",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "ForEachOrdered",
+   "how": 0.768,
+   "len": 3
+  },
+  {
+   "i": 224,
+   "expr": "Kc.prototype.n.qz",
+   "kind": "acts",
+   "owner": "LocalStorage",
+   "name": "CheckItemExists",
+   "how": 0.66,
+   "len": 1
+  },
+  {
+   "i": 225,
+   "expr": "Kc.prototype.k.Bu",
+   "kind": "cnds",
+   "owner": "LocalStorage",
+   "name": "OnItemExists",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 226,
+   "expr": "Kc.prototype.k.Du",
+   "kind": "cnds",
+   "owner": "LocalStorage",
+   "name": "OnItemMissing",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 227,
+   "expr": "Sc.prototype.k.Su",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnTapGestureObject",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 228,
+   "expr": "Nc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "Particles",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 229,
+   "expr": "Nc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "Particles",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 230,
+   "expr": "Nc.prototype.n.xC",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetRate",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 231,
+   "expr": "Y.prototype.n.Zu",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetOpacity",
+   "how": 0.649,
+   "len": 1
+  },
+  {
+   "i": 232,
+   "expr": "Y.prototype.n.Hk",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetWidth",
+   "how": 0.681,
+   "len": 1
+  },
+  {
+   "i": 233,
+   "expr": "Y.prototype.A.dv",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "TextWidth",
+   "how": 0.841,
+   "len": 1
+  },
+  {
+   "i": 234,
+   "expr": "Y.prototype.n.$i",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetX",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 235,
+   "expr": "Y.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 236,
+   "expr": "Y.prototype.A.Text",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "Text",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 237,
+   "expr": "H.prototype.A[\"int\"]",
+   "kind": "exps",
+   "owner": "System",
+   "name": "int",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 238,
+   "expr": "H.prototype.A.sH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "tokenat",
+   "how": 0.676,
+   "len": 4
+  },
+  {
+   "i": 239,
+   "expr": "Yc.prototype.n.Rq",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SimulateControl",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 240,
+   "expr": "Yc.prototype.n.yn",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "Stop",
+   "how": "global-name",
+   "len": 0
+  },
+  {
+   "i": 241,
+   "expr": "Y.prototype.n.fu",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "AppendText",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 242,
+   "expr": "Yc.prototype.n.od",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SetEnabled",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 243,
+   "expr": "ad.prototype.n.TB",
+   "kind": "acts",
+   "owner": "LOS",
+   "name": "SetConeOfView",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 244,
+   "expr": "$c.prototype.n.Zz",
+   "kind": "acts",
+   "owner": "Flash",
+   "name": "Flash",
+   "how": 0.989,
+   "len": 3
+  },
+  {
+   "i": 245,
+   "expr": "$c.prototype.n.TC",
+   "kind": "acts",
+   "owner": "Flash",
+   "name": "StopFlashing",
+   "how": 1.029,
+   "len": 0
+  },
+  {
+   "i": 246,
+   "expr": "Y.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "Text",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 247,
+   "expr": "H.prototype.A.ceil",
+   "kind": "exps",
+   "owner": "System",
+   "name": "ceil",
+   "how": "preserved",
+   "len": 2
+  },
+  {
+   "i": 248,
+   "expr": "W.prototype.k.Jz",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareWidth",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 249,
+   "expr": "Oc.prototype.n.vn",
+   "kind": "acts",
+   "owner": "Spritefont2",
+   "name": "SetEffectParam",
+   "how": 0.669,
+   "len": 3
+  },
+  {
+   "i": 250,
+   "expr": "W.prototype.n.SC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "StopAnim",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 251,
+   "expr": "jd.prototype.n.UC",
+   "kind": "acts",
+   "owner": "Timer",
+   "name": "StopTimer",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 252,
+   "expr": "Yc.prototype.k.pu",
+   "kind": "cnds",
+   "owner": "EightDir",
+   "name": "IsMoving",
+   "how": "global-name",
+   "len": 0
+  },
+  {
+   "i": 253,
+   "expr": "Yc.prototype.n.Pq",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SetMaxSpeed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 254,
+   "expr": "W.prototype.k.nu",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsBetweenAngles",
+   "how": 0.586,
+   "len": 2
+  },
+  {
+   "i": 255,
+   "expr": "W.prototype.k.wq",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "AngleWithin",
+   "how": 0.672,
+   "len": 2
+  },
+  {
+   "i": 256,
+   "expr": "Vc.prototype.k.Hz",
+   "kind": "cnds",
+   "owner": "Bullet",
+   "name": "CompareTravelled",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 257,
+   "expr": "Yc.prototype.n.HC",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SetVectorX",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 258,
+   "expr": "Yc.prototype.n.IC",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SetVectorY",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 259,
+   "expr": "Yc.prototype.n.Hh",
+   "kind": "acts",
+   "owner": "EightDir",
+   "name": "SetSpeed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 260,
+   "expr": "Cc.prototype.n.uB",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "PlayAtPosition",
+   "how": 0.773,
+   "len": 10
+  },
+  {
+   "i": 261,
+   "expr": "Vc.prototype.k.ln",
+   "kind": "cnds",
+   "owner": "Bullet",
+   "name": "CompareSpeed",
+   "how": 0.941,
+   "len": 2
+  },
+  {
+   "i": 262,
+   "expr": "Zc.prototype.n.IB",
+   "kind": "acts",
+   "owner": "Fade",
+   "name": "RestartFade",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 263,
+   "expr": "W.prototype.n.RB",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "SetAnimSpeed",
+   "how": 0.808,
+   "len": 1
+  },
+  {
+   "i": 264,
+   "expr": "W.prototype.n.OC",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "StartAnim",
+   "how": 0.771,
+   "len": 1
+  },
+  {
+   "i": 265,
+   "expr": "Wc.prototype.k.ln",
+   "kind": "cnds",
+   "owner": "Car",
+   "name": "CompareSpeed",
+   "how": "global-name",
+   "len": 2
+  },
+  {
+   "i": 266,
+   "expr": "ad.prototype.k.gA",
+   "kind": "cnds",
+   "owner": "LOS",
+   "name": "HasLOSToObject",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 267,
+   "expr": "H.prototype.k.wq",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "AngleWithin",
+   "how": 0.742,
+   "len": 3
+  },
+  {
+   "i": 268,
+   "expr": "W.prototype.k.AA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsVisible",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 269,
+   "expr": "dd.prototype.n.sC",
+   "kind": "acts",
+   "owner": "Sin",
+   "name": "SetPeriod",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 270,
+   "expr": "dd.prototype.A.eD",
+   "kind": "exps",
+   "owner": "Sin",
+   "name": "Value",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 271,
+   "expr": "Vc.prototype.A.kz",
+   "kind": "exps",
+   "owner": "Bullet",
+   "name": "AngleOfMotion",
+   "how": 0.947,
+   "len": 1
+  },
+  {
+   "i": 272,
+   "expr": "zc.prototype.n.yC",
+   "kind": "acts",
+   "owner": "Function",
+   "name": "SetReturnValue",
+   "how": 0.619,
+   "len": 1
+  },
+  {
+   "i": 273,
+   "expr": "Sc.prototype.k.Mq",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnTouchObject",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 274,
+   "expr": "Sc.prototype.k.zA",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "IsTouchingObject",
+   "how": 0.758,
+   "len": 1
+  },
+  {
+   "i": 275,
+   "expr": "dd.prototype.n.tC",
+   "kind": "acts",
+   "owner": "Sin",
+   "name": "SetPhase",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 276,
+   "expr": "dd.prototype.n.NB",
+   "kind": "acts",
+   "owner": "Sin",
+   "name": "SetActive",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 277,
+   "expr": "Qc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "TiledBg",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 278,
+   "expr": "H.prototype.n.JB",
+   "kind": "acts",
+   "owner": "System",
+   "name": "RestartLayout",
+   "how": 0.695,
+   "len": 0
+  },
+  {
+   "i": 279,
+   "expr": "jd.prototype.A.ju",
+   "kind": "exps",
+   "owner": "Timer",
+   "name": "CurrentTime",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 280,
+   "expr": "Vc.prototype.n.Ck",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "SetAcceleration",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 281,
+   "expr": "Sc.prototype.k.Ru",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnTapGesture",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 282,
+   "expr": "Sc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "X",
+   "how": 0.74,
+   "len": 2
+  },
+  {
+   "i": 283,
+   "expr": "Sc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "Y",
+   "how": 0.74,
+   "len": 2
+  },
+  {
+   "i": 284,
+   "expr": "Bc.prototype.k.Mz",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "Contains",
+   "how": 0.705,
+   "len": 1
+  },
+  {
+   "i": 285,
+   "expr": "Bc.prototype.k.nn",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "CompareX",
+   "how": 0.776,
+   "len": 3
+  },
+  {
+   "i": 286,
+   "expr": "Cc.prototype.k.yA",
+   "kind": "cnds",
+   "owner": "Audio",
+   "name": "IsTagPlaying",
+   "how": 0.769,
+   "len": 1
+  },
+  {
+   "i": 287,
+   "expr": "Nc.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "Particles",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 288,
+   "expr": "Kc.prototype.n.uz",
+   "kind": "acts",
+   "owner": "LocalStorage",
+   "name": "ClearStorage",
+   "how": 0.688,
+   "len": 0
+  },
+  {
+   "i": 289,
+   "expr": "Dc.prototype.n.Xz",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "ExecJs",
+   "how": 0.759,
+   "len": 1
+  },
+  {
+   "i": 290,
+   "expr": "Dc.prototype.n.CB",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "Reload",
+   "how": 0.777,
+   "len": 0
+  },
+  {
+   "i": 291,
+   "expr": "W.prototype.A.mz",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "AnimationName",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 292,
+   "expr": "Y.prototype.n.Gk",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetVisible",
+   "how": 0.88,
+   "len": 1
+  },
+  {
+   "i": 293,
+   "expr": "Bc.prototype.k.Fz",
+   "kind": "cnds",
+   "owner": "Arr",
+   "name": "CompareSize",
+   "how": 0.928,
+   "len": 3
+  },
+  {
+   "i": 294,
+   "expr": "Dc.prototype.n.Lz",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "ConsoleLog",
+   "how": 0.656,
+   "len": 2
+  },
+  {
+   "i": 295,
+   "expr": "H.prototype.A.oH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "str",
+   "how": 0.654,
+   "len": 2
+  },
+  {
+   "i": 296,
+   "expr": "W.prototype.k.wu",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "OnDestroyed",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 297,
+   "expr": "Dc.prototype.k.Mu",
+   "kind": "cnds",
+   "owner": "Browser",
+   "name": "OnPageHidden",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 298,
+   "expr": "Qc.prototype.k.pn",
+   "kind": "cnds",
+   "owner": "TiledBg",
+   "name": "IsOnScreen",
+   "how": 0.718,
+   "len": 0
+  },
+  {
+   "i": 299,
+   "expr": "Cc.prototype.k.Bk",
+   "kind": "cnds",
+   "owner": "Audio",
+   "name": "OnEnded",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 300,
+   "expr": "Cc.prototype.n.vB",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "PlayAtPositionByName",
+   "how": 0.72,
+   "len": 11
+  },
+  {
+   "i": 301,
+   "expr": "Nc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 302,
+   "expr": "Wc.prototype.n.Hh",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetSpeed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 303,
+   "expr": "Wc.prototype.A.Ik",
+   "kind": "exps",
+   "owner": "Car",
+   "name": "Speed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 304,
+   "expr": "kd.prototype.n.vz",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "ClearTargets",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 305,
+   "expr": "Fc.prototype.k.sA",
+   "kind": "cnds",
+   "owner": "Keyboard",
+   "name": "IsKeyDown",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 306,
+   "expr": "Wc.prototype.n.Rq",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SimulateControl",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 307,
+   "expr": "Wc.prototype.n.Wu",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetDeceleration",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 308,
+   "expr": "Wc.prototype.n.Ck",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetAcceleration",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 309,
+   "expr": "Wc.prototype.n.WB",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetDriftRecover",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 310,
+   "expr": "Wc.prototype.n.BC",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetSteerSpeed",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 311,
+   "expr": "Wc.prototype.n.Pq",
+   "kind": "acts",
+   "owner": "Car",
+   "name": "SetMaxSpeed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 312,
+   "expr": "W.prototype.k.Bz",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "CompareHeight",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 313,
+   "expr": "Cc.prototype.n.uC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetVolume",
+   "how": 0.681,
+   "len": 2
+  },
+  {
+   "i": 314,
+   "expr": "Wc.prototype.A.qu",
+   "kind": "exps",
+   "owner": "Car",
+   "name": "MaxSpeed",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 315,
+   "expr": "Nc.prototype.n.cC",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetInitSpeed",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 316,
+   "expr": "Nc.prototype.n.qC",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetAcc",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 317,
+   "expr": "W.prototype.n.jD",
+   "kind": "acts",
+   "owner": "Sprite",
+   "name": "ZMoveToObject",
+   "how": 0.82,
+   "len": 2
+  },
+  {
+   "i": 318,
+   "expr": "Nc.prototype.A.eu",
+   "kind": "exps",
+   "owner": "Particles",
+   "name": "Angle",
+   "how": 0.972,
+   "len": 1
+  },
+  {
+   "i": 319,
+   "expr": "Nc.prototype.n.Dk",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetInstanceVar",
+   "how": 0.572,
+   "len": 2
+  },
+  {
+   "i": 320,
+   "expr": "Ec.prototype.n.eC",
+   "kind": "acts",
+   "owner": "Dictionary",
+   "name": "SetKey",
+   "how": 0.927,
+   "len": 2
+  },
+  {
+   "i": 321,
+   "expr": "Xc.prototype.n.Tz",
+   "kind": "acts",
+   "owner": "DragnDrop",
+   "name": "Drop",
+   "how": 0.822,
+   "len": 0
+  },
+  {
+   "i": 322,
+   "expr": "Y.prototype.k.ou",
+   "kind": "cnds",
+   "owner": "Text",
+   "name": "IsBoolInstanceVarSet",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 323,
+   "expr": "Ec.prototype.k.fA",
+   "kind": "cnds",
+   "owner": "Dictionary",
+   "name": "HasKey",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 324,
+   "expr": "Ec.prototype.A.aA",
+   "kind": "exps",
+   "owner": "Dictionary",
+   "name": "Get",
+   "how": 0.906,
+   "len": 2
+  },
+  {
+   "i": 325,
+   "expr": "kd.prototype.n.od",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "SetEnabled",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 326,
+   "expr": "H.prototype.A.BH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "wallclocktime",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 327,
+   "expr": "Y.prototype.n.un",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetAngle",
+   "how": 0.731,
+   "len": 1
+  },
+  {
+   "i": 328,
+   "expr": "Qc.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "TiledBg",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 329,
+   "expr": "Y.prototype.n.ZB",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetFontColor",
+   "how": 0.868,
+   "len": 1
+  },
+  {
+   "i": 330,
+   "expr": "ad.prototype.n.Qq",
+   "kind": "acts",
+   "owner": "LOS",
+   "name": "SetRange",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 331,
+   "expr": "Y.prototype.n.Cq",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "MoveToLayer",
+   "how": 0.827,
+   "len": 1
+  },
+  {
+   "i": 332,
+   "expr": "H.prototype.A.dH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "scrollx",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 333,
+   "expr": "H.prototype.A.eH",
+   "kind": "exps",
+   "owner": "System",
+   "name": "scrolly",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 334,
+   "expr": "Y.prototype.k.mn",
+   "kind": "cnds",
+   "owner": "Text",
+   "name": "CompareText",
+   "how": 0.796,
+   "len": 2
+  },
+  {
+   "i": 335,
+   "expr": "Y.prototype.n.wn",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetHeight",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 336,
+   "expr": "Y.prototype.n.aC",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetFontSize",
+   "how": 0.76,
+   "len": 1
+  },
+  {
+   "i": 337,
+   "expr": "zc.prototype.A.gu",
+   "kind": "exps",
+   "owner": "Function",
+   "name": "Call",
+   "how": 0.88,
+   "len": 2
+  },
+  {
+   "i": 338,
+   "expr": "jd.prototype.A.$C",
+   "kind": "exps",
+   "owner": "Timer",
+   "name": "TotalTime",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 339,
+   "expr": "bd.prototype.k.xA",
+   "kind": "cnds",
+   "owner": "Pin",
+   "name": "IsPinned",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 340,
+   "expr": "jd.prototype.A.ku",
+   "kind": "exps",
+   "owner": "Timer",
+   "name": "Duration",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 341,
+   "expr": "Cc.prototype.n.mC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetMasterVolume",
+   "how": 0.841,
+   "len": 1
+  },
+  {
+   "i": 342,
+   "expr": "H.prototype.A.min",
+   "kind": "exps",
+   "owner": "System",
+   "name": "min",
+   "how": "preserved",
+   "len": 1
+  },
+  {
+   "i": 343,
+   "expr": "Mc.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetSize",
+   "how": 0.868,
+   "len": 2
+  },
+  {
+   "i": 344,
+   "expr": "Y.prototype.n.Gh",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetSize",
+   "how": 0.868,
+   "len": 2
+  },
+  {
+   "i": 345,
+   "expr": "Y.prototype.A.Wi",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "Height",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 346,
+   "expr": "Qc.prototype.n.Ek",
+   "kind": "acts",
+   "owner": "TiledBg",
+   "name": "SetPos",
+   "how": 0.755,
+   "len": 2
+  },
+  {
+   "i": 347,
+   "expr": "Dc.prototype.n.wz",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "Close",
+   "how": 0.387,
+   "len": 0
+  },
+  {
+   "i": 348,
+   "expr": "H.prototype.n.LB",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SaveState",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 349,
+   "expr": "Qc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "TiledBg",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 350,
+   "expr": "Y.prototype.n.Dk",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetInstanceVar",
+   "how": 0.572,
+   "len": 2
+  },
+  {
+   "i": 351,
+   "expr": "Mc.prototype.k.Ui",
+   "kind": "cnds",
+   "owner": "NinePatch",
+   "name": "CompareInstanceVar",
+   "how": 0.834,
+   "len": 3
+  },
+  {
+   "i": 352,
+   "expr": "Mc.prototype.n.Dq",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "MoveToTop",
+   "how": 0.751,
+   "len": 0
+  },
+  {
+   "i": 353,
+   "expr": "Mc.prototype.n.vn",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetEffectParam",
+   "how": 0.669,
+   "len": 3
+  },
+  {
+   "i": 354,
+   "expr": "Mc.prototype.n.Bq",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "MoveToBottom",
+   "how": 0.716,
+   "len": 0
+  },
+  {
+   "i": 355,
+   "expr": "Mc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 356,
+   "expr": "Mc.prototype.n.Dk",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetInstanceVar",
+   "how": 0.572,
+   "len": 2
+  },
+  {
+   "i": 357,
+   "expr": "Mc.prototype.n.xn",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetY",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 358,
+   "expr": "Mc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "NinePatch",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 359,
+   "expr": "Mc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "NinePatch",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 360,
+   "expr": "kd.prototype.n.Qq",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "SetRange",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 361,
+   "expr": "W.prototype.A.lz",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "AnimationFrame",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 362,
+   "expr": "Bc.prototype.n.Dk",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "SetInstanceVar",
+   "how": 0.572,
+   "len": 2
+  },
+  {
+   "i": 363,
+   "expr": "Bc.prototype.A.zn",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "UID",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 364,
+   "expr": "Xc.prototype.k.pA",
+   "kind": "cnds",
+   "owner": "DragnDrop",
+   "name": "IsDragging",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 365,
+   "expr": "Y.prototype.A.Yz",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "FaceSize",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 366,
+   "expr": "Bc.prototype.n.BB",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "Push",
+   "how": 0.648,
+   "len": 3
+  },
+  {
+   "i": 367,
+   "expr": "Lc.prototype.k.vA",
+   "kind": "cnds",
+   "owner": "Mouse",
+   "name": "IsOverObject",
+   "how": 0.826,
+   "len": 1
+  },
+  {
+   "i": 368,
+   "expr": "Lc.prototype.k.Eq",
+   "kind": "cnds",
+   "owner": "Mouse",
+   "name": "OnClick",
+   "how": "trigger-order",
+   "len": 2
+  },
+  {
+   "i": 369,
+   "expr": "Sc.prototype.k.Nq",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnTouchStart",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 370,
+   "expr": "Bc.prototype.n.xB",
+   "kind": "acts",
+   "owner": "Arr",
+   "name": "Pop",
+   "how": 0.702,
+   "len": 2
+  },
+  {
+   "i": 371,
+   "expr": "Bc.prototype.A.Pz",
+   "kind": "exps",
+   "owner": "Arr",
+   "name": "CurValue",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 372,
+   "expr": "Sc.prototype.k.Iq",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnNthTouchEnd",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 373,
+   "expr": "Sc.prototype.k.rA",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "IsInTouch",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 374,
+   "expr": "Sc.prototype.A.bD",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "TouchIndex",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 375,
+   "expr": "Xc.prototype.k.zu",
+   "kind": "cnds",
+   "owner": "DragnDrop",
+   "name": "OnDrop",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 376,
+   "expr": "Xc.prototype.k.yu",
+   "kind": "cnds",
+   "owner": "DragnDrop",
+   "name": "OnDragStart",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 377,
+   "expr": "Sc.prototype.A.aD",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "TouchID",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 378,
+   "expr": "Sc.prototype.A.hD",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "XForID",
+   "how": 0.741,
+   "len": 3
+  },
+  {
+   "i": 379,
+   "expr": "Sc.prototype.A.iD",
+   "kind": "exps",
+   "owner": "Touch",
+   "name": "YForID",
+   "how": 0.741,
+   "len": 3
+  },
+  {
+   "i": 380,
+   "expr": "H.prototype.k.Wz",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "EveryTick",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 381,
+   "expr": "W.prototype.A.qB",
+   "kind": "exps",
+   "owner": "Sprite",
+   "name": "PickedCount",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 382,
+   "expr": "Sc.prototype.k.xu",
+   "kind": "cnds",
+   "owner": "Touch",
+   "name": "OnDoubleTapGestureObject",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 383,
+   "expr": "Y.prototype.n.du",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "AddInstanceVar",
+   "how": 0.65,
+   "len": 2
+  },
+  {
+   "i": 384,
+   "expr": "Y.prototype.n.Xu",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetEffectEnabled",
+   "how": 0.747,
+   "len": 2
+  },
+  {
+   "i": 385,
+   "expr": "Y.prototype.n.Vu",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetBoolInstanceVar",
+   "how": 0.864,
+   "len": 2
+  },
+  {
+   "i": 386,
+   "expr": "Y.prototype.n.vn",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetEffectParam",
+   "how": 0.669,
+   "len": 3
+  },
+  {
+   "i": 387,
+   "expr": "Zc.prototype.k.Uu",
+   "kind": "cnds",
+   "owner": "Fade",
+   "name": "OnWaitEnd",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 388,
+   "expr": "Zc.prototype.k.Au",
+   "kind": "cnds",
+   "owner": "Fade",
+   "name": "OnFadeInEnd",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 389,
+   "expr": "H.prototype.A.left",
+   "kind": "exps",
+   "owner": "System",
+   "name": "left",
+   "how": "preserved",
+   "len": 3
+  },
+  {
+   "i": 390,
+   "expr": "kd.prototype.n.vC",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "SetPredictiveAim",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 391,
+   "expr": "kd.prototype.n.wC",
+   "kind": "acts",
+   "owner": "Turret",
+   "name": "SetProjectileSpeed",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 392,
+   "expr": "kd.prototype.k.iA",
+   "kind": "cnds",
+   "owner": "Turret",
+   "name": "HasTarget",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 393,
+   "expr": "kd.prototype.k.Lq",
+   "kind": "cnds",
+   "owner": "Turret",
+   "name": "OnTargetAcquired",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 394,
+   "expr": "kd.prototype.A.ZC",
+   "kind": "exps",
+   "owner": "Turret",
+   "name": "TargetUID",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 395,
+   "expr": "W.prototype.k.tA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsOnLayer",
+   "how": 0.654,
+   "len": 1
+  },
+  {
+   "i": 396,
+   "expr": "W.prototype.k.uA",
+   "kind": "cnds",
+   "owner": "Sprite",
+   "name": "IsOutsideLayout",
+   "how": 0.657,
+   "len": 0
+  },
+  {
+   "i": 397,
+   "expr": "Nc.prototype.n.AC",
+   "kind": "acts",
+   "owner": "Particles",
+   "name": "SetSpeedRandomiser",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 398,
+   "expr": "Cc.prototype.n.rC",
+   "kind": "acts",
+   "owner": "Audio",
+   "name": "SetPaused",
+   "how": 0.743,
+   "len": 2
+  },
+  {
+   "i": 399,
+   "expr": "H.prototype.n.gC",
+   "kind": "acts",
+   "owner": "System",
+   "name": "SetLayerOpacity",
+   "how": 0.626,
+   "len": 2
+  },
+  {
+   "i": 400,
+   "expr": "H.prototype.A.VF",
+   "kind": "exps",
+   "owner": "System",
+   "name": "layerscale",
+   "how": 0.675,
+   "len": 2
+  },
+  {
+   "i": 401,
+   "expr": "Vc.prototype.A.Ik",
+   "kind": "exps",
+   "owner": "Bullet",
+   "name": "Speed",
+   "how": 0.938,
+   "len": 1
+  },
+  {
+   "i": 402,
+   "expr": "Yc.prototype.A.ru",
+   "kind": "exps",
+   "owner": "EightDir",
+   "name": "MovingAngle",
+   "how": "global-name",
+   "len": 1
+  },
+  {
+   "i": 403,
+   "expr": "H.prototype.n.cA",
+   "kind": "acts",
+   "owner": "System",
+   "name": "GoToLayout",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 404,
+   "expr": "H.prototype.k.sn",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "OnSaveComplete",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 405,
+   "expr": "Kc.prototype.k.hu",
+   "kind": "cnds",
+   "owner": "LocalStorage",
+   "name": "CompareValue",
+   "how": 0.748,
+   "len": 2
+  },
+  {
+   "i": 406,
+   "expr": "Fc.prototype.k.uu",
+   "kind": "cnds",
+   "owner": "Keyboard",
+   "name": "OnAnyKey",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 407,
+   "expr": "Fc.prototype.A.VC",
+   "kind": "exps",
+   "owner": "Keyboard",
+   "name": "StringFromKeyCode",
+   "how": 0.938,
+   "len": 2
+  },
+  {
+   "i": 408,
+   "expr": "Fc.prototype.A.FA",
+   "kind": "exps",
+   "owner": "Keyboard",
+   "name": "LastKeyCode",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 409,
+   "expr": "H.prototype.A.right",
+   "kind": "exps",
+   "owner": "System",
+   "name": "right",
+   "how": "preserved",
+   "len": 3
+  },
+  {
+   "i": 410,
+   "expr": "H.prototype.A.YF",
+   "kind": "exps",
+   "owner": "System",
+   "name": "layoutwidth",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 411,
+   "expr": "Kc.prototype.n.DB",
+   "kind": "acts",
+   "owner": "LocalStorage",
+   "name": "RemoveItem",
+   "how": 0.71,
+   "len": 1
+  },
+  {
+   "i": 412,
+   "expr": "Y.prototype.n.$B",
+   "kind": "acts",
+   "owner": "Text",
+   "name": "SetFontFace",
+   "how": 0.884,
+   "len": 2
+  },
+  {
+   "i": 413,
+   "expr": "Ec.prototype.n.gz",
+   "kind": "acts",
+   "owner": "Dictionary",
+   "name": "AddKey",
+   "how": "manual",
+   "len": 2
+  },
+  {
+   "i": 414,
+   "expr": "Mc.prototype.n.Ek",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetPos",
+   "how": 0.755,
+   "len": 2
+  },
+  {
+   "i": 415,
+   "expr": "Mc.prototype.n.Hk",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetWidth",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 416,
+   "expr": "Mc.prototype.k.pn",
+   "kind": "cnds",
+   "owner": "NinePatch",
+   "name": "IsOnScreen",
+   "how": 0.718,
+   "len": 0
+  },
+  {
+   "i": 417,
+   "expr": "Mc.prototype.n.wn",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetHeight",
+   "how": 0.783,
+   "len": 1
+  },
+  {
+   "i": 418,
+   "expr": "Y.prototype.A.cv",
+   "kind": "exps",
+   "owner": "Text",
+   "name": "TextHeight",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 419,
+   "expr": "Mc.prototype.n.Cq",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "MoveToLayer",
+   "how": 0.827,
+   "len": 1
+  },
+  {
+   "i": 420,
+   "expr": "Ac.prototype.n.HB",
+   "kind": "acts",
+   "owner": "AJAX",
+   "name": "RequestFile",
+   "how": 0.785,
+   "len": 2
+  },
+  {
+   "i": 421,
+   "expr": "Dc.prototype.n.dA",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "GoToURL",
+   "how": 0.497,
+   "len": 2
+  },
+  {
+   "i": 422,
+   "expr": "Gc.prototype.n.Ek",
+   "kind": "acts",
+   "owner": "List",
+   "name": "SetPos",
+   "how": 0.755,
+   "len": 2
+  },
+  {
+   "i": 423,
+   "expr": "Gc.prototype.A.bf",
+   "kind": "exps",
+   "owner": "List",
+   "name": "X",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 424,
+   "expr": "Gc.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "List",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 425,
+   "expr": "Gc.prototype.A.cf",
+   "kind": "exps",
+   "owner": "List",
+   "name": "Y",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 426,
+   "expr": "Gc.prototype.A.Wi",
+   "kind": "exps",
+   "owner": "List",
+   "name": "Height",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 427,
+   "expr": "Gc.prototype.n.fz",
+   "kind": "acts",
+   "owner": "List",
+   "name": "AddItem",
+   "how": 0.986,
+   "len": 1
+  },
+  {
+   "i": 428,
+   "expr": "Gc.prototype.n.MB",
+   "kind": "acts",
+   "owner": "List",
+   "name": "Select",
+   "how": 0.843,
+   "len": 1
+  },
+  {
+   "i": 429,
+   "expr": "Gc.prototype.n.Ze",
+   "kind": "acts",
+   "owner": "List",
+   "name": "Destroy",
+   "how": 1.05,
+   "len": 0
+  },
+  {
+   "i": 430,
+   "expr": "Pc.prototype.n.Yu",
+   "kind": "acts",
+   "owner": "TextBox",
+   "name": "SetFocus",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 431,
+   "expr": "Gc.prototype.k.Qu",
+   "kind": "cnds",
+   "owner": "List",
+   "name": "OnSelectionChanged",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 432,
+   "expr": "Gc.prototype.k.Ez",
+   "kind": "cnds",
+   "owner": "List",
+   "name": "CompareSelection",
+   "how": 0.967,
+   "len": 2
+  },
+  {
+   "i": 433,
+   "expr": "Mc.prototype.k.nn",
+   "kind": "cnds",
+   "owner": "NinePatch",
+   "name": "CompareX",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 434,
+   "expr": "Mc.prototype.n.$i",
+   "kind": "acts",
+   "owner": "NinePatch",
+   "name": "SetX",
+   "how": 0.635,
+   "len": 1
+  },
+  {
+   "i": 435,
+   "expr": "Mc.prototype.A.Ih",
+   "kind": "exps",
+   "owner": "NinePatch",
+   "name": "Width",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 436,
+   "expr": "Mc.prototype.k.iu",
+   "kind": "cnds",
+   "owner": "NinePatch",
+   "name": "CompareY",
+   "how": 0.783,
+   "len": 2
+  },
+  {
+   "i": 437,
+   "expr": "Mc.prototype.A.Wi",
+   "kind": "exps",
+   "owner": "NinePatch",
+   "name": "Height",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 438,
+   "expr": "H.prototype.A.$F",
+   "kind": "exps",
+   "owner": "System",
+   "name": "lerp",
+   "how": 0.751,
+   "len": 4
+  },
+  {
+   "i": 439,
+   "expr": "Ac.prototype.k.Yi",
+   "kind": "cnds",
+   "owner": "AJAX",
+   "name": "OnComplete",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 440,
+   "expr": "Tc.prototype.n.HA",
+   "kind": "acts",
+   "owner": "XML",
+   "name": "Load",
+   "how": 0.748,
+   "len": 1
+  },
+  {
+   "i": 441,
+   "expr": "Ac.prototype.A.EA",
+   "kind": "exps",
+   "owner": "AJAX",
+   "name": "LastData",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 442,
+   "expr": "Tc.prototype.k.Aq",
+   "kind": "cnds",
+   "owner": "XML",
+   "name": "ForEach",
+   "how": 0.95,
+   "len": 1
+  },
+  {
+   "i": 443,
+   "expr": "Tc.prototype.A.WC",
+   "kind": "exps",
+   "owner": "XML",
+   "name": "StringValue",
+   "how": 0.867,
+   "len": 2
+  },
+  {
+   "i": 444,
+   "expr": "Kc.prototype.k.Eu",
+   "kind": "cnds",
+   "owner": "LocalStorage",
+   "name": "OnItemSet",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 445,
+   "expr": "Pc.prototype.A.Text",
+   "kind": "exps",
+   "owner": "TextBox",
+   "name": "Text",
+   "how": "preserved",
+   "len": 1
+  },
+  {
+   "i": 446,
+   "expr": "Pc.prototype.k.pn",
+   "kind": "cnds",
+   "owner": "TextBox",
+   "name": "IsOnScreen",
+   "how": 0.718,
+   "len": 0
+  },
+  {
+   "i": 447,
+   "expr": "Dc.prototype.k.oA",
+   "kind": "cnds",
+   "owner": "Browser",
+   "name": "IsDownloadingUpdate",
+   "how": "manual",
+   "len": 0
+  },
+  {
+   "i": 448,
+   "expr": "Pc.prototype.n.Fk",
+   "kind": "acts",
+   "owner": "TextBox",
+   "name": "SetText",
+   "how": 0.716,
+   "len": 1
+  },
+  {
+   "i": 449,
+   "expr": "Ac.prototype.n.GB",
+   "kind": "acts",
+   "owner": "AJAX",
+   "name": "Request",
+   "how": 0.795,
+   "len": 2
+  },
+  {
+   "i": 450,
+   "expr": "Ac.prototype.k.Ed",
+   "kind": "cnds",
+   "owner": "AJAX",
+   "name": "OnError",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 451,
+   "expr": "Ac.prototype.n.AB",
+   "kind": "acts",
+   "owner": "AJAX",
+   "name": "Post",
+   "how": 0.899,
+   "len": 4
+  },
+  {
+   "i": 452,
+   "expr": "H.prototype.A.ZF",
+   "kind": "exps",
+   "owner": "System",
+   "name": "len",
+   "how": 0.84,
+   "len": 2
+  },
+  {
+   "i": 453,
+   "expr": "Fc.prototype.k.Fu",
+   "kind": "cnds",
+   "owner": "Keyboard",
+   "name": "OnKey",
+   "how": "trigger-order",
+   "len": 1
+  },
+  {
+   "i": 454,
+   "expr": "Dc.prototype.n.eA",
+   "kind": "acts",
+   "owner": "Browser",
+   "name": "GoToURLWindow",
+   "how": 0.501,
+   "len": 2
+  },
+  {
+   "i": 455,
+   "expr": "Pc.prototype.k.mn",
+   "kind": "cnds",
+   "owner": "TextBox",
+   "name": "CompareText",
+   "how": 0.658,
+   "len": 2
+  },
+  {
+   "i": 456,
+   "expr": "Lc.prototype.k.Jq",
+   "kind": "cnds",
+   "owner": "Mouse",
+   "name": "OnObjectClicked",
+   "how": "trigger-order",
+   "len": 3
+  },
+  {
+   "i": 457,
+   "expr": "Ac.prototype.n.bv",
+   "kind": "acts",
+   "owner": "AJAX",
+   "name": "SetTimeout",
+   "how": 0.857,
+   "len": 1
+  },
+  {
+   "i": 458,
+   "expr": "H.prototype.A.find",
+   "kind": "exps",
+   "owner": "System",
+   "name": "find",
+   "how": "preserved",
+   "len": 3
+  },
+  {
+   "i": 459,
+   "expr": "Lc.prototype.n.UB",
+   "kind": "acts",
+   "owner": "Mouse",
+   "name": "SetCursor",
+   "how": 0.555,
+   "len": 1
+  },
+  {
+   "i": 460,
+   "expr": "Dc.prototype.k.tn",
+   "kind": "cnds",
+   "owner": "Browser",
+   "name": "OnUpdateReady",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 461,
+   "expr": "Lc.prototype.k.tu",
+   "kind": "cnds",
+   "owner": "Mouse",
+   "name": "OnAnyClick",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 462,
+   "expr": "H.prototype.k.Hq",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "OnLoadFinished",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 463,
+   "expr": "Qc.prototype.A.Wi",
+   "kind": "exps",
+   "owner": "TiledBg",
+   "name": "Height",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 464,
+   "expr": "Dc.prototype.A.DA",
+   "kind": "exps",
+   "owner": "Browser",
+   "name": "Language",
+   "how": 0.86,
+   "len": 1
+  },
+  {
+   "i": 465,
+   "expr": "H.prototype.A.Ml",
+   "kind": "exps",
+   "owner": "System",
+   "name": "dt",
+   "how": 1.05,
+   "len": 1
+  },
+  {
+   "i": 466,
+   "expr": "Vc.prototype.n.VB",
+   "kind": "acts",
+   "owner": "Bullet",
+   "name": "SetDistanceTravelled",
+   "how": "manual",
+   "len": 1
+  },
+  {
+   "i": 467,
+   "expr": "Dc.prototype.k.Nu",
+   "kind": "cnds",
+   "owner": "Browser",
+   "name": "OnPageVisible",
+   "how": "trigger-order",
+   "len": 0
+  },
+  {
+   "i": 468,
+   "expr": "H.prototype.k.Kq",
+   "kind": "cnds",
+   "owner": "System",
+   "name": "OnSaveFailed",
+   "how": "trigger-order",
+   "len": 0
+  }
+ ],
+ "conflicts": [
+  [
+   [
+    "k",
+    "hu"
+   ],
+   [
+    [
+     "CompareValue",
+     0.978
+    ],
+    [
+     "CompareKey",
+     0.748
+    ]
+   ]
+  ]
+ ],
+ "rename": {
+  "layer": "C",
+  "update_bbox": "la",
+  "bbox": "ka",
+  "do_cmp": "nc",
+  "instance_vars": "cc",
+  "getCurrentSol": "aa",
+  "getObjects": "$b",
+  "get_zindex": "ge",
+  "pick_one": "$j",
+  "angleClockwise": "Wa",
+  "angle": "u",
+  "to_radians": "E",
+  "runtime": "b",
+  "getCurrentCondition": "of",
+  "inverted": "ji",
+  "select_all": "ca",
+  "clearArray": "z",
+  "instances": "q",
+  "else_instances": "ra",
+  "truncateArray": "Ha",
+  "applySolToContainer": "bd",
+  "getObjectByUID": "tj",
+  "is_family": "R",
+  "families": "pb",
+  "running_layout": "wa",
+  "distanceTo": "Ya",
+  "set_bbox_changed": "P",
+  "loadInstanceFromJSON": "$o",
+  "afterLoad": "ue",
+  "behavior_insts": "da",
+  "getPairedInstance": "jF",
+  "getImagePoint": "ai",
+  "removeFromInstanceList": "ek",
+  "appendToInstanceList": "Ok",
+  "redraw": "X",
+  "arrayRemove": "ek",
+  "getFirstPicked": "sj",
+  "moveInstanceAdjacent": "kG",
+  "zindices_stale": "X",
+  "prependToInstanceList": "IG",
+  "set_float": "F",
+  "getDt": "Id",
+  "set_int": "W",
+  "object_class": "xi",
+  "set_string": "xa",
+  "saveInstanceToJSON": "zt",
+  "createRow": "Ce",
+  "doRequest": "Dr",
+  "isWKWebView": "Bj",
+  "fetchLocalFileViaCordovaAsText": "Jr",
+  "curTag": "cd",
+  "lastData": "Ge",
+  "cnds": "k",
+  "OnAnyComplete": "yk",
+  "AJAX": "k",
+  "OnAnyError": "zk",
+  "at": "xc",
+  "getForX": "Ur",
+  "getForY": "Vr",
+  "getCurrentEventStack": "bb",
+  "current_event": "gb",
+  "forDepth": "fe",
+  "forX": "ud",
+  "forY": "lf",
+  "forZ": "Zh",
+  "cx": "hb",
+  "cy": "rb",
+  "doForEachTrigger": "Cr",
+  "set_any": "zh",
+  "setVolume": "gH",
+  "files_subfolder": "Xg",
+  "getAudioInstance": "$h",
+  "getAudioBuffer": "Zg",
+  "panWhenReady": "tf",
+  "setSilent": "Sp",
+  "dictionary": "ee",
+  "getLayerByNumber": "vd",
+  "zoomRate": "ub",
+  "parallaxX": "Rb",
+  "canvasToLayer": "Wa",
+  "mouseXcanvas": "gg",
+  "mouseYcanvas": "hg",
+  "is_number": "ja",
+  "getLayerByName": "bh",
+  "parallaxY": "Sb",
+  "elem": "D",
+  "isDomFree": "U",
+  "params": "Fb",
+  "retVal": "Gi",
+  "cur_frame": "Y",
+  "changeAnimName": "dj",
+  "equals_nocase": "rb",
+  "cur_animation": "ab",
+  "createInstance": "Yn",
+  "isInOnDestroy": "Nd",
+  "plugin": "ja",
+  "OnCreated": "Fh",
+  "is_contained": "oc",
+  "getCurrentAction": "dF",
+  "extra": "Z",
+  "execcount": "Xh",
+  "is_undefined": "ia",
+  "changeAnimFrom": "Ev",
+  "isTicking": "$f",
+  "tickMe": "Ef",
+  "inAnimTrigger": "jl",
+  "doChangeAnim": "Mv",
+  "changeAnimFrame": "Rk",
+  "doChangeAnimFrame": "Br",
+  "cur_anim_speed": "Oh",
+  "animForwards": "Kg",
+  "pushLoopStack": "wm",
+  "popLoopStack": "qm",
+  "fontstyle": "pj",
+  "updateFont": "Ty",
+  "GetRValue": "Ca",
+  "need_text_redraw": "Vs",
+  "lines": "qc",
+  "line_height_offset": "Il",
+  "contains_pt": "Ab",
+  "shallowAssignArray": "Ia",
+  "trigger_index": "Ve",
+  "acc_g_x": "Ve",
+  "acc_g_y": "Ri",
+  "findTouch": "Yh",
+  "getTouchIndex": "vj",
+  "inst": "j",
+  "angleTo": "Ta",
+  "dx": "M",
+  "dy": "L",
+  "getValue": "bi",
+  "isModifierAfterCnds": "Po",
+  "stopped": "cb",
+  "pushCopySol": "xf",
+  "solModifiers": "ta",
+  "retrigger": "Le",
+  "popSol": "Td",
+  "parameters": "ea",
+  "tickcount": "Vd",
+  "layout_first_tick": "Es",
+  "groups_by_name": "wj",
+  "group_active": "ci",
+  "activeGroups": "wj",
+  "setGroupActive": "Dm",
+  "any_instance_parallaxed": "Mk",
+  "kahanTime": "Db",
+  "sum": "V",
+  "signaltag": "vy",
+  "signalled": "Dt",
+  "actindex": "ad",
+  "types_by_index": "S",
+  "sa": "Mp",
+  "insts": "Xf",
+  "sols": "Wc",
+  "waits": "nd",
+  "clamp": "Ma",
+  "forceOwnTexture": "qj",
+  "getLayer": "dl",
+  "start_time": "Km",
+  "dt": "Ml",
+  "loop_stack": "Ul",
+  "loop_stack_index": "Vl",
+  "getCurrentLoop": "bw",
+  "is_string": "ka",
+  "toUpperCase": "xa"
+ }
+}

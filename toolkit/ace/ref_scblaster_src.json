@@ -1,0 +1,1626 @@
+{
+ "plugins": {
+  "Audio": {
+   "cnds": {
+    "OnEnded": {
+     "src": "function (t)\r\n\t{\r\n\t\treturn audTag.toLowerCase() === t.toLowerCase();\r\n\t}",
+     "len": 1
+    },
+    "PreloadsComplete": {
+     "src": "function ()\r\n\t{\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = audioBuffers.length; i < len; i++)\r\n\t\t{\r\n\t\t\tif (!audioBuffers[i].isLoaded())\r\n\t\t\t\treturn false;\r\n\t\t}\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Play": {
+     "src": "function (file, looping, vol, tag)\r\n\t{\r\n\t\tif (silent)\r\n\t\t\treturn;\r\n\t\tvar v = Math.pow(10, vol / 20);\r\n\t\tif (v < 0)\r\n\t\t\tv = 0;\r\n\t\tif (v > 1)\r\n\t\t\tv = 1;\r\n\t\tvar is_music = file[1];\r\n\t\tvar src = this.runtime.files_subfolder + file[0] + (useOgg ? \".ogg\" : \".m4a\");\r\n\t\tlastAudio = this.getAudioInstance(src, tag, is_music, looping!==0, v);\r\n\t\tif (!lastAudio)\r\n\t\t\treturn;\r\n\t\tlastAudio.play(looping!==0, v);\r\n\t}",
+     "len": 4
+    },
+    "PlayByName": {
+     "src": "function (folder, filename, looping, vol, tag)\r\n\t{\r\n\t\tif (silent)\r\n\t\t\treturn;\r\n\t\tvar v = Math.pow(10, vol / 20);\r\n\t\tif (v < 0)\r\n\t\t\tv = 0;\r\n\t\tif (v > 1)\r\n\t\t\tv = 1;\r\n\t\tvar is_music = (folder === 1);\r\n\t\tvar src = this.runtime.files_subfolder + filename.toLowerCase() + (useOgg ? \".ogg\" : \".m4a\");\r\n\t\tlastAudio = this.getAudioInstance(src, tag, is_music, looping!==0, v);\r\n\t\tif (!lastAudio)\r\n\t\t\treturn;\r\n\t\tlastAudio.play(looping!==0, v);\r\n\t}",
+     "len": 5
+    },
+    "SetLooping": {
+     "src": "function (tag, looping)\r\n\t{\r\n\t\tthis.getAudioByTag(tag);\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = taggedAudio.length; i < len; i++)\r\n\t\t\ttaggedAudio[i].setLooping(looping === 0);\r\n\t}",
+     "len": 2
+    },
+    "SetMuted": {
+     "src": "function (tag, muted)\r\n\t{\r\n\t\tthis.getAudioByTag(tag);\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = taggedAudio.length; i < len; i++)\r\n\t\t\ttaggedAudio[i].setMuted(muted === 0);\r\n\t}",
+     "len": 2
+    },
+    "SetVolume": {
+     "src": "function (tag, vol)\r\n\t{\r\n\t\tthis.getAudioByTag(tag);\r\n\t\tvar v = Math.pow(10, vol / 20);\r\n\t\tif (v < 0)\r\n\t\t\tv = 0;\r\n\t\tif (v > 1)\r\n\t\t\tv = 1;\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = taggedAudio.length; i < len; i++)\r\n\t\t\ttaggedAudio[i].setVolume(v);\r\n\t}",
+     "len": 2
+    },
+    "Preload": {
+     "src": "function (file)\r\n\t{\r\n\t\tif (silent)\r\n\t\t\treturn;\r\n\t\tvar is_music = file[1];\r\n\t\tvar src = this.runtime.files_subfolder + file[0] + (useOgg ? \".ogg\" : \".m4a\");\r\n\t\tif (api === API_APPMOBI)\r\n\t\t{\r\n\t\t\tif (this.runtime.isDirectCanvas)\r\n\t\t\t\tAppMobi[\"context\"][\"loadSound\"](src);\r\n\t\t\telse\r\n\t\t\t\tAppMobi[\"player\"][\"loadSound\"](src);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\telse if (api === API_PHONEGAP)\r\n\t\t{\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tthis.getAudioInstance(src, \"<preload>\", is_music, false);\r\n\t}",
+     "len": 1
+    },
+    "PreloadByName": {
+     "src": "function (folder, filename)\r\n\t{\r\n\t\tif (silent)\r\n\t\t\treturn;\r\n\t\tvar is_music = (folder === 1);\r\n\t\tvar src = this.runtime.files_subfolder + filename.toLowerCase() + (useOgg ? \".ogg\" : \".m4a\");\r\n\t\tif (api === API_APPMOBI)\r\n\t\t{\r\n\t\t\tif (this.runtime.isDirectCanvas)\r\n\t\t\t\tAppMobi[\"context\"][\"loadSound\"](src);\r\n\t\t\telse\r\n\t\t\t\tAppMobi[\"player\"][\"loadSound\"](src);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\telse if (api === API_PHONEGAP)\r\n\t\t{\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tthis.getAudioInstance(src, \"<preload>\", is_music, false);\r\n\t}",
+     "len": 2
+    },
+    "SetPlaybackRate": {
+     "src": "function (tag, rate)\r\n\t{\r\n\t\tthis.getAudioByTag(tag);\r\n\t\tif (rate < 0.0)\r\n\t\t\trate = 0;\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = taggedAudio.length; i < len; i++)\r\n\t\t\ttaggedAudio[i].setPlaybackRate(rate);\r\n\t}",
+     "len": 2
+    },
+    "Stop": {
+     "src": "function (tag)\r\n\t{\r\n\t\tthis.getAudioByTag(tag);\r\n\t\tvar i, len;\r\n\t\tfor (i = 0, len = taggedAudio.length; i < len; i++)\r\n\t\t\ttaggedAudio[i].stop();\r\n\t}",
+     "len": 1
+    },
+    "SetSilent": {
+     "src": "function (s)\r\n\t{\r\n\t\tvar i, len;\r\n\t\tif (s === 2)\t\t\t\t\t// toggling\r\n\t\t\ts = (silent ? 1 : 0);\t\t// choose opposite state\r\n\t\tif (s === 0 && !silent)\t\t\t// setting silent\r\n\t\t{\r\n\t\t\tfor (i = 0, len = audioInstances.length; i < len; i++)\r\n\t\t\t\taudioInstances[i].setMuted(true);\r\n\t\t\tsilent = true;\r\n\t\t}\r\n\t\telse if (s === 1 && silent)\t\t// setting not silent\r\n\t\t{\r\n\t\t\tfor (i = 0, len = audioInstances.length; i < len; i++)\r\n\t\t\t\taudioInstances[i].setMuted(false);\r\n\t\t\tsilent = false;\r\n\t\t}\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {}
+  },
+  "Browser": {
+   "cnds": {
+    "CookiesEnabled": {
+     "src": "function()\r\n\t{\r\n\t\treturn navigator ? navigator.cookieEnabled : false;\r\n\t}",
+     "len": 0
+    },
+    "IsOnline": {
+     "src": "function()\r\n\t{\r\n\t\treturn navigator ? navigator.onLine : false;\r\n\t}",
+     "len": 0
+    },
+    "HasJava": {
+     "src": "function()\r\n\t{\r\n\t\treturn navigator ? navigator.javaEnabled() : false;\r\n\t}",
+     "len": 0
+    },
+    "OnOnline": {
+     "src": "function()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnOffline": {
+     "src": "function()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsDownloadingUpdate": {
+     "src": "function ()\r\n\t{\r\n\t\tif (typeof window[\"applicationCache\"] === \"undefined\")\r\n\t\t\treturn false;\r\n\t\telse\r\n\t\t\treturn window[\"applicationCache\"][\"status\"] === window[\"applicationCache\"][\"DOWNLOADING\"];\r\n\t}",
+     "len": 0
+    },
+    "OnUpdateReady": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "PageVisible": {
+     "src": "function ()\r\n\t{\r\n\t\treturn !this.runtime.isSuspended;\r\n\t}",
+     "len": 0
+    },
+    "OnPageVisible": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnPageHidden": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnResize": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsFullscreen": {
+     "src": "function ()\r\n\t{\r\n\t\treturn !!(document[\"mozFullScreen\"] || document[\"webkitIsFullScreen\"] || document[\"fullScreen\"] || this.runtime.isNodeFullscreen);\r\n\t}",
+     "len": 0
+    },
+    "OnMenuButton": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnSearchButton": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsMetered": {
+     "src": "function ()\r\n\t{\r\n\t\tvar connection = navigator[\"connection\"] || navigator[\"mozConnection\"] || navigator[\"webkitConnection\"];\r\n\t\tif (!connection)\r\n\t\t\treturn false;\r\n\t\treturn connection[\"metered\"];\r\n\t}",
+     "len": 0
+    },
+    "IsCharging": {
+     "src": "function ()\r\n\t{\r\n\t\tvar battery = navigator[\"battery\"] || navigator[\"mozBattery\"] || navigator[\"webkitBattery\"];\r\n\t\tif (!battery)\r\n\t\t\treturn true;\r\n\t\treturn battery[\"charging\"];\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Alert": {
+     "src": "function (msg)\r\n\t{\r\n\t\tif (!this.runtime.isDomFree)\r\n\t\t\talert(msg.toString());\r\n\t}",
+     "len": 1
+    },
+    "Close": {
+     "src": "function ()\r\n\t{\r\n\t\tif (this.runtime.isCocoonJs)\r\n\t\t\tCocoonJS[\"App\"][\"forceToFinish\"]();\r\n\t\telse if (this.runtime.isNodeWebkit)\r\n\t\t\twindow[\"nwgui\"][\"App\"][\"quit\"]();\r\n\t\telse if (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.close();\r\n\t}",
+     "len": 0
+    },
+    "Focus": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.focus();\r\n\t}",
+     "len": 0
+    },
+    "Blur": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.blur();\r\n\t}",
+     "len": 0
+    },
+    "GoBack": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.back();\r\n\t}",
+     "len": 0
+    },
+    "GoForward": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.forward();\r\n\t}",
+     "len": 0
+    },
+    "GoHome": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.home();\r\n\t}",
+     "len": 0
+    },
+    "GoToURL": {
+     "src": "function (url)\r\n\t{\r\n\t\tif (this.runtime.isCocoonJs)\r\n\t\t\tCocoonJS[\"App\"][\"openURL\"](url);\r\n\t\telse if (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.location = url;\r\n\t}",
+     "len": 1
+    },
+    "GoToURLWindow": {
+     "src": "function (url, tag)\r\n\t{\r\n\t\tif (this.runtime.isCocoonJs)\r\n\t\t\tCocoonJS[\"App\"][\"openURL\"](url);\r\n\t\telse if (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.open(url, tag);\r\n\t}",
+     "len": 2
+    },
+    "Reload": {
+     "src": "function ()\r\n\t{\r\n\t\tif (!this.is_arcade && !this.runtime.isDomFree)\r\n\t\t\twindow.location.reload();\r\n\t}",
+     "len": 0
+    },
+    "RequestFullScreen": {
+     "src": "function (stretchmode)\r\n\t{\r\n\t\tif (this.runtime.isDomFree)\r\n\t\t{\r\n\t\t\tcr.logexport(\"[Construct 2] Requesting fullscreen is not supported on this platform - the request has been ignored\");\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tif (this.runtime.isNodeWebkit)\r\n\t\t{\r\n\t\t\tif (!this.runtime.isNodeFullscreen)\r\n\t\t\t{\r\n\t\t\t\twindow[\"nwgui\"][\"Window\"][\"get\"]()[\"enterFullscreen\"]();\r\n\t\t\t\tthis.runtime.isNodeFullscreen = true;\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (document[\"mozFullScreen\"] || document[\"webkitIsFullScreen\"] || document[\"fullScreen\"])\r\n\t\t\t\treturn;\r\n\t\t\tthis.fullscreenOldMarginCss = jQuery(this.runtime.canvasdiv).css(\"margin\");\r\n\t\t\tjQuery(this.runtime.canvasdiv).css(\"margin\", \"0\");\r\n\t\t\twindow[\"c2resizestretchmode\"] = (stretchmode > 0 ? 1 : 0);\r\n\t\t\tthis.runtime.fullscreen_scaling = (stretchmode >= 2 ? stretchmode : 0);\r\n\t\t\tvar elem = this.runtime.canvasdiv || this.runtime.canvas;\r\n\t\t\tif (!cr.is_undefined(elem[\"webkitRequestFullScreen\"]))\r\n\t\t\t{\r\n\t\t\t\tif (typeof Element !== \"undefined\" && typeof Element[\"ALLOW_KEYBOARD_INPUT\"] !== \"undefined\")\r\n\t\t\t\t\telem[\"webkitRequestFullScreen\"](Element[\"ALLOW_KEYBOARD_INPUT\"]);\r\n\t\t\t\telse\r\n\t\t\t\t\telem[\"webkitRequestFullScreen\"]();\r\n\t\t\t}\r\n\t\t\telse if (!cr.is_undefined(elem[\"mozRequestFullScreen\"]))\r\n\t\t\t\telem[\"mozRequestFullScreen\"]();\r\n\t\t\telse if (!cr.is_undefined(elem[\"requestFullscreen\"]))\r\n\t\t\t\telem[\"requestFullscreen\"]();\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "CancelFullScreen": {
+     "src": "function ()\r\n\t{\r\n\t\tif (this.runtime.isDomFree)\r\n\t\t{\r\n\t\t\tcr.logexport(\"[Construct 2] Exiting fullscreen is not supported on this platform - the request has been ignored\");\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tif (this.runtime.isNodeWebkit)\r\n\t\t{\r\n\t\t\tif (this.runtime.isNodeFullscreen)\r\n\t\t\t{\r\n\t\t\t\twindow[\"nwgui\"][\"Window\"][\"get\"]()[\"leaveFullscreen\"]();\r\n\t\t\t\tthis.runtime.isNodeFullscreen = false;\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (!cr.is_undefined(document[\"webkitCancelFullScreen\"]))\r\n\t\t\t\tdocument[\"webkitCancelFullScreen\"]();\r\n\t\t\tif (!cr.is_undefined(document[\"mozCancelFullScreen\"]))\r\n\t\t\t\tdocument[\"mozCancelFullScreen\"]();\r\n\t\t\tif (!cr.is_undefined(document[\"exitFullscreen\"]))\r\n\t\t\t\tdocument[\"exitFullscreen\"]();\r\n\t\t\tjQuery(this.runtime.canvasdiv).css(\"margin\", this.fullscreenOldMarginCss);\r\n\t\t}\r\n\t}",
+     "len": 0
+    },
+    "Vibrate": {
+     "src": "function (pattern_)\r\n\t{\r\n\t\ttry {\r\n\t\t\tvar arr = pattern_.split(\",\");\r\n\t\t\tvar i, len;\r\n\t\t\tfor (i = 0, len = arr.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\tarr[i] = parseInt(arr[i], 10);\r\n\t\t\t}\r\n\t\t\tvar vibrate = navigator[\"mozVibrate\"] || navigator[\"webkitVibrate\"] || navigator[\"vibrate\"];\r\n\t\t\tif (vibrate)\r\n\t\t\t\tvibrate(arr);\r\n\t\t}\r\n\t\tcatch (e) {}\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "URL": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.toString());\r\n\t}",
+     "len": 1
+    },
+    "Protocol": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.protocol);\r\n\t}",
+     "len": 1
+    },
+    "Domain": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.hostname);\r\n\t}",
+     "len": 1
+    },
+    "PathName": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.pathname);\r\n\t}",
+     "len": 1
+    },
+    "Hash": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.hash);\r\n\t}",
+     "len": 1
+    },
+    "Referrer": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : document.referrer);\r\n\t}",
+     "len": 1
+    },
+    "Title": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : document.title);\r\n\t}",
+     "len": 1
+    },
+    "Name": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : navigator.appName);\r\n\t}",
+     "len": 1
+    },
+    "Version": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : navigator.appVersion);\r\n\t}",
+     "len": 1
+    },
+    "Language": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (navigator && navigator.language)\r\n\t\t\tret.set_string(navigator.language);\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 1
+    },
+    "Platform": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : navigator.platform);\r\n\t}",
+     "len": 1
+    },
+    "Product": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (navigator && navigator.product)\r\n\t\t\tret.set_string(navigator.product);\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 1
+    },
+    "Vendor": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (navigator && navigator.vendor)\r\n\t\t\tret.set_string(navigator.vendor);\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 1
+    },
+    "UserAgent": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : navigator.userAgent);\r\n\t}",
+     "len": 1
+    },
+    "QueryString": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.isDomFree ? \"\" : window.location.search);\r\n\t}",
+     "len": 1
+    },
+    "QueryParam": {
+     "src": "function (ret, paramname)\r\n\t{\r\n\t\tif (this.runtime.isDomFree)\r\n\t\t{\r\n\t\t\tret.set_string(\"\");\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar match = RegExp('[?&]' + paramname + '=([^&]*)').exec(window.location.search);\r\n\t\tif (match)\r\n\t\t\tret.set_string(decodeURIComponent(match[1].replace(/\\+/g, ' ')));\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 2
+    },
+    "Bandwidth": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar connection = navigator[\"connection\"] || navigator[\"mozConnection\"] || navigator[\"webkitConnection\"];\r\n\t\tif (!connection)\r\n\t\t\tret.set_float(Number.POSITIVE_INFINITY);\r\n\t\telse\r\n\t\t\tret.set_float(connection[\"bandwidth\"]);\r\n\t}",
+     "len": 1
+    },
+    "BatteryLevel": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar battery = navigator[\"battery\"] || navigator[\"mozBattery\"] || navigator[\"webkitBattery\"];\r\n\t\tif (!battery)\r\n\t\t\tret.set_float(1);\r\n\t\telse\r\n\t\t\tret.set_float(battery[\"level\"]);\r\n\t}",
+     "len": 1
+    },
+    "BatteryTimeLeft": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar battery = navigator[\"battery\"] || navigator[\"mozBattery\"] || navigator[\"webkitBattery\"];\r\n\t\tif (!battery)\r\n\t\t\tret.set_float(Number.POSITIVE_INFINITY);\r\n\t\telse\r\n\t\t\tret.set_float(battery[\"dischargingTime\"]);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Keyboard": {
+   "cnds": {
+    "IsKeyDown": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn this.keyMap[key];\r\n\t}",
+     "len": 1
+    },
+    "OnKey": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn (key === this.triggerKey);\r\n\t}",
+     "len": 1
+    },
+    "OnAnyKey": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 1
+    },
+    "OnAnyKeyReleased": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 1
+    },
+    "OnKeyReleased": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn (key === this.triggerKey);\r\n\t}",
+     "len": 1
+    },
+    "IsKeyCodeDown": {
+     "src": "function(key)\r\n\t{\r\n\t\tkey = Math.floor(key);\r\n\t\tif (key < 0 || key >= this.keyMap.length)\r\n\t\t\treturn false;\r\n\t\treturn this.keyMap[key];\r\n\t}",
+     "len": 1
+    },
+    "OnKeyCode": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn (key === this.triggerKey);\r\n\t}",
+     "len": 1
+    },
+    "OnKeyCodeReleased": {
+     "src": "function(key)\r\n\t{\r\n\t\treturn (key === this.triggerKey);\r\n\t}",
+     "len": 1
+    }
+   },
+   "acts": {},
+   "exps": {
+    "LastKeyCode": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.triggerKey);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Sprite": {
+   "cnds": {
+    "OnCollision": {
+     "src": "function (rtype)\r\n\t{\r\n\t\tif (!rtype)\r\n\t\t\treturn false;\r\n\t\tvar runtime = this.runtime;\r\n\t\tvar cnd = runtime.getCurrentCondition();\r\n\t\tvar ltype = cnd.type;\r\n\t\tif (!cnd.extra.collmemory)\r\n\t\t{\r\n\t\t\tcnd.extra.collmemory = [];\r\n\t\t\truntime.addDestroyCallback((function (collmemory) {\r\n\t\t\t\treturn function(inst) {\r\n\t\t\t\t\tcollmemory_removeInstance(collmemory, inst);\r\n\t\t\t\t};\r\n\t\t\t})(cnd.extra.collmemory));\r\n\t\t}\r\n\t\tvar lsol = ltype.getCurrentSol();\r\n\t\tvar rsol = rtype.getCurrentSol();\r\n\t\tvar linstances = lsol.getObjects();\r\n\t\tvar rinstances = rsol.getObjects();\r\n\t\tvar l, lenl, linst, r, lenr, rinst;\r\n\t\tvar curlsol, currsol;\r\n\t\tvar current_event = runtime.getCurrentEventStack().current_event;\r\n\t\tvar orblock = current_event.orblock;\r\n\t\tfor (l = 0, lenl = linstances.length; l < lenl; l++)\r\n\t\t{\r\n\t\t\tlinst = linstances[l];\r\n\t\t\tfor (r = 0, lenr = rinstances.length; r < lenr; r++)\r\n\t\t\t{\r\n\t\t\t\trinst = rinstances[r];\r\n\t\t\t\tif (runtime.testOverlap(linst, rinst) || runtime.checkRegisteredCollision(linst, rinst))\r\n\t\t\t\t{\r\n\t\t\t\t\tif (!collmemory_has(cnd.extra.collmemory, linst, rinst))\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tcollmemory_add(cnd.extra.collmemory, linst, rinst);\r\n\t\t\t\t\t\truntime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\t\t\tcurlsol = ltype.getCurrentSol();\r\n\t\t\t\t\t\tcurrsol = rtype.getCurrentSol();\r\n\t\t\t\t\t\tcurlsol.select_all = false;\r\n\t\t\t\t\t\tcurrsol.select_all = false;\r\n\t\t\t\t\t\tif (ltype === rtype)\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\tcurlsol.instances.length = 2;\t// just use lsol, is same reference as rsol\r\n\t\t\t\t\t\t\tcurlsol.instances[0] = linst;\r\n\t\t\t\t\t\t\tcurlsol.instances[1] = rinst;\r\n\t\t\t\t\t\t\tltype.applySolToContainer();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\telse\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\tcurlsol.instances.length = 1;\r\n\t\t\t\t\t\t\tcurrsol.instances.length = 1;\r\n\t\t\t\t\t\t\tcurlsol.instances[0] = linst;\r\n\t\t\t\t\t\t\tcurrsol.instances[0] = rinst;\r\n\t\t\t\t\t\t\tltype.applySolToContainer();\r\n\t\t\t\t\t\t\trtype.applySolToContainer();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t\t\t\truntime.popSol(current_event.solModifiers);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\tcollmemory_remove(cnd.extra.collmemory, linst, rinst);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t\treturn false;\r\n\t}",
+     "len": 1
+    },
+    "IsOverlapping": {
+     "src": "function (rtype)\r\n\t{\r\n\t\treturn DoOverlapCondition.call(this, rtype, 0, 0);\r\n\t}",
+     "len": 1
+    },
+    "IsOverlappingOffset": {
+     "src": "function (rtype, offx, offy)\r\n\t{\r\n\t\treturn DoOverlapCondition.call(this, rtype, offx, offy);\r\n\t}",
+     "len": 3
+    },
+    "IsAnimPlaying": {
+     "src": "function (animname)\r\n\t{\r\n\t\treturn this.cur_animation.name.toLowerCase() === animname.toLowerCase();\r\n\t}",
+     "len": 1
+    },
+    "CompareFrame": {
+     "src": "function (cmp, framenum)\r\n\t{\r\n\t\treturn cr.do_cmp(this.cur_frame, cmp, framenum);\r\n\t}",
+     "len": 2
+    },
+    "OnAnimFinished": {
+     "src": "function (animname)\r\n\t{\r\n\t\treturn this.animTriggerName.toLowerCase() === animname.toLowerCase();\r\n\t}",
+     "len": 1
+    },
+    "OnAnyAnimFinished": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnFrameChanged": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsMirrored": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.width < 0;\r\n\t}",
+     "len": 0
+    },
+    "IsFlipped": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.height < 0;\r\n\t}",
+     "len": 0
+    },
+    "OnURLLoaded": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsCollisionEnabled": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.collisionsEnabled;\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Spawn": {
+     "src": "function (obj, layer, imgpt)\r\n\t{\r\n\t\tif (!obj || !layer)\r\n\t\t\treturn;\r\n\t\tvar inst = this.runtime.createInstance(obj, layer, this.getImagePoint(imgpt, true), this.getImagePoint(imgpt, false));\r\n\t\tif (!inst)\r\n\t\t\treturn;\r\n\t\tinst.angle = this.angle;\r\n\t\tinst.set_bbox_changed();\r\n\t\tthis.runtime.isInOnDestroy++;\r\n\t\tvar i, len, s;\r\n\t\tthis.runtime.trigger(Object.getPrototypeOf(obj.plugin).cnds.OnCreated, inst);\r\n\t\tif (inst.is_contained)\r\n\t\t{\r\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\ts = inst.siblings[i];\r\n\t\t\t\tthis.runtime.trigger(Object.getPrototypeOf(s.type.plugin).cnds.OnCreated, s);\r\n\t\t\t}\r\n\t\t}\r\n\t\tthis.runtime.isInOnDestroy--;\r\n\t\tvar cur_act = this.runtime.getCurrentAction();\r\n\t\tvar reset_sol = false;\r\n\t\tif (cr.is_undefined(cur_act.extra.Spawn_LastExec) || cur_act.extra.Spawn_LastExec < this.runtime.execcount)\r\n\t\t{\r\n\t\t\treset_sol = true;\r\n\t\t\tcur_act.extra.Spawn_LastExec = this.runtime.execcount;\r\n\t\t}\r\n\t\tvar sol;\r\n\t\tif (obj != this.type)\r\n\t\t{\r\n\t\t\tsol = obj.getCurrentSol();\r\n\t\t\tsol.select_all = false;\r\n\t\t\tif (reset_sol)\r\n\t\t\t{\r\n\t\t\t\tsol.instances.length = 1;\r\n\t\t\t\tsol.instances[0] = inst;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t\tsol.instances.push(inst);\r\n\t\t\tif (inst.is_contained)\r\n\t\t\t{\r\n\t\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\r\n\t\t\t\t{\r\n\t\t\t\t\ts = inst.siblings[i];\r\n\t\t\t\t\tsol = s.type.getCurrentSol();\r\n\t\t\t\t\tsol.select_all = false;\r\n\t\t\t\t\tif (reset_sol)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tsol.instances.length = 1;\r\n\t\t\t\t\t\tsol.instances[0] = s;\r\n\t\t\t\t\t}\r\n\t\t\t\t\telse\r\n\t\t\t\t\t\tsol.instances.push(s);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t}",
+     "len": 3
+    },
+    "SetEffect": {
+     "src": "function (effect)\r\n\t{\r\n\t\tthis.compositeOp = cr.effectToCompositeOp(effect);\r\n\t\tcr.setGLBlend(this, effect, this.runtime.gl);\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 1
+    },
+    "StopAnim": {
+     "src": "function ()\r\n\t{\r\n\t\tthis.animPlaying = false;\r\n\t}",
+     "len": 0
+    },
+    "StartAnim": {
+     "src": "function (from)\r\n\t{\r\n\t\tthis.animPlaying = true;\r\n\t\tthis.frameStart = this.getNowTime();\r\n\t\tif (from === 1 && this.cur_frame !== 0)\r\n\t\t{\r\n\t\t\tvar prev_frame = this.cur_animation.frames[this.cur_frame];\r\n\t\t\tthis.cur_frame = 0;\r\n\t\t\tthis.OnFrameChanged(prev_frame, this.cur_animation.frames[0]);\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t\tif (!this.isTicking)\r\n\t\t{\r\n\t\t\tthis.runtime.tickMe(this);\r\n\t\t\tthis.isTicking = true;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "SetAnim": {
+     "src": "function (animname, from)\r\n\t{\r\n\t\tthis.changeAnimName = animname;\r\n\t\tthis.changeAnimFrom = from;\r\n\t\tif (!this.isTicking)\r\n\t\t{\r\n\t\t\tthis.runtime.tickMe(this);\r\n\t\t\tthis.isTicking = true;\r\n\t\t}\r\n\t\tif (!this.inAnimTrigger)\r\n\t\t\tthis.doChangeAnim();\r\n\t}",
+     "len": 2
+    },
+    "SetAnimFrame": {
+     "src": "function (framenumber)\r\n\t{\r\n\t\tthis.changeAnimFrame = framenumber;\r\n\t\tif (!this.isTicking)\r\n\t\t{\r\n\t\t\tthis.runtime.tickMe(this);\r\n\t\t\tthis.isTicking = true;\r\n\t\t}\r\n\t\tif (!this.inAnimTrigger)\r\n\t\t\tthis.doChangeAnimFrame();\r\n\t}",
+     "len": 1
+    },
+    "SetAnimSpeed": {
+     "src": "function (s)\r\n\t{\r\n\t\tthis.cur_anim_speed = cr.abs(s);\r\n\t\tthis.animForwards = (s >= 0);\r\n\t\tif (!this.isTicking)\r\n\t\t{\r\n\t\t\tthis.runtime.tickMe(this);\r\n\t\t\tthis.isTicking = true;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "SetMirrored": {
+     "src": "function (m)\r\n\t{\r\n\t\tvar neww = cr.abs(this.width) * (m === 0 ? -1 : 1);\r\n\t\tif (this.width === neww)\r\n\t\t\treturn;\r\n\t\tthis.width = neww;\r\n\t\tthis.set_bbox_changed();\r\n\t}",
+     "len": 1
+    },
+    "SetFlipped": {
+     "src": "function (f)\r\n\t{\r\n\t\tvar newh = cr.abs(this.height) * (f === 0 ? -1 : 1);\r\n\t\tif (this.height === newh)\r\n\t\t\treturn;\r\n\t\tthis.height = newh;\r\n\t\tthis.set_bbox_changed();\r\n\t}",
+     "len": 1
+    },
+    "SetScale": {
+     "src": "function (s)\r\n\t{\r\n\t\tvar cur_frame = this.curFrame;\r\n\t\tvar mirror_factor = (this.width < 0 ? -1 : 1);\r\n\t\tvar flip_factor = (this.height < 0 ? -1 : 1);\r\n\t\tvar new_width = cur_frame.width * s * mirror_factor;\r\n\t\tvar new_height = cur_frame.height * s * flip_factor;\r\n\t\tif (this.width !== new_width || this.height !== new_height)\r\n\t\t{\r\n\t\t\tthis.width = new_width;\r\n\t\t\tthis.height = new_height;\r\n\t\t\tthis.set_bbox_changed();\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "LoadURL": {
+     "src": "function (url_, resize_)\r\n\t{\r\n\t\tvar img = new Image();\r\n\t\tvar self = this;\r\n\t\tvar curFrame_ = this.curFrame;\r\n\t\timg.onload = function ()\r\n\t\t{\r\n\t\t\tif (curFrame_.texture_img.src === img.src)\r\n\t\t\t{\r\n\t\t\t\tif (self.runtime.glwrap && self.curFrame === curFrame_)\r\n\t\t\t\t\tself.curWebGLTexture = curFrame_.webGL_texture;\r\n\t\t\t\tself.runtime.redraw = true;\r\n\t\t\t\tself.runtime.trigger(cr.plugins_.Sprite.prototype.cnds.OnURLLoaded, self);\r\n\t\t\t\treturn;\r\n\t\t\t}\r\n\t\t\tcurFrame_.texture_img = img;\r\n\t\t\tcurFrame_.offx = 0;\r\n\t\t\tcurFrame_.offy = 0;\r\n\t\t\tcurFrame_.width = img.width;\r\n\t\t\tcurFrame_.height = img.height;\r\n\t\t\tcurFrame_.spritesheeted = false;\r\n\t\t\tcurFrame_.datauri = \"\";\r\n\t\t\tif (self.runtime.glwrap)\r\n\t\t\t{\r\n\t\t\t\tif (curFrame_.webGL_texture)\r\n\t\t\t\t\tself.runtime.glwrap.deleteTexture(curFrame_.webGL_texture);\r\n\t\t\t\tcurFrame_.webGL_texture = self.runtime.glwrap.loadTexture(img, false, self.runtime.linearSampling);\r\n\t\t\t\tif (self.curFrame === curFrame_)\r\n\t\t\t\t\tself.curWebGLTexture = curFrame_.webGL_texture;\r\n\t\t\t}\r\n\t\t\tif (resize_ === 0)\t\t// resize to image size\r\n\t\t\t{\r\n\t\t\t\tself.width = img.width;\r\n\t\t\t\tself.height = img.height;\r\n\t\t\t\tself.set_bbox_changed();\r\n\t\t\t}\r\n\t\t\tself.runtime.redraw = true;\r\n\t\t\tself.runtime.trigger(cr.plugins_.Sprite.prototype.cnds.OnURLLoaded, self);\r\n\t\t};\r\n\t\tif (url_.substr(0, 5) !== \"data:\")\r\n\t\t\timg.crossOrigin = 'anonymous';\r\n\t\timg.src = url_;\r\n\t}",
+     "len": 2
+    },
+    "SetCollisions": {
+     "src": "function (set_)\r\n\t{\r\n\t\tthis.collisionsEnabled = (set_ !== 0);\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "AnimationFrame": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.cur_frame);\r\n\t}",
+     "len": 1
+    },
+    "AnimationFrameCount": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.cur_animation.frames.length);\r\n\t}",
+     "len": 1
+    },
+    "AnimationName": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.cur_animation.name);\r\n\t}",
+     "len": 1
+    },
+    "AnimationSpeed": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.cur_anim_speed);\r\n\t}",
+     "len": 1
+    },
+    "ImagePointX": {
+     "src": "function (ret, imgpt)\r\n\t{\r\n\t\tret.set_float(this.getImagePoint(imgpt, true));\r\n\t}",
+     "len": 2
+    },
+    "ImagePointY": {
+     "src": "function (ret, imgpt)\r\n\t{\r\n\t\tret.set_float(this.getImagePoint(imgpt, false));\r\n\t}",
+     "len": 2
+    },
+    "ImagePointCount": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.curFrame.image_points.length);\r\n\t}",
+     "len": 1
+    },
+    "ImageWidth": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.curFrame.width);\r\n\t}",
+     "len": 1
+    },
+    "ImageHeight": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.curFrame.height);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Text": {
+   "cnds": {
+    "CompareText": {
+     "src": "function(text_to_compare, case_sensitive)\r\n\t{\r\n\t\tif (case_sensitive)\r\n\t\t\treturn this.text == text_to_compare;\r\n\t\telse\r\n\t\t\treturn this.text.toLowerCase() == text_to_compare.toLowerCase();\r\n\t}",
+     "len": 2
+    }
+   },
+   "acts": {
+    "SetText": {
+     "src": "function(param)\r\n\t{\r\n\t\tif (cr.is_number(param) && param < 1e9)\r\n\t\t\tparam = Math.round(param * 1e10) / 1e10;\t// round to nearest ten billionth - hides floating point errors\r\n\t\tvar text_to_set = param.toString();\r\n\t\tif (this.text !== text_to_set)\r\n\t\t{\r\n\t\t\tthis.text = text_to_set;\r\n\t\t\tthis.text_changed = true;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "AppendText": {
+     "src": "function(param)\r\n\t{\r\n\t\tif (cr.is_number(param))\r\n\t\t\tparam = Math.round(param * 1e10) / 1e10;\t// round to nearest ten billionth - hides floating point errors\r\n\t\tvar text_to_append = param.toString();\r\n\t\tif (text_to_append)\t// not empty\r\n\t\t{\r\n\t\t\tthis.text += text_to_append;\r\n\t\t\tthis.text_changed = true;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "SetFontFace": {
+     "src": "function (face_, style_)\r\n\t{\r\n\t\tvar newstyle = \"\";\r\n\t\tswitch (style_) {\r\n\t\tcase 1: newstyle = \"bold\"; break;\r\n\t\tcase 2: newstyle = \"italic\"; break;\r\n\t\tcase 3: newstyle = \"bold italic\"; break;\r\n\t\t}\r\n\t\tif (face_ === this.facename && newstyle === this.fontstyle)\r\n\t\t\treturn;\t\t// no change\r\n\t\tthis.facename = face_;\r\n\t\tthis.fontstyle = newstyle;\r\n\t\tthis.updateFont();\r\n\t}",
+     "len": 2
+    },
+    "SetFontSize": {
+     "src": "function (size_)\r\n\t{\r\n\t\tif (this.ptSize === size_)\r\n\t\t\treturn;\r\n\t\tthis.ptSize = size_;\r\n\t\tthis.pxHeight = Math.ceil((this.ptSize / 72.0) * 96.0) + 4;\t// assume 96dpi...\r\n\t\tthis.updateFont();\r\n\t}",
+     "len": 1
+    },
+    "SetFontColor": {
+     "src": "function (rgb)\r\n\t{\r\n\t\tvar newcolor = \"rgb(\" + cr.GetRValue(rgb).toString() + \",\" + cr.GetGValue(rgb).toString() + \",\" + cr.GetBValue(rgb).toString() + \")\";\r\n\t\tif (newcolor === this.color)\r\n\t\t\treturn;\r\n\t\tthis.color = newcolor;\r\n\t\tthis.need_text_redraw = true;\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 1
+    },
+    "SetWebFont": {
+     "src": "function (familyname_, cssurl_)\r\n\t{\r\n\t\tif (this.runtime.isDomFree)\r\n\t\t{\r\n\t\t\tcr.logexport(\"[Construct 2] Text plugin: 'Set web font' not supported on this platform - the action has been ignored\");\r\n\t\t\treturn;\t\t// DC todo\r\n\t\t}\r\n\t\tvar self = this;\r\n\t\tvar refreshFunc = (function () {\r\n\t\t\t\t\t\t\tself.runtime.redraw = true;\r\n\t\t\t\t\t\t\tself.text_changed = true;\r\n\t\t\t\t\t\t});\r\n\t\tif (requestedWebFonts.hasOwnProperty(cssurl_))\r\n\t\t{\r\n\t\t\tvar newfacename = \"'\" + familyname_ + \"'\";\r\n\t\t\tif (this.facename === newfacename)\r\n\t\t\t\treturn;\t// no change\r\n\t\t\tthis.facename = newfacename;\r\n\t\t\tthis.updateFont();\r\n\t\t\tfor (var i = 1; i < 10; i++)\r\n\t\t\t{\r\n\t\t\t\tsetTimeout(refreshFunc, i * 100);\r\n\t\t\t\tsetTimeout(refreshFunc, i * 1000);\r\n\t\t\t}\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar wf = document.createElement(\"link\");\r\n\t\twf.href = cssurl_;\r\n\t\twf.rel = \"stylesheet\";\r\n\t\twf.type = \"text/css\";\r\n\t\twf.onload = refreshFunc;\r\n\t\tdocument.getElementsByTagName('head')[0].appendChild(wf);\r\n\t\trequestedWebFonts[cssurl_] = true;\r\n\t\tthis.facename = \"'\" + familyname_ + \"'\";\r\n\t\tthis.updateFont();\r\n\t\tfor (var i = 1; i < 10; i++)\r\n\t\t{\r\n\t\t\tsetTimeout(refreshFunc, i * 100);\r\n\t\t\tsetTimeout(refreshFunc, i * 1000);\r\n\t\t}\r\n;\r\n\t}",
+     "len": 2
+    }
+   },
+   "exps": {
+    "Text": {
+     "src": "function(ret)\r\n\t{\r\n\t\tret.set_string(this.text);\r\n\t}",
+     "len": 1
+    },
+    "FaceName": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.facename);\r\n\t}",
+     "len": 1
+    },
+    "FaceSize": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.ptSize);\r\n\t}",
+     "len": 1
+    },
+    "TextWidth": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar w = 0;\r\n\t\tvar i, len, x;\r\n\t\tfor (i = 0, len = this.lines.length; i < len; i++)\r\n\t\t{\r\n\t\t\tx = this.lines[i].width;\r\n\t\t\tif (w < x)\r\n\t\t\t\tw = x;\r\n\t\t}\r\n\t\tret.set_int(w);\r\n\t}",
+     "len": 1
+    },
+    "TextHeight": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.lines.length * this.pxHeight);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "TiledBg": {
+   "cnds": {
+    "OnURLLoaded": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "SetEffect": {
+     "src": "function (effect)\r\n\t{\r\n\t\tthis.compositeOp = cr.effectToCompositeOp(effect);\r\n\t\tcr.setGLBlend(this, effect, this.runtime.gl);\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 1
+    },
+    "LoadURL": {
+     "src": "function (url_)\r\n\t{\r\n\t\tvar img = new Image();\r\n\t\tvar self = this;\r\n\t\timg.onload = function ()\r\n\t\t{\r\n\t\t\tself.texture_img = img;\r\n\t\t\tif (self.runtime.glwrap)\r\n\t\t\t{\r\n\t\t\t\tif (self.has_own_texture && self.webGL_texture)\r\n\t\t\t\t\tself.runtime.glwrap.deleteTexture(self.webGL_texture);\r\n\t\t\t\tself.webGL_texture = self.runtime.glwrap.loadTexture(img, true, self.runtime.linearSampling);\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tself.pattern = self.runtime.ctx.createPattern(img, \"repeat\");\r\n\t\t\t}\r\n\t\t\tself.has_own_texture = true;\r\n\t\t\tself.runtime.redraw = true;\r\n\t\t\tself.runtime.trigger(cr.plugins_.TiledBg.prototype.cnds.OnURLLoaded, self);\r\n\t\t};\r\n\t\tif (url_.substr(0, 5) !== \"data:\")\r\n\t\t\timg.crossOrigin = 'anonymous';\r\n\t\timg.src = url_;\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {}
+  },
+  "Touch": {
+   "cnds": {
+    "OnTouchStart": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnTouchEnd": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "IsInTouch": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.touches.length;\r\n\t}",
+     "len": 0
+    },
+    "OnTouchObject": {
+     "src": "function (type)\r\n\t{\r\n\t\tif (!type)\r\n\t\t\treturn false;\r\n\t\treturn this.runtime.testAndSelectCanvasPointOverlap(type, this.curTouchX, this.curTouchY, false);\r\n\t}",
+     "len": 1
+    },
+    "IsTouchingObject": {
+     "src": "function (type)\r\n\t{\r\n\t\tif (!type)\r\n\t\t\treturn false;\r\n\t\tvar sol = type.getCurrentSol();\r\n\t\tvar instances = sol.getObjects();\r\n\t\tvar px, py;\r\n\t\tvar touching = [];\r\n\t\tvar i, leni, j, lenj;\r\n\t\tfor (i = 0, leni = instances.length; i < leni; i++)\r\n\t\t{\r\n\t\t\tvar inst = instances[i];\r\n\t\t\tinst.update_bbox();\r\n\t\t\tfor (j = 0, lenj = this.touches.length; j < lenj; j++)\r\n\t\t\t{\r\n\t\t\t\tvar touch = this.touches[j];\r\n\t\t\t\tpx = inst.layer.canvasToLayer(touch.x, touch.y, true);\r\n\t\t\t\tpy = inst.layer.canvasToLayer(touch.x, touch.y, false);\r\n\t\t\t\tif (inst.contains_pt(px, py))\r\n\t\t\t\t{\r\n\t\t\t\t\ttouching.push(inst);\r\n\t\t\t\t\tbreak;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t\tif (touching.length)\r\n\t\t{\r\n\t\t\tsol.select_all = false;\r\n\t\t\tsol.instances = touching;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t\telse\r\n\t\t\treturn false;\r\n\t}",
+     "len": 1
+    },
+    "CompareTouchSpeed": {
+     "src": "function (index, cmp, s)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t\treturn false;\r\n\t\tvar t = this.touches[index];\r\n\t\tvar dist = cr.distanceTo(t.x, t.y, t.lastx, t.lasty);\r\n\t\tvar timediff = (t.time - t.lasttime) / 1000;\r\n\t\tvar speed = 0;\r\n\t\tif (timediff > 0)\r\n\t\t\tspeed = dist / timediff;\r\n\t\treturn cr.do_cmp(speed, cmp, s);\r\n\t}",
+     "len": 3
+    },
+    "OrientationSupported": {
+     "src": "function ()\r\n\t{\r\n\t\treturn typeof window[\"DeviceOrientationEvent\"] !== \"undefined\";\r\n\t}",
+     "len": 0
+    },
+    "MotionSupported": {
+     "src": "function ()\r\n\t{\r\n\t\treturn typeof window[\"DeviceMotionEvent\"] !== \"undefined\";\r\n\t}",
+     "len": 0
+    },
+    "CompareOrientation": {
+     "src": "function (orientation_, cmp_, angle_)\r\n\t{\r\n\t\tvar v = 0;\r\n\t\tif (orientation_ === 0)\r\n\t\t\tv = this.getAlpha();\r\n\t\telse if (orientation_ === 1)\r\n\t\t\tv = this.getBeta();\r\n\t\telse\r\n\t\t\tv = this.getGamma();\r\n\t\treturn cr.do_cmp(v, cmp_, angle_);\r\n\t}",
+     "len": 3
+    },
+    "CompareAcceleration": {
+     "src": "function (acceleration_, cmp_, angle_)\r\n\t{\r\n\t\tvar v = 0;\r\n\t\tif (acceleration_ === 0)\r\n\t\t\tv = this.acc_g_x;\r\n\t\telse if (acceleration_ === 1)\r\n\t\t\tv = this.acc_g_y;\r\n\t\telse if (acceleration_ === 2)\r\n\t\t\tv = this.acc_g_z;\r\n\t\telse if (acceleration_ === 3)\r\n\t\t\tv = this.acc_x;\r\n\t\telse if (acceleration_ === 4)\r\n\t\t\tv = this.acc_y;\r\n\t\telse if (acceleration_ === 5)\r\n\t\t\tv = this.acc_z;\r\n\t\treturn cr.do_cmp(v, cmp_, angle_);\r\n\t}",
+     "len": 3
+    },
+    "OnNthTouchStart": {
+     "src": "function (touch_)\r\n\t{\r\n\t\ttouch_ = Math.floor(touch_);\r\n\t\treturn touch_ === this.trigger_index;\r\n\t}",
+     "len": 1
+    },
+    "OnNthTouchEnd": {
+     "src": "function (touch_)\r\n\t{\r\n\t\ttouch_ = Math.floor(touch_);\r\n\t\treturn touch_ === this.trigger_index;\r\n\t}",
+     "len": 1
+    },
+    "HasNthTouch": {
+     "src": "function (touch_)\r\n\t{\r\n\t\ttouch_ = Math.floor(touch_);\r\n\t\treturn this.touches.length >= touch_ + 1;\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "TouchCount": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.touches.length);\r\n\t}",
+     "len": 1
+    },
+    "X": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tif (this.touches.length)\r\n\t\t{\r\n\t\t\tvar layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;\r\n\t\t\tif (cr.is_undefined(layerparam))\r\n\t\t\t{\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\t\toldScale = layer.scale;\r\n\t\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\t\toldParallaxX = layer.parallaxX;\r\n\t\t\t\toldAngle = layer.angle;\r\n\t\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\t\tlayer.parallaxX = 1.0;\r\n\t\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[0].x, this.touches[0].y, true));\r\n\t\t\t\tlayer.scale = oldScale;\r\n\t\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\t\tlayer.parallaxX = oldParallaxX;\r\n\t\t\t\tlayer.angle = oldAngle;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\t\telse\r\n\t\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\t\tif (layer)\r\n\t\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[0].x, this.touches[0].y, true));\r\n\t\t\t\telse\r\n\t\t\t\t\tret.set_float(0);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t\tret.set_float(0);\r\n\t}",
+     "len": 2
+    },
+    "XAt": {
+     "src": "function (ret, index, layerparam)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;\r\n\t\tif (cr.is_undefined(layerparam))\r\n\t\t{\r\n\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\toldScale = layer.scale;\r\n\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\toldParallaxX = layer.parallaxX;\r\n\t\t\toldAngle = layer.angle;\r\n\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\tlayer.parallaxX = 1.0;\r\n\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\tret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));\r\n\t\t\tlayer.scale = oldScale;\r\n\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\tlayer.parallaxX = oldParallaxX;\r\n\t\t\tlayer.angle = oldAngle;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\telse\r\n\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\tif (layer)\r\n\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, true));\r\n\t\t\telse\r\n\t\t\t\tret.set_float(0);\r\n\t\t}\r\n\t}",
+     "len": 3
+    },
+    "XForID": {
+     "src": "function (ret, id, layerparam)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tvar layer, oldScale, oldZoomRate, oldParallaxX, oldAngle;\r\n\t\tif (cr.is_undefined(layerparam))\r\n\t\t{\r\n\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\toldScale = layer.scale;\r\n\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\toldParallaxX = layer.parallaxX;\r\n\t\t\toldAngle = layer.angle;\r\n\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\tlayer.parallaxX = 1.0;\r\n\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\tret.set_float(layer.canvasToLayer(touch.x, touch.y, true));\r\n\t\t\tlayer.scale = oldScale;\r\n\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\tlayer.parallaxX = oldParallaxX;\r\n\t\t\tlayer.angle = oldAngle;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\telse\r\n\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\tif (layer)\r\n\t\t\t\tret.set_float(layer.canvasToLayer(touch.x, touch.y, true));\r\n\t\t\telse\r\n\t\t\t\tret.set_float(0);\r\n\t\t}\r\n\t}",
+     "len": 3
+    },
+    "Y": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tif (this.touches.length)\r\n\t\t{\r\n\t\t\tvar layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;\r\n\t\t\tif (cr.is_undefined(layerparam))\r\n\t\t\t{\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\t\toldScale = layer.scale;\r\n\t\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\t\toldParallaxY = layer.parallaxY;\r\n\t\t\t\toldAngle = layer.angle;\r\n\t\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\t\tlayer.parallaxY = 1.0;\r\n\t\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[0].x, this.touches[0].y, false));\r\n\t\t\t\tlayer.scale = oldScale;\r\n\t\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\t\tlayer.parallaxY = oldParallaxY;\r\n\t\t\t\tlayer.angle = oldAngle;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\t\telse\r\n\t\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\t\tif (layer)\r\n\t\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[0].x, this.touches[0].y, false));\r\n\t\t\t\telse\r\n\t\t\t\t\tret.set_float(0);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t\tret.set_float(0);\r\n\t}",
+     "len": 2
+    },
+    "YAt": {
+     "src": "function (ret, index, layerparam)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;\r\n\t\tif (cr.is_undefined(layerparam))\r\n\t\t{\r\n\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\toldScale = layer.scale;\r\n\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\toldParallaxY = layer.parallaxY;\r\n\t\t\toldAngle = layer.angle;\r\n\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\tlayer.parallaxY = 1.0;\r\n\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\tret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));\r\n\t\t\tlayer.scale = oldScale;\r\n\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\tlayer.parallaxY = oldParallaxY;\r\n\t\t\tlayer.angle = oldAngle;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\telse\r\n\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\tif (layer)\r\n\t\t\t\tret.set_float(layer.canvasToLayer(this.touches[index].x, this.touches[index].y, false));\r\n\t\t\telse\r\n\t\t\t\tret.set_float(0);\r\n\t\t}\r\n\t}",
+     "len": 3
+    },
+    "YForID": {
+     "src": "function (ret, id, layerparam)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tvar layer, oldScale, oldZoomRate, oldParallaxY, oldAngle;\r\n\t\tif (cr.is_undefined(layerparam))\r\n\t\t{\r\n\t\t\tlayer = this.runtime.getLayerByNumber(0);\r\n\t\t\toldScale = layer.scale;\r\n\t\t\toldZoomRate = layer.zoomRate;\r\n\t\t\toldParallaxY = layer.parallaxY;\r\n\t\t\toldAngle = layer.angle;\r\n\t\t\tlayer.scale = this.runtime.running_layout.scale;\r\n\t\t\tlayer.zoomRate = 1.0;\r\n\t\t\tlayer.parallaxY = 1.0;\r\n\t\t\tlayer.angle = this.runtime.running_layout.angle;\r\n\t\t\tret.set_float(layer.canvasToLayer(touch.x, touch.y, false));\r\n\t\t\tlayer.scale = oldScale;\r\n\t\t\tlayer.zoomRate = oldZoomRate;\r\n\t\t\tlayer.parallaxY = oldParallaxY;\r\n\t\t\tlayer.angle = oldAngle;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (cr.is_number(layerparam))\r\n\t\t\t\tlayer = this.runtime.getLayerByNumber(layerparam);\r\n\t\t\telse\r\n\t\t\t\tlayer = this.runtime.getLayerByName(layerparam);\r\n\t\t\tif (layer)\r\n\t\t\t\tret.set_float(layer.canvasToLayer(touch.x, touch.y, false));\r\n\t\t\telse\r\n\t\t\t\tret.set_float(0);\r\n\t\t}\r\n\t}",
+     "len": 3
+    },
+    "AbsoluteX": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (this.touches.length)\r\n\t\t\tret.set_float(this.touches[0].x);\r\n\t\telse\r\n\t\t\tret.set_float(0);\r\n\t}",
+     "len": 1
+    },
+    "AbsoluteXAt": {
+     "src": "function (ret, index)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tret.set_float(this.touches[index].x);\r\n\t}",
+     "len": 2
+    },
+    "AbsoluteXForID": {
+     "src": "function (ret, id)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tret.set_float(touch.x);\r\n\t}",
+     "len": 2
+    },
+    "AbsoluteY": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (this.touches.length)\r\n\t\t\tret.set_float(this.touches[0].y);\r\n\t\telse\r\n\t\t\tret.set_float(0);\r\n\t}",
+     "len": 1
+    },
+    "AbsoluteYAt": {
+     "src": "function (ret, index)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tret.set_float(this.touches[index].y);\r\n\t}",
+     "len": 2
+    },
+    "AbsoluteYForID": {
+     "src": "function (ret, id)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tret.set_float(touch.y);\r\n\t}",
+     "len": 2
+    },
+    "SpeedAt": {
+     "src": "function (ret, index)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar t = this.touches[index];\r\n\t\tvar dist = cr.distanceTo(t.x, t.y, t.lastx, t.lasty);\r\n\t\tvar timediff = (t.time - t.lasttime) / 1000;\r\n\t\tif (timediff === 0)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(dist / timediff);\r\n\t}",
+     "len": 2
+    },
+    "SpeedForID": {
+     "src": "function (ret, id)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tvar dist = cr.distanceTo(touch.x, touch.y, touch.lastx, touch.lasty);\r\n\t\tvar timediff = (touch.time - touch.lasttime) / 1000;\r\n\t\tif (timediff === 0)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(dist / timediff);\r\n\t}",
+     "len": 2
+    },
+    "AngleAt": {
+     "src": "function (ret, index)\r\n\t{\r\n\t\tindex = Math.floor(index);\r\n\t\tif (index < 0 || index >= this.touches.length)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar t = this.touches[index];\r\n\t\tret.set_float(cr.to_degrees(cr.angleTo(t.lastx, t.lasty, t.x, t.y)));\r\n\t}",
+     "len": 2
+    },
+    "AngleForID": {
+     "src": "function (ret, id)\r\n\t{\r\n\t\tvar index = this.findTouch(id);\r\n\t\tif (index < 0)\r\n\t\t{\r\n\t\t\tret.set_float(0);\r\n\t\t\treturn;\r\n\t\t}\r\n\t\tvar touch = this.touches[index];\r\n\t\tret.set_float(cr.to_degrees(cr.angleTo(touch.lastx, touch.lasty, touch.x, touch.y)));\r\n\t}",
+     "len": 2
+    },
+    "Alpha": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.getAlpha());\r\n\t}",
+     "len": 1
+    },
+    "Beta": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.getBeta());\r\n\t}",
+     "len": 1
+    },
+    "Gamma": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.getGamma());\r\n\t}",
+     "len": 1
+    },
+    "AccelerationXWithG": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_g_x);\r\n\t}",
+     "len": 1
+    },
+    "AccelerationYWithG": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_g_y);\r\n\t}",
+     "len": 1
+    },
+    "AccelerationZWithG": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_g_z);\r\n\t}",
+     "len": 1
+    },
+    "AccelerationX": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_x);\r\n\t}",
+     "len": 1
+    },
+    "AccelerationY": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_y);\r\n\t}",
+     "len": 1
+    },
+    "AccelerationZ": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc_z);\r\n\t}",
+     "len": 1
+    },
+    "TouchIndex": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.trigger_index);\r\n\t}",
+     "len": 1
+    },
+    "TouchID": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.trigger_id);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "System": {
+   "cnds": {
+    "EveryTick": {
+     "src": "function()\r\n    {\r\n        return true;\r\n    }",
+     "len": 0
+    },
+    "OnLayoutStart": {
+     "src": "function()\r\n    {\r\n        return true;\r\n    }",
+     "len": 0
+    },
+    "OnLayoutEnd": {
+     "src": "function()\r\n    {\r\n        return true;\r\n    }",
+     "len": 0
+    },
+    "Compare": {
+     "src": "function(x, cmp, y)\r\n    {\r\n        return cr.do_cmp(x, cmp, y);\r\n    }",
+     "len": 3
+    },
+    "CompareTime": {
+     "src": "function (cmp, t)\r\n    {\r\n        var elapsed = this.runtime.kahanTime.sum;\r\n        if (cmp === 0)\r\n        {\r\n            var cnd = this.runtime.getCurrentCondition();\r\n            if (!cnd.extra.CompareTime_executed)\r\n            {\r\n                if (elapsed >= t)\r\n                {\r\n                    cnd.extra.CompareTime_executed = true;\r\n                    return true;\r\n                }\r\n            }\r\n            return false;\r\n        }\r\n        return cr.do_cmp(elapsed, cmp, t);\r\n    }",
+     "len": 2
+    },
+    "LayerVisible": {
+     "src": "function (layer)\r\n    {\r\n        if (!layer)\r\n            return false;\r\n        else\r\n            return layer.visible;\r\n    }",
+     "len": 1
+    },
+    "LayerCmpOpacity": {
+     "src": "function (layer, cmp, opacity_)\r\n\t{\r\n\t\tif (!layer)\r\n\t\t\treturn false;\r\n\t\treturn cr.do_cmp(layer.opacity * 100, cmp, opacity_);\r\n\t}",
+     "len": 3
+    },
+    "Repeat": {
+     "src": "function (count)\r\n    {\r\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\r\n        var current_loop = this.runtime.pushLoopStack();\r\n        var i;\r\n\t\tif (solModifierAfterCnds)\r\n\t\t{\r\n\t\t\tfor (i = 0; i < count && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tfor (i = 0; i < count && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t}\r\n\t\t}\r\n        this.runtime.popLoopStack();\r\n\t\treturn false;\r\n    }",
+     "len": 1
+    },
+    "While": {
+     "src": "function (count)\r\n    {\r\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\r\n        var current_loop = this.runtime.pushLoopStack();\r\n        var i;\r\n\t\tif (solModifierAfterCnds)\r\n\t\t{\r\n\t\t\tfor (i = 0; !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tif (!current_event.retrigger())\t\t// one of the other conditions returned false\r\n\t\t\t\t\tcurrent_loop.stopped = true;\t// break\r\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tfor (i = 0; !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tif (!current_event.retrigger())\r\n\t\t\t\t\tcurrent_loop.stopped = true;\r\n\t\t\t}\r\n\t\t}\r\n        this.runtime.popLoopStack();\r\n\t\treturn false;\r\n    }",
+     "len": 1
+    },
+    "For": {
+     "src": "function (name, start, end)\r\n    {\r\n        var current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\r\n        var current_loop = this.runtime.pushLoopStack(name);\r\n        var i;\r\n\t\tif (solModifierAfterCnds)\r\n\t\t{\r\n\t\t\tfor (i = start; i <= end && !current_loop.stopped; i++)  // inclusive to end\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tfor (i = start; i <= end && !current_loop.stopped; i++)  // inclusive to end\r\n\t\t\t{\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t}\r\n\t\t}\r\n        this.runtime.popLoopStack();\r\n\t\treturn false;\r\n    }",
+     "len": 3
+    },
+    "ForEach": {
+     "src": "function (obj)\r\n    {\r\n        var sol = obj.getCurrentSol();\r\n\t\tforeach_instanceptr++;\r\n\t\tif (foreach_instancestack.length === foreach_instanceptr)\r\n\t\t\tforeach_instancestack.push([]);\r\n\t\tvar instances = foreach_instancestack[foreach_instanceptr];\r\n\t\tcr.shallowAssignArray(instances, sol.getObjects());\r\n        var current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\r\n        var current_loop = this.runtime.pushLoopStack();\r\n        var i, len, j, lenj, inst, s, sol2;\r\n\t\tvar is_contained = obj.is_contained;\r\n\t\tif (solModifierAfterCnds)\r\n\t\t{\r\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\tsol = obj.getCurrentSol();\r\n\t\t\t\tsol.select_all = false;\r\n\t\t\t\tsol.instances.length = 1;\r\n\t\t\t\tsol.instances[0] = inst;\r\n\t\t\t\tif (is_contained)\r\n\t\t\t\t{\r\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\ts = inst.siblings[j];\r\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\r\n\t\t\t\t\t\tsol2.select_all = false;\r\n\t\t\t\t\t\tsol2.instances.length = 1;\r\n\t\t\t\t\t\tsol2.instances[0] = s;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tsol.select_all = false;\r\n\t\t\tsol.instances.length = 1;\r\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\tsol.instances[0] = inst;\r\n\t\t\t\tif (is_contained)\r\n\t\t\t\t{\r\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\ts = inst.siblings[j];\r\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\r\n\t\t\t\t\t\tsol2.select_all = false;\r\n\t\t\t\t\t\tsol2.instances.length = 1;\r\n\t\t\t\t\t\tsol2.instances[0] = s;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t}\r\n\t\t}\r\n        this.runtime.popLoopStack();\r\n\t\tforeach_instanceptr--;\r\n\t\treturn false;\r\n    }",
+     "len": 1
+    },
+    "ForEachOrdered": {
+     "src": "function (obj, exp, order)\r\n    {\r\n        var sol = obj.getCurrentSol();\r\n\t\tforeach_instanceptr++;\r\n\t\tif (foreach_instancestack.length === foreach_instanceptr)\r\n\t\t\tforeach_instancestack.push([]);\r\n\t\tvar instances = foreach_instancestack[foreach_instanceptr];\r\n\t\tcr.shallowAssignArray(instances, sol.getObjects());\r\n        var current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar current_condition = this.runtime.getCurrentCondition();\r\n\t\tvar solModifierAfterCnds = current_frame.isModifierAfterCnds();\r\n        var current_loop = this.runtime.pushLoopStack();\r\n\t\tvar i, len, j, lenj, inst, s, sol2;\r\n\t\tfor (i = 0, len = instances.length; i < len; i++)\r\n\t\t{\r\n\t\t\tinstances[i].extra.c2_foreachordered_val = current_condition.parameters[1].get(i);\r\n\t\t}\r\n\t\tinstances.sort(foreach_sortinstances);\r\n\t\tif (order === 1)\r\n\t\t\tinstances.reverse();\r\n\t\tvar is_contained = obj.is_contained;\r\n\t\tif (solModifierAfterCnds)\r\n\t\t{\r\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.pushCopySol(current_event.solModifiers);\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\tsol = obj.getCurrentSol();\r\n\t\t\t\tsol.select_all = false;\r\n\t\t\t\tsol.instances.length = 1;\r\n\t\t\t\tsol.instances[0] = inst;\r\n\t\t\t\tif (is_contained)\r\n\t\t\t\t{\r\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\ts = inst.siblings[j];\r\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\r\n\t\t\t\t\t\tsol2.select_all = false;\r\n\t\t\t\t\t\tsol2.instances.length = 1;\r\n\t\t\t\t\t\tsol2.instances[0] = s;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t\tthis.runtime.popSol(current_event.solModifiers);\r\n\t\t\t}\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tsol.select_all = false;\r\n\t\t\tsol.instances.length = 1;\r\n\t\t\tfor (i = 0, len = instances.length; i < len && !current_loop.stopped; i++)\r\n\t\t\t{\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\tsol.instances[0] = inst;\r\n\t\t\t\tif (is_contained)\r\n\t\t\t\t{\r\n\t\t\t\t\tfor (j = 0, lenj = inst.siblings.length; j < lenj; j++)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\ts = inst.siblings[j];\r\n\t\t\t\t\t\tsol2 = s.type.getCurrentSol();\r\n\t\t\t\t\t\tsol2.select_all = false;\r\n\t\t\t\t\t\tsol2.instances.length = 1;\r\n\t\t\t\t\t\tsol2.instances[0] = s;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tcurrent_loop.index = i;\r\n\t\t\t\tcurrent_event.retrigger();\r\n\t\t\t}\r\n\t\t}\r\n        this.runtime.popLoopStack();\r\n\t\tforeach_instanceptr--;\r\n\t\treturn false;\r\n    }",
+     "len": 3
+    },
+    "TriggerOnce": {
+     "src": "function ()\r\n    {\r\n        var cndextra = this.runtime.getCurrentCondition().extra;\r\n\t\tif (typeof cndextra.TriggerOnce_lastTick === \"undefined\")\r\n\t\t\tcndextra.TriggerOnce_lastTick = -1;\r\n        var last_tick = cndextra.TriggerOnce_lastTick;\r\n        var cur_tick = this.runtime.tickcount;\r\n        cndextra.TriggerOnce_lastTick = cur_tick;\r\n        return this.runtime.layout_first_tick || last_tick !== cur_tick - 1;\r\n    }",
+     "len": 0
+    },
+    "Every": {
+     "src": "function (seconds)\r\n    {\r\n        var cnd = this.runtime.getCurrentCondition();\r\n        var last_time = cnd.extra.Every_lastTime || 0;\r\n        var cur_time = this.runtime.kahanTime.sum;\r\n        if (cur_time >= last_time + seconds)\r\n        {\r\n            cnd.extra.Every_lastTime = last_time + seconds;\r\n\t\t\tif (cur_time >= cnd.extra.Every_lastTime + seconds)\r\n\t\t\t\tcnd.extra.Every_lastTime = cur_time;\r\n            return true;\r\n        }\r\n        else\r\n            return false;\r\n    }",
+     "len": 1
+    },
+    "PickNth": {
+     "src": "function (obj, index)\r\n    {\r\n        if (!obj)\r\n            return false;\r\n        var sol = obj.getCurrentSol();\r\n        var instances = sol.getObjects();\r\n\t\tindex = cr.floor(index);\r\n        if (index < 0 || index >= instances.length)\r\n            return false;\r\n\t\tvar inst = instances[index];\r\n        sol.pick_one(inst);\r\n\t\tobj.applySolToContainer();\r\n        return true;\r\n    }",
+     "len": 2
+    },
+    "PickRandom": {
+     "src": "function (obj)\r\n    {\r\n        if (!obj)\r\n            return false;\r\n        var sol = obj.getCurrentSol();\r\n        var instances = sol.getObjects();\r\n\t\tvar index = cr.floor(Math.random() * instances.length);\r\n        if (index >= instances.length)\r\n            return false;\r\n\t\tvar inst = instances[index];\r\n        sol.pick_one(inst);\r\n\t\tobj.applySolToContainer();\r\n        return true;\r\n    }",
+     "len": 1
+    },
+    "CompareVar": {
+     "src": "function (v, cmp, val)\r\n    {\r\n        return cr.do_cmp(v.getValue(), cmp, val);\r\n    }",
+     "len": 3
+    },
+    "IsGroupActive": {
+     "src": "function (group)\r\n    {\r\n        return this.runtime.activeGroups[(/*this.runtime.getCurrentCondition().sheet.name + \"|\" + */group).toLowerCase()];\r\n    }",
+     "len": 1
+    },
+    "IsPreview": {
+     "src": "function ()\r\n\t{\r\n\t\treturn typeof cr_is_preview !== \"undefined\";\r\n\t}",
+     "len": 0
+    },
+    "PickAll": {
+     "src": "function (obj)\r\n    {\r\n        if (!obj)\r\n            return false;\r\n\t\tif (!obj.instances.length)\r\n\t\t\treturn false;\r\n        var sol = obj.getCurrentSol();\r\n        sol.select_all = true;\r\n\t\tobj.applySolToContainer();\r\n        return true;\r\n    }",
+     "len": 1
+    },
+    "IsMobile": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.runtime.isMobile;\r\n\t}",
+     "len": 0
+    },
+    "CompareBetween": {
+     "src": "function (x, a, b)\r\n\t{\r\n\t\treturn x >= a && x <= b;\r\n\t}",
+     "len": 3
+    },
+    "Else": {
+     "src": "function ()\r\n\t{\r\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\r\n\t\tif (current_frame.else_branch_ran)\r\n\t\t\treturn false;\t\t// another event in this else-if chain has run\r\n\t\telse\r\n\t\t\treturn !current_frame.last_event_true;\r\n\t\t/*\r\n\t\tvar current_frame = this.runtime.getCurrentEventStack();\r\n        var current_event = current_frame.current_event;\r\n\t\tvar prev_event = current_event.prev_block;\r\n\t\tif (!prev_event)\r\n\t\t\treturn false;\r\n\t\tif (prev_event.is_logical)\r\n\t\t\treturn !this.runtime.last_event_true;\r\n\t\tvar i, len, j, lenj, s, sol, temp, inst, any_picked = false;\r\n\t\tfor (i = 0, len = prev_event.cndReferences.length; i < len; i++)\r\n\t\t{\r\n\t\t\ts = prev_event.cndReferences[i];\r\n\t\t\tsol = s.getCurrentSol();\r\n\t\t\tif (sol.select_all || sol.instances.length === s.instances.length)\r\n\t\t\t{\r\n\t\t\t\tsol.select_all = false;\r\n\t\t\t\tsol.instances.length = 0;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tif (sol.instances.length === 1 && sol.else_instances.length === 0 && s.instances.length >= 2)\r\n\t\t\t\t{\r\n\t\t\t\t\tinst = sol.instances[0];\r\n\t\t\t\t\tsol.instances.length = 0;\r\n\t\t\t\t\tfor (j = 0, lenj = s.instances.length; j < lenj; j++)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tif (s.instances[j] != inst)\r\n\t\t\t\t\t\t\tsol.instances.push(s.instances[j]);\r\n\t\t\t\t\t}\r\n\t\t\t\t\tany_picked = true;\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\ttemp = sol.instances;\r\n\t\t\t\t\tsol.instances = sol.else_instances;\r\n\t\t\t\t\tsol.else_instances = temp;\r\n\t\t\t\t\tany_picked = true;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t\treturn any_picked;\r\n\t\t*/\r\n\t}",
+     "len": 0
+    },
+    "OnLoadFinished": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "OnCanvasSnapshot": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    },
+    "EffectsSupported": {
+     "src": "function ()\r\n\t{\r\n\t\treturn !!this.runtime.glwrap;\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "GoToLayout": {
+     "src": "function(to)\r\n    {\r\n\t\tif (this.runtime.isloading)\r\n\t\t\treturn;\t\t// cannot change layout while loading on loader layout\r\n\t\tif (this.runtime.changelayout)\r\n\t\t\treturn;\t\t// already changing to a different layout\r\n;\r\n        this.runtime.changelayout = to;\r\n    }",
+     "len": 1
+    },
+    "CreateObject": {
+     "src": "function (obj, layer, x, y)\r\n    {\r\n        if (!layer || !obj)\r\n            return;\r\n        var inst = this.runtime.createInstance(obj, layer, x, y);\r\n\t\tif (!inst)\r\n\t\t\treturn;\r\n\t\tthis.runtime.isInOnDestroy++;\r\n\t\tvar i, len, s;\r\n\t\tthis.runtime.trigger(Object.getPrototypeOf(obj.plugin).cnds.OnCreated, inst);\r\n\t\tif (inst.is_contained)\r\n\t\t{\r\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\ts = inst.siblings[i];\r\n\t\t\t\tthis.runtime.trigger(Object.getPrototypeOf(s.type.plugin).cnds.OnCreated, s);\r\n\t\t\t}\r\n\t\t}\r\n\t\tthis.runtime.isInOnDestroy--;\r\n        var sol = obj.getCurrentSol();\r\n        sol.select_all = false;\r\n\t\tsol.instances.length = 1;\r\n\t\tsol.instances[0] = inst;\r\n\t\tif (inst.is_contained)\r\n\t\t{\r\n\t\t\tfor (i = 0, len = inst.siblings.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\ts = inst.siblings[i];\r\n\t\t\t\tsol = s.type.getCurrentSol();\r\n\t\t\t\tsol.select_all = false;\r\n\t\t\t\tsol.instances.length = 1;\r\n\t\t\t\tsol.instances[0] = s;\r\n\t\t\t}\r\n\t\t}\r\n    }",
+     "len": 4
+    },
+    "SetLayerVisible": {
+     "src": "function (layer, visible_)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\tif (layer.visible !== visible_)\r\n\t\t{\r\n\t\t\tlayer.visible = visible_;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n    }",
+     "len": 2
+    },
+    "SetLayerOpacity": {
+     "src": "function (layer, opacity_)\r\n\t{\r\n\t\tif (!layer)\r\n\t\t\treturn;\r\n\t\topacity_ = cr.clamp(opacity_ / 100, 0, 1);\r\n\t\tif (layer.opacity !== opacity_)\r\n\t\t{\r\n\t\t\tlayer.opacity = opacity_;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t}",
+     "len": 2
+    },
+    "SetLayerScaleRate": {
+     "src": "function (layer, sr)\r\n\t{\r\n\t\tif (!layer)\r\n\t\t\treturn;\r\n\t\tif (layer.zoomRate !== sr)\r\n\t\t{\r\n\t\t\tlayer.zoomRate = sr;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t}",
+     "len": 2
+    },
+    "SetLayoutScale": {
+     "src": "function (s)\r\n\t{\r\n\t\tif (!this.runtime.running_layout)\r\n\t\t\treturn;\r\n\t\tif (this.runtime.running_layout.scale !== s)\r\n\t\t{\r\n\t\t\tthis.runtime.running_layout.scale = s;\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "ScrollX": {
+     "src": "function(x)\r\n    {\r\n        this.runtime.running_layout.scrollToX(x);\r\n    }",
+     "len": 1
+    },
+    "ScrollY": {
+     "src": "function(y)\r\n    {\r\n        this.runtime.running_layout.scrollToY(y);\r\n    }",
+     "len": 1
+    },
+    "Scroll": {
+     "src": "function(x, y)\r\n    {\r\n        this.runtime.running_layout.scrollToX(x);\r\n        this.runtime.running_layout.scrollToY(y);\r\n    }",
+     "len": 2
+    },
+    "ScrollToObject": {
+     "src": "function(obj)\r\n    {\r\n        var inst = obj.getFirstPicked();\r\n        if (inst)\r\n        {\r\n            this.runtime.running_layout.scrollToX(inst.x);\r\n            this.runtime.running_layout.scrollToY(inst.y);\r\n        }\r\n    }",
+     "len": 1
+    },
+    "SetVar": {
+     "src": "function(v, x)\r\n\t{\r\n;\r\n\t\tif (v.vartype === 0)\r\n\t\t{\r\n\t\t\tif (cr.is_number(x))\r\n\t\t\t\tv.setValue(x);\r\n\t\t\telse\r\n\t\t\t\tv.setValue(parseFloat(x));\r\n\t\t}\r\n\t\telse if (v.vartype === 1)\r\n\t\t\tv.setValue(x.toString());\r\n\t}",
+     "len": 2
+    },
+    "AddVar": {
+     "src": "function(v, x)\r\n\t{\r\n;\r\n\t\tif (v.vartype === 0)\r\n\t\t{\r\n\t\t\tif (cr.is_number(x))\r\n\t\t\t\tv.setValue(v.getValue() + x);\r\n\t\t\telse\r\n\t\t\t\tv.setValue(v.getValue() + parseFloat(x));\r\n\t\t}\r\n\t\telse if (v.vartype === 1)\r\n\t\t\tv.setValue(v.getValue() + x.toString());\r\n\t}",
+     "len": 2
+    },
+    "SubVar": {
+     "src": "function(v, x)\r\n\t{\r\n;\r\n\t\tif (v.vartype === 0)\r\n\t\t{\r\n\t\t\tif (cr.is_number(x))\r\n\t\t\t\tv.setValue(v.getValue() - x);\r\n\t\t\telse\r\n\t\t\t\tv.setValue(v.getValue() - parseFloat(x));\r\n\t\t}\r\n\t}",
+     "len": 2
+    },
+    "SetGroupActive": {
+     "src": "function (group, active)\r\n    {\r\n\t\tvar activeGroups = this.runtime.activeGroups;\r\n\t\tvar groupkey = (/*this.runtime.getCurrentAction().sheet.name + \"|\" + */group).toLowerCase();\r\n\t\tswitch (active) {\r\n\t\tcase 0:\r\n\t\t\tactiveGroups[groupkey] = false;\r\n\t\t\tbreak;\r\n\t\tcase 1:\r\n\t\t\tactiveGroups[groupkey] = true;\r\n\t\t\tbreak;\r\n\t\tcase 2:\r\n\t\t\tactiveGroups[groupkey] = !activeGroups[groupkey];\r\n\t\t\tbreak;\r\n\t\t}\r\n    }",
+     "len": 2
+    },
+    "SetTimescale": {
+     "src": "function (ts_)\r\n    {\r\n        var ts = ts_;\r\n        if (ts < 0)\r\n            ts = 0;\r\n        this.runtime.timescale = ts;\r\n    }",
+     "len": 1
+    },
+    "SetObjectTimescale": {
+     "src": "function (obj, ts_)\r\n    {\r\n        var ts = ts_;\r\n        if (ts < 0)\r\n            ts = 0;\r\n        if (!obj)\r\n            return;\r\n        var sol = obj.getCurrentSol();\r\n        var instances = sol.getObjects();\r\n        var i, len;\r\n        for (i = 0, len = instances.length; i < len; i++)\r\n        {\r\n            instances[i].my_timescale = ts;\r\n        }\r\n    }",
+     "len": 2
+    },
+    "RestoreObjectTimescale": {
+     "src": "function (obj)\r\n    {\r\n        if (!obj)\r\n            return false;\r\n        var sol = obj.getCurrentSol();\r\n        var instances = sol.getObjects();\r\n        var i, len;\r\n        for (i = 0, len = instances.length; i < len; i++)\r\n        {\r\n            instances[i].my_timescale = -1.0;\r\n        }\r\n    }",
+     "len": 1
+    },
+    "Wait": {
+     "src": "function (seconds)\r\n\t{\r\n\t\tif (seconds < 0)\r\n\t\t\treturn;\r\n\t\tvar i, len, s, t;\r\n\t\tvar evinfo = this.runtime.getCurrentEventStack();\r\n\t\tvar waitobj = {};\r\n\t\twaitobj.time = this.runtime.kahanTime.sum + seconds;\r\n\t\twaitobj.ev = evinfo.current_event;\r\n\t\twaitobj.actindex = evinfo.actindex + 1;\t// pointing at next action\r\n\t\twaitobj.deleteme = false;\r\n\t\twaitobj.sols = {};\r\n\t\twaitobj.solModifiers = [];\r\n\t\tfor (i = 0, len = this.runtime.types_by_index.length; i < len; i++)\r\n\t\t{\r\n\t\t\tt = this.runtime.types_by_index[i];\r\n\t\t\ts = t.getCurrentSol();\r\n\t\t\tif (s.select_all && evinfo.current_event.solModifiers.indexOf(t) === -1)\r\n\t\t\t\tcontinue;\r\n\t\t\twaitobj.solModifiers.push(t);\r\n\t\t\twaitobj.sols[i.toString()] = s.instances.slice(0);\r\n\t\t}\r\n\t\tthis.waits.push(waitobj);\r\n\t\treturn true;\r\n\t}",
+     "len": 1
+    },
+    "SetLayerScale": {
+     "src": "function (layer, scale)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\tif (layer.scale === scale)\r\n\t\t\treturn;\r\n        layer.scale = scale;\r\n        this.runtime.redraw = true;\r\n    }",
+     "len": 2
+    },
+    "ResetGlobals": {
+     "src": "function ()\r\n\t{\r\n\t\tvar i, len, g;\r\n\t\tfor (i = 0, len = this.runtime.all_global_vars.length; i < len; i++)\r\n\t\t{\r\n\t\t\tg = this.runtime.all_global_vars[i];\r\n\t\t\tg.data = g.initial;\r\n\t\t}\r\n\t}",
+     "len": 0
+    },
+    "SetLayoutAngle": {
+     "src": "function (a)\r\n\t{\r\n\t\ta = cr.to_radians(a);\r\n\t\ta = cr.clamp_angle(a);\r\n\t\tif (this.runtime.running_layout)\r\n\t\t{\r\n\t\t\tif (this.runtime.running_layout.angle !== a)\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.running_layout.angle = a;\r\n\t\t\t\tthis.runtime.redraw = true;\r\n\t\t\t}\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "SetLayerAngle": {
+     "src": "function (layer, a)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\ta = cr.to_radians(a);\r\n\t\ta = cr.clamp_angle(a);\r\n\t\tif (layer.angle === a)\r\n\t\t\treturn;\r\n        layer.angle = a;\r\n        this.runtime.redraw = true;\r\n    }",
+     "len": 2
+    },
+    "SetLayerParallax": {
+     "src": "function (layer, px, py)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\tif (layer.parallaxX === px / 100 && layer.parallaxY === py / 100)\r\n\t\t\treturn;\r\n        layer.parallaxX = px / 100;\r\n\t\tlayer.parallaxY = py / 100;\r\n        this.runtime.redraw = true;\r\n    }",
+     "len": 3
+    },
+    "SetLayerBackground": {
+     "src": "function (layer, c)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\tvar r = cr.GetRValue(c);\r\n\t\tvar g = cr.GetGValue(c);\r\n\t\tvar b = cr.GetBValue(c);\r\n\t\tif (layer.background_color[0] === r && layer.background_color[1] === g && layer.background_color[2] === b)\r\n\t\t\treturn;\r\n        layer.background_color[0] = r;\r\n\t\tlayer.background_color[1] = g;\r\n\t\tlayer.background_color[2] = b;\r\n        this.runtime.redraw = true;\r\n    }",
+     "len": 2
+    },
+    "SetLayerTransparent": {
+     "src": "function (layer, t)\r\n    {\r\n        if (!layer)\r\n            return;\r\n\t\tif (!!t === !!layer.transparent)\r\n\t\t\treturn;\r\n\t\tlayer.transparent = !!t;\r\n        this.runtime.redraw = true;\r\n    }",
+     "len": 2
+    },
+    "StopLoop": {
+     "src": "function ()\r\n\t{\r\n\t\tif (this.runtime.loop_stack_index < 0)\r\n\t\t\treturn;\t\t// no loop currently running\r\n\t\tthis.runtime.getCurrentLoop().stopped = true;\r\n\t}",
+     "len": 0
+    },
+    "GoToLayoutByName": {
+     "src": "function (layoutname)\r\n\t{\r\n\t\tif (this.runtime.isloading)\r\n\t\t\treturn;\t\t// cannot change layout while loading on loader layout\r\n\t\tif (this.runtime.changelayout)\r\n\t\t\treturn;\t\t// already changing to different layout\r\n;\r\n\t\tvar l;\r\n\t\tfor (l in this.runtime.layouts)\r\n\t\t{\r\n\t\t\tif (this.runtime.layouts.hasOwnProperty(l) && l.toLowerCase() === layoutname.toLowerCase())\r\n\t\t\t{\r\n\t\t\t\tthis.runtime.changelayout = this.runtime.layouts[l];\r\n\t\t\t\treturn;\r\n\t\t\t}\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "RestartLayout": {
+     "src": "function (layoutname)\r\n\t{\r\n\t\tif (this.runtime.isloading)\r\n\t\t\treturn;\t\t// cannot restart loader layouts\r\n\t\tif (this.runtime.changelayout)\r\n\t\t\treturn;\t\t// already changing to a different layout\r\n;\r\n\t\tif (!this.runtime.running_layout)\r\n\t\t\treturn;\r\n\t\tthis.runtime.changelayout = this.runtime.running_layout;\r\n\t\tvar i, len, g;\r\n\t\tfor (i = 0, len = this.runtime.allGroups.length; i < len; i++)\r\n\t\t{\r\n\t\t\tg = this.runtime.allGroups[i];\r\n\t\t\tthis.runtime.activeGroups[g.group_name.toLowerCase()] = g.initially_activated;\r\n\t\t}\r\n\t}",
+     "len": 1
+    },
+    "SnapshotCanvas": {
+     "src": "function (format_, quality_)\r\n\t{\r\n\t\tthis.runtime.snapshotCanvas = [format_ === 0 ? \"image/png\" : \"image/jpeg\", quality_ / 100];\r\n\t\tthis.runtime.redraw = true;\t\t// force redraw so snapshot is always taken\r\n\t}",
+     "len": 2
+    },
+    "SetCanvasSize": {
+     "src": "function (w, h)\r\n\t{\r\n\t\tif (w <= 0 || h <= 0)\r\n\t\t\treturn;\r\n\t\tthis.runtime[\"setSize\"](w, h);\r\n\t}",
+     "len": 2
+    },
+    "SetLayoutEffectEnabled": {
+     "src": "function (enable_, effectname_)\r\n\t{\r\n\t\tif (!this.runtime.running_layout || !this.runtime.glwrap)\r\n\t\t\treturn;\r\n\t\tvar et = this.runtime.running_layout.getEffectByName(effectname_);\r\n\t\tif (!et)\r\n\t\t\treturn;\t\t// effect name not found\r\n\t\tvar enable = (enable_ === 1);\r\n\t\tif (et.active == enable)\r\n\t\t\treturn;\t\t// no change\r\n\t\tet.active = enable;\r\n\t\tthis.runtime.running_layout.updateActiveEffects();\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 2
+    },
+    "SetLayerEffectEnabled": {
+     "src": "function (layer, enable_, effectname_)\r\n\t{\r\n\t\tif (!layer || !this.runtime.glwrap)\r\n\t\t\treturn;\r\n\t\tvar et = layer.getEffectByName(effectname_);\r\n\t\tif (!et)\r\n\t\t\treturn;\t\t// effect name not found\r\n\t\tvar enable = (enable_ === 1);\r\n\t\tif (et.active == enable)\r\n\t\t\treturn;\t\t// no change\r\n\t\tet.active = enable;\r\n\t\tlayer.updateActiveEffects();\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 3
+    },
+    "SetLayoutEffectParam": {
+     "src": "function (effectname_, index_, value_)\r\n\t{\r\n\t\tif (!this.runtime.running_layout || !this.runtime.glwrap)\r\n\t\t\treturn;\r\n\t\tvar et = this.runtime.running_layout.getEffectByName(effectname_);\r\n\t\tif (!et)\r\n\t\t\treturn;\t\t// effect name not found\r\n\t\tvar params = this.runtime.running_layout.effect_params[et.index];\r\n\t\tindex_ = Math.floor(index_);\r\n\t\tif (index_ < 0 || index_ >= params.length)\r\n\t\t\treturn;\t\t// effect index out of bounds\r\n\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\r\n\t\t\tvalue_ /= 100.0;\r\n\t\tif (params[index_] === value_)\r\n\t\t\treturn;\t\t// no change\r\n\t\tparams[index_] = value_;\r\n\t\tif (et.active)\r\n\t\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 3
+    },
+    "SetLayerEffectParam": {
+     "src": "function (layer, effectname_, index_, value_)\r\n\t{\r\n\t\tif (!layer || !this.runtime.glwrap)\r\n\t\t\treturn;\r\n\t\tvar et = layer.getEffectByName(effectname_);\r\n\t\tif (!et)\r\n\t\t\treturn;\t\t// effect name not found\r\n\t\tvar params = layer.effect_params[et.index];\r\n\t\tindex_ = Math.floor(index_);\r\n\t\tif (index_ < 0 || index_ >= params.length)\r\n\t\t\treturn;\t\t// effect index out of bounds\r\n\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\r\n\t\t\tvalue_ /= 100.0;\r\n\t\tif (params[index_] === value_)\r\n\t\t\treturn;\t\t// no change\r\n\t\tparams[index_] = value_;\r\n\t\tif (et.active)\r\n\t\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 4
+    }
+   },
+   "exps": {
+    "int": {
+     "src": "function(ret, x)\r\n    {\r\n        if (cr.is_string(x))\r\n        {\r\n            ret.set_int(parseInt(x, 10));\r\n            if (isNaN(ret.data))\r\n                ret.data = 0;\r\n        }\r\n        else\r\n            ret.set_int(x);\r\n    }",
+     "len": 2
+    },
+    "float": {
+     "src": "function(ret, x)\r\n    {\r\n        if (cr.is_string(x))\r\n        {\r\n            ret.set_float(parseFloat(x));\r\n            if (isNaN(ret.data))\r\n                ret.data = 0;\r\n        }\r\n        else\r\n            ret.set_float(x);\r\n    }",
+     "len": 2
+    },
+    "str": {
+     "src": "function(ret, x)\r\n    {\r\n        if (cr.is_string(x))\r\n            ret.set_string(x);\r\n        else\r\n            ret.set_string(x.toString());\r\n    }",
+     "len": 2
+    },
+    "len": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_int(x.length || 0);\r\n    }",
+     "len": 2
+    },
+    "random": {
+     "src": "function (ret, a, b)\r\n    {\r\n        if (b === undefined)\r\n        {\r\n            ret.set_float(Math.random() * a);\r\n        }\r\n        else\r\n        {\r\n            ret.set_float(Math.random() * (b - a) + a);\r\n        }\r\n    }",
+     "len": 3
+    },
+    "sqrt": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.sqrt(x));\r\n    }",
+     "len": 2
+    },
+    "abs": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.abs(x));\r\n    }",
+     "len": 2
+    },
+    "round": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_int(Math.round(x));\r\n    }",
+     "len": 2
+    },
+    "floor": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_int(Math.floor(x));\r\n    }",
+     "len": 2
+    },
+    "ceil": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_int(Math.ceil(x));\r\n    }",
+     "len": 2
+    },
+    "sin": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.sin(cr.to_radians(x)));\r\n    }",
+     "len": 2
+    },
+    "cos": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.cos(cr.to_radians(x)));\r\n    }",
+     "len": 2
+    },
+    "tan": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.tan(cr.to_radians(x)));\r\n    }",
+     "len": 2
+    },
+    "asin": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(cr.to_degrees(Math.asin(x)));\r\n    }",
+     "len": 2
+    },
+    "acos": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(cr.to_degrees(Math.acos(x)));\r\n    }",
+     "len": 2
+    },
+    "atan": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(cr.to_degrees(Math.atan(x)));\r\n    }",
+     "len": 2
+    },
+    "exp": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.exp(x));\r\n    }",
+     "len": 2
+    },
+    "ln": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.log(x));\r\n    }",
+     "len": 2
+    },
+    "log10": {
+     "src": "function(ret, x)\r\n    {\r\n        ret.set_float(Math.log(x) / Math.LN10);\r\n    }",
+     "len": 2
+    },
+    "max": {
+     "src": "function(ret)\r\n    {\r\n\t\tvar max_ = arguments[1];\r\n\t\tvar i, len;\r\n\t\tfor (i = 2, len = arguments.length; i < len; i++)\r\n\t\t{\r\n\t\t\tif (max_ < arguments[i])\r\n\t\t\t\tmax_ = arguments[i];\r\n\t\t}\r\n\t\tret.set_float(max_);\r\n    }",
+     "len": 1
+    },
+    "min": {
+     "src": "function(ret)\r\n    {\r\n        var min_ = arguments[1];\r\n\t\tvar i, len;\r\n\t\tfor (i = 2, len = arguments.length; i < len; i++)\r\n\t\t{\r\n\t\t\tif (min_ > arguments[i])\r\n\t\t\t\tmin_ = arguments[i];\r\n\t\t}\r\n\t\tret.set_float(min_);\r\n    }",
+     "len": 1
+    },
+    "dt": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float(this.runtime.dt);\r\n    }",
+     "len": 1
+    },
+    "timescale": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float(this.runtime.timescale);\r\n    }",
+     "len": 1
+    },
+    "wallclocktime": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float((Date.now() - this.runtime.start_time) / 1000.0);\r\n    }",
+     "len": 1
+    },
+    "time": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float(this.runtime.kahanTime.sum);\r\n    }",
+     "len": 1
+    },
+    "tickcount": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_int(this.runtime.tickcount);\r\n    }",
+     "len": 1
+    },
+    "objectcount": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_int(this.runtime.objectcount);\r\n    }",
+     "len": 1
+    },
+    "fps": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_int(this.runtime.fps);\r\n    }",
+     "len": 1
+    },
+    "loopindex": {
+     "src": "function(ret, name_)\r\n    {\r\n        if (!this.runtime.loop_stack.length)\r\n        {\r\n            ret.set_int(0);\r\n            return;\r\n        }\r\n        if (name_)\r\n        {\r\n            var i, len;\r\n            for (i = 0, len = this.runtime.loop_stack.length; i < len; i++)\r\n            {\r\n                var loop = this.runtime.loop_stack[i];\r\n                if (loop.name === name_)\r\n                {\r\n                    ret.set_int(loop.index);\r\n                    return;\r\n                }\r\n            }\r\n            ret.set_int(0);\r\n        }\r\n        else\r\n        {\r\n            ret.set_int(this.runtime.getCurrentLoop().index);\r\n        }\r\n    }",
+     "len": 2
+    },
+    "distance": {
+     "src": "function(ret, x1, y1, x2, y2)\r\n    {\r\n        ret.set_float(cr.distanceTo(x1, y1, x2, y2));\r\n    }",
+     "len": 5
+    },
+    "angle": {
+     "src": "function(ret, x1, y1, x2, y2)\r\n    {\r\n        ret.set_float(cr.to_degrees(cr.angleTo(x1, y1, x2, y2)));\r\n    }",
+     "len": 5
+    },
+    "scrollx": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float(this.runtime.running_layout.scrollX);\r\n    }",
+     "len": 1
+    },
+    "scrolly": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_float(this.runtime.running_layout.scrollY);\r\n    }",
+     "len": 1
+    },
+    "newline": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_string(\"\\n\");\r\n    }",
+     "len": 1
+    },
+    "lerp": {
+     "src": "function(ret, a, b, x)\r\n    {\r\n        ret.set_float(cr.lerp(a, b, x));\r\n    }",
+     "len": 4
+    },
+    "windowwidth": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_int(this.runtime.width);\r\n    }",
+     "len": 1
+    },
+    "windowheight": {
+     "src": "function(ret)\r\n    {\r\n        ret.set_int(this.runtime.height);\r\n    }",
+     "len": 1
+    },
+    "uppercase": {
+     "src": "function(ret, str)\r\n\t{\r\n\t\tret.set_string(cr.is_string(str) ? str.toUpperCase() : \"\");\r\n\t}",
+     "len": 2
+    },
+    "lowercase": {
+     "src": "function(ret, str)\r\n\t{\r\n\t\tret.set_string(cr.is_string(str) ? str.toLowerCase() : \"\");\r\n\t}",
+     "len": 2
+    },
+    "clamp": {
+     "src": "function(ret, x, l, u)\r\n\t{\r\n\t\tif (x < l)\r\n\t\t\tret.set_float(l);\r\n\t\telse if (x > u)\r\n\t\t\tret.set_float(u);\r\n\t\telse\r\n\t\t\tret.set_float(x);\r\n\t}",
+     "len": 4
+    },
+    "layerscale": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tif (!layer)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(layer.scale);\r\n\t}",
+     "len": 2
+    },
+    "layeropacity": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tif (!layer)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(layer.opacity * 100);\r\n\t}",
+     "len": 2
+    },
+    "layerscalerate": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tif (!layer)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(layer.zoomRate);\r\n\t}",
+     "len": 2
+    },
+    "layoutscale": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (this.runtime.running_layout)\r\n\t\t\tret.set_float(this.runtime.running_layout.scale);\r\n\t\telse\r\n\t\t\tret.set_float(0);\r\n\t}",
+     "len": 1
+    },
+    "layoutangle": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(cr.to_degrees(this.runtime.running_layout.angle));\r\n\t}",
+     "len": 1
+    },
+    "layerangle": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tif (!layer)\r\n\t\t\tret.set_float(0);\r\n\t\telse\r\n\t\t\tret.set_float(cr.to_degrees(layer.angle));\r\n\t}",
+     "len": 2
+    },
+    "layoutwidth": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.runtime.running_layout.width);\r\n\t}",
+     "len": 1
+    },
+    "layoutheight": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_int(this.runtime.running_layout.height);\r\n\t}",
+     "len": 1
+    },
+    "find": {
+     "src": "function (ret, text, searchstr)\r\n\t{\r\n\t\tif (cr.is_string(text) && cr.is_string(searchstr))\r\n\t\t\tret.set_int(text.search(new RegExp(cr.regexp_escape(searchstr), \"i\")));\r\n\t\telse\r\n\t\t\tret.set_int(-1);\r\n\t}",
+     "len": 3
+    },
+    "left": {
+     "src": "function (ret, text, n)\r\n\t{\r\n\t\tret.set_string(cr.is_string(text) ? text.substr(0, n) : \"\");\r\n\t}",
+     "len": 3
+    },
+    "right": {
+     "src": "function (ret, text, n)\r\n\t{\r\n\t\tret.set_string(cr.is_string(text) ? text.substr(text.length - n) : \"\");\r\n\t}",
+     "len": 3
+    },
+    "mid": {
+     "src": "function (ret, text, index_, length_)\r\n\t{\r\n\t\tret.set_string(cr.is_string(text) ? text.substr(index_, length_) : \"\");\r\n\t}",
+     "len": 4
+    },
+    "tokenat": {
+     "src": "function (ret, text, index_, sep)\r\n\t{\r\n\t\tif (cr.is_string(text) && cr.is_string(sep))\r\n\t\t{\r\n\t\t\tvar arr = text.split(sep);\r\n\t\t\tvar i = cr.floor(index_);\r\n\t\t\tif (i < 0 || i >= arr.length)\r\n\t\t\t\tret.set_string(\"\");\r\n\t\t\telse\r\n\t\t\t\tret.set_string(arr[i]);\r\n\t\t}\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 4
+    },
+    "tokencount": {
+     "src": "function (ret, text, sep)\r\n\t{\r\n\t\tif (cr.is_string(text) && text.length)\r\n\t\t\tret.set_int(text.split(sep).length);\r\n\t\telse\r\n\t\t\tret.set_int(0);\r\n\t}",
+     "len": 3
+    },
+    "replace": {
+     "src": "function (ret, text, find_, replace_)\r\n\t{\r\n\t\tif (cr.is_string(text) && cr.is_string(find_) && cr.is_string(replace_))\r\n\t\t\tret.set_string(text.replace(new RegExp(cr.regexp_escape(find_), \"gi\"), replace_));\r\n\t\telse\r\n\t\t\tret.set_string(cr.is_string(text) ? text : \"\");\r\n\t}",
+     "len": 4
+    },
+    "trim": {
+     "src": "function (ret, text)\r\n\t{\r\n\t\tret.set_string(cr.is_string(text) ? text.trim() : \"\");\r\n\t}",
+     "len": 2
+    },
+    "pi": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(cr.PI);\r\n\t}",
+     "len": 1
+    },
+    "layoutname": {
+     "src": "function (ret)\r\n\t{\r\n\t\tif (this.runtime.running_layout)\r\n\t\t\tret.set_string(this.runtime.running_layout.name);\r\n\t\telse\r\n\t\t\tret.set_string(\"\");\r\n\t}",
+     "len": 1
+    },
+    "renderer": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.gl ? \"webgl\" : \"canvas2d\");\r\n\t}",
+     "len": 1
+    },
+    "anglediff": {
+     "src": "function (ret, a, b)\r\n\t{\r\n\t\tret.set_float(cr.to_degrees(cr.angleDiff(cr.to_radians(a), cr.to_radians(b))));\r\n\t}",
+     "len": 3
+    },
+    "choose": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar index = cr.floor(Math.random() * (arguments.length - 1));\r\n\t\tret.set_any(arguments[index + 1]);\r\n\t}",
+     "len": 1
+    },
+    "rgb": {
+     "src": "function (ret, r, g, b)\r\n\t{\r\n\t\tret.set_int(cr.RGB(r, g, b));\r\n\t}",
+     "len": 4
+    },
+    "projectversion": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.versionstr);\r\n\t}",
+     "len": 1
+    },
+    "anglelerp": {
+     "src": "function (ret, a, b, x)\r\n\t{\r\n\t\ta = cr.to_radians(a);\r\n\t\tb = cr.to_radians(b);\r\n\t\tvar diff = cr.angleDiff(a, b);\r\n\t\tif (cr.angleClockwise(b, a))\r\n\t\t{\r\n\t\t\tret.set_float(cr.to_clamped_degrees(a + diff * x));\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tret.set_float(cr.to_clamped_degrees(a - diff * x));\r\n\t\t}\r\n\t}",
+     "len": 4
+    },
+    "anglerotate": {
+     "src": "function (ret, a, b, c)\r\n\t{\r\n\t\ta = cr.to_radians(a);\r\n\t\tb = cr.to_radians(b);\r\n\t\tc = cr.to_radians(c);\r\n\t\tret.set_float(cr.to_clamped_degrees(cr.angleRotate(a, b, c)));\r\n\t}",
+     "len": 4
+    },
+    "zeropad": {
+     "src": "function (ret, n, d)\r\n\t{\r\n\t\tvar s = (n < 0 ? \"-\" : \"\");\r\n\t\tif (n < 0) n = -n;\r\n\t\tvar zeroes = d - n.toString().length;\r\n\t\tfor (var i = 0; i < zeroes; i++)\r\n\t\t\ts += \"0\";\r\n\t\tret.set_string(s + n.toString());\r\n\t}",
+     "len": 3
+    },
+    "cpuutilisation": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.runtime.cpuutilisation / 1000);\r\n\t}",
+     "len": 1
+    },
+    "viewportleft": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.viewLeft : 0);\r\n\t}",
+     "len": 2
+    },
+    "viewporttop": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.viewTop : 0);\r\n\t}",
+     "len": 2
+    },
+    "viewportright": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.viewRight : 0);\r\n\t}",
+     "len": 2
+    },
+    "viewportbottom": {
+     "src": "function (ret, layerparam)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.viewBottom : 0);\r\n\t}",
+     "len": 2
+    },
+    "loadingprogress": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.runtime.loadingprogress);\r\n\t}",
+     "len": 1
+    },
+    "unlerp": {
+     "src": "function(ret, a, b, y)\r\n    {\r\n        ret.set_float((y - a) / (b - a));\r\n    }",
+     "len": 4
+    },
+    "canvassnapshot": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_string(this.runtime.snapshotData);\r\n\t}",
+     "len": 1
+    },
+    "urlencode": {
+     "src": "function (ret, s)\r\n\t{\r\n\t\tret.set_string(encodeURIComponent(s));\r\n\t}",
+     "len": 2
+    },
+    "urldecode": {
+     "src": "function (ret, s)\r\n\t{\r\n\t\tret.set_string(decodeURIComponent(s));\r\n\t}",
+     "len": 2
+    },
+    "canvastolayerx": {
+     "src": "function (ret, layerparam, x, y)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.canvasToLayer(x, y, true) : 0);\r\n\t}",
+     "len": 4
+    },
+    "canvastolayery": {
+     "src": "function (ret, layerparam, x, y)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.canvasToLayer(x, y, false) : 0);\r\n\t}",
+     "len": 4
+    },
+    "layertocanvasx": {
+     "src": "function (ret, layerparam, x, y)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.layerToCanvas(x, y, true) : 0);\r\n\t}",
+     "len": 4
+    },
+    "layertocanvasy": {
+     "src": "function (ret, layerparam, x, y)\r\n\t{\r\n\t\tvar layer = this.runtime.getLayer(layerparam);\r\n\t\tret.set_float(layer ? layer.layerToCanvas(x, y, false) : 0);\r\n\t}",
+     "len": 4
+    }
+   }
+  },
+  "Common": {
+   "cnds": {
+    "CompareX": {
+     "src": "function (cmp, x)\r\n        {\r\n            return cr.do_cmp(this.x, cmp, x);\r\n        }",
+     "len": 2
+    },
+    "CompareY": {
+     "src": "function (cmp, y)\r\n        {\r\n            return cr.do_cmp(this.y, cmp, y);\r\n        }",
+     "len": 2
+    },
+    "IsOnScreen": {
+     "src": "function ()\r\n        {\r\n\t\t\tvar layer = this.layer;\r\n            this.update_bbox();\r\n            var bbox = this.bbox;\r\n            return !(bbox.right < layer.viewLeft || bbox.bottom < layer.viewTop || bbox.left > layer.viewRight || bbox.top > layer.viewBottom);\r\n        }",
+     "len": 0
+    },
+    "IsOutsideLayout": {
+     "src": "function ()\r\n        {\r\n            this.update_bbox();\r\n            var bbox = this.bbox;\r\n            var layout = this.runtime.running_layout;\r\n            return (bbox.right < 0 || bbox.bottom < 0 || bbox.left > layout.width || bbox.top > layout.height);\r\n        }",
+     "len": 0
+    },
+    "PickDistance": {
+     "src": "function (which, x, y)\r\n\t\t{\r\n\t\t\tvar sol = this.getCurrentSol();\r\n\t\t\tvar instances = sol.getObjects();\r\n\t\t\tif (!instances.length)\r\n\t\t\t\treturn false;\r\n\t\t\tvar inst = instances[0];\r\n\t\t\tvar pickme = inst;\r\n\t\t\tvar dist = cr.distanceTo(inst.x, inst.y, x, y);\r\n\t\t\tvar i, len, d;\r\n\t\t\tfor (i = 1, len = instances.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\td = cr.distanceTo(inst.x, inst.y, x, y);\r\n\t\t\t\tif ((which === 0 && d < dist) || (which === 1 && d > dist))\r\n\t\t\t\t{\r\n\t\t\t\t\tdist = d;\r\n\t\t\t\t\tpickme = inst;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tsol.pick_one(pickme);\r\n\t\t\treturn true;\r\n\t\t}",
+     "len": 3
+    },
+    "CompareWidth": {
+     "src": "function (cmp, w)\r\n        {\r\n            return cr.do_cmp(this.width, cmp, w);\r\n        }",
+     "len": 2
+    },
+    "CompareHeight": {
+     "src": "function (cmp, h)\r\n        {\r\n            return cr.do_cmp(this.height, cmp, h);\r\n        }",
+     "len": 2
+    },
+    "AngleWithin": {
+     "src": "function (within, a)\r\n        {\r\n            return cr.angleDiff(this.angle, cr.to_radians(a)) <= cr.to_radians(within);\r\n        }",
+     "len": 2
+    },
+    "IsClockwiseFrom": {
+     "src": "function (a)\r\n        {\r\n            return cr.angleClockwise(this.angle, cr.to_radians(a));\r\n        }",
+     "len": 1
+    },
+    "IsBetweenAngles": {
+     "src": "function (a, b)\r\n\t\t{\r\n\t\t\tvar lower = cr.to_clamped_radians(a);\r\n\t\t\tvar upper = cr.to_clamped_radians(b);\r\n\t\t\tvar angle = cr.clamp_angle(this.angle);\r\n\t\t\tvar obtuse = (!cr.angleClockwise(upper, lower));\r\n\t\t\tif (obtuse)\r\n\t\t\t\treturn !(!cr.angleClockwise(angle, lower) && cr.angleClockwise(angle, upper));\r\n\t\t\telse\r\n\t\t\t\treturn cr.angleClockwise(angle, lower) && !cr.angleClockwise(angle, upper);\r\n\t\t}",
+     "len": 2
+    },
+    "CompareInstanceVar": {
+     "src": "function (iv, cmp, val)\r\n        {\r\n            return cr.do_cmp(this.instance_vars[iv], cmp, val);\r\n        }",
+     "len": 3
+    },
+    "IsBoolInstanceVarSet": {
+     "src": "function (iv)\r\n        {\r\n            return this.instance_vars[iv];\r\n        }",
+     "len": 1
+    },
+    "PickByUID": {
+     "src": "function (u)\r\n\t\t{\r\n\t\t\treturn this.uid === u;\r\n\t\t}",
+     "len": 1
+    },
+    "OnCreated": {
+     "src": "function ()\r\n\t\t{\r\n\t\t\treturn true;\r\n\t\t}",
+     "len": 0
+    },
+    "OnDestroyed": {
+     "src": "function ()\r\n\t\t{\r\n\t\t\treturn true;\r\n\t\t}",
+     "len": 0
+    },
+    "IsVisible": {
+     "src": "function ()\r\n        {\r\n            return this.visible;\r\n        }",
+     "len": 0
+    },
+    "CompareOpacity": {
+     "src": "function (cmp, x)\r\n        {\r\n            return cr.do_cmp(cr.round6dp(this.opacity * 100), cmp, x);\r\n        }",
+     "len": 2
+    },
+    "IsOnLayer": {
+     "src": "function (layer_)\r\n\t\t{\r\n\t\t\tif (!layer_)\r\n\t\t\t\treturn false;\r\n\t\t\treturn this.layer === layer_;\r\n\t\t}",
+     "len": 1
+    },
+    "PickTopBottom": {
+     "src": "function (which_)\r\n\t\t{\r\n\t\t\tvar sol = this.getCurrentSol();\r\n\t\t\tvar instances = sol.getObjects();\r\n\t\t\tif (!instances.length)\r\n\t\t\t\treturn false;\r\n\t\t\tvar inst = instances[0];\r\n\t\t\tvar pickme = inst;\r\n\t\t\tvar i, len;\r\n\t\t\tfor (i = 1, len = instances.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\tinst = instances[i];\r\n\t\t\t\tif (which_ === 0)\r\n\t\t\t\t{\r\n\t\t\t\t\tif (inst.layer.index > pickme.layer.index || (inst.layer.index === pickme.layer.index && inst.get_zindex() > pickme.get_zindex()))\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tpickme = inst;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\tif (inst.layer.index < pickme.layer.index || (inst.layer.index === pickme.layer.index && inst.get_zindex() < pickme.get_zindex()))\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tpickme = inst;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tsol.pick_one(pickme);\r\n\t\t\treturn true;\r\n\t\t}",
+     "len": 1
+    }
+   },
+   "acts": {
+    "SetX": {
+     "src": "function (x)\r\n        {\r\n            if (this.x !== x)\r\n            {\r\n                this.x = x;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "SetY": {
+     "src": "function (y)\r\n        {\r\n            if (this.y !== y)\r\n            {\r\n                this.y = y;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "SetPos": {
+     "src": "function (x, y)\r\n        {\r\n            if (this.x !== x || this.y !== y)\r\n            {\r\n                this.x = x;\r\n                this.y = y;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "SetPosToObject": {
+     "src": "function (obj, imgpt)\r\n        {\r\n            var inst = obj.getPairedInstance(this);\r\n            if (!inst)\r\n\t\t\t\treturn;\r\n\t\t\tvar newx, newy;\r\n\t\t\tif (inst.getImagePoint)\r\n\t\t\t{\r\n\t\t\t\tnewx = inst.getImagePoint(imgpt, true);\r\n\t\t\t\tnewy = inst.getImagePoint(imgpt, false);\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tnewx = inst.x;\r\n\t\t\t\tnewy = inst.y;\r\n\t\t\t}\r\n\t\t\tif (this.x !== newx || this.y !== newy)\r\n            {\r\n\t\t\t\tthis.x = newx;\r\n\t\t\t\tthis.y = newy;\r\n\t\t\t\tthis.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "MoveForward": {
+     "src": "function (dist)\r\n        {\r\n            if (dist !== 0)\r\n            {\r\n                this.x += Math.cos(this.angle) * dist;\r\n                this.y += Math.sin(this.angle) * dist;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "MoveAtAngle": {
+     "src": "function (a, dist)\r\n        {\r\n            if (dist !== 0)\r\n            {\r\n                this.x += Math.cos(cr.to_radians(a)) * dist;\r\n                this.y += Math.sin(cr.to_radians(a)) * dist;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "SetWidth": {
+     "src": "function (w)\r\n        {\r\n            if (this.width !== w)\r\n            {\r\n                this.width = w;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "SetHeight": {
+     "src": "function (h)\r\n        {\r\n            if (this.height !== h)\r\n            {\r\n                this.height = h;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "SetSize": {
+     "src": "function (w, h)\r\n        {\r\n            if (this.width !== w || this.height !== h)\r\n            {\r\n                this.width = w;\r\n                this.height = h;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "SetAngle": {
+     "src": "function (a)\r\n        {\r\n            var newangle = cr.to_radians(cr.clamp_angle_degrees(a));\r\n            if (isNaN(newangle))\r\n                return;\r\n            if (this.angle !== newangle)\r\n            {\r\n                this.angle = newangle;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "RotateClockwise": {
+     "src": "function (a)\r\n        {\r\n            if (a !== 0 && !isNaN(a))\r\n            {\r\n                this.angle += cr.to_radians(a);\r\n                this.angle = cr.clamp_angle(this.angle);\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "RotateCounterclockwise": {
+     "src": "function (a)\r\n        {\r\n            if (a !== 0 && !isNaN(a))\r\n            {\r\n                this.angle -= cr.to_radians(a);\r\n                this.angle = cr.clamp_angle(this.angle);\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 1
+    },
+    "RotateTowardAngle": {
+     "src": "function (amt, target)\r\n        {\r\n            var newangle = cr.angleRotate(this.angle, cr.to_radians(target), cr.to_radians(amt));\r\n            if (isNaN(newangle))\r\n                return;\r\n            if (this.angle !== newangle)\r\n            {\r\n                this.angle = newangle;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "RotateTowardPosition": {
+     "src": "function (amt, x, y)\r\n        {\r\n            var dx = x - this.x;\r\n            var dy = y - this.y;\r\n            var target = Math.atan2(dy, dx);\r\n            var newangle = cr.angleRotate(this.angle, target, cr.to_radians(amt));\r\n            if (isNaN(newangle))\r\n                return;\r\n            if (this.angle !== newangle)\r\n            {\r\n                this.angle = newangle;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 3
+    },
+    "SetTowardPosition": {
+     "src": "function (x, y)\r\n        {\r\n            var dx = x - this.x;\r\n            var dy = y - this.y;\r\n            var newangle = Math.atan2(dy, dx);\r\n            if (isNaN(newangle))\r\n                return;\r\n            if (this.angle !== newangle)\r\n            {\r\n                this.angle = newangle;\r\n                this.set_bbox_changed();\r\n            }\r\n        }",
+     "len": 2
+    },
+    "SetInstanceVar": {
+     "src": "function (iv, val)\r\n        {\r\n\t\t\tvar myinstvars = this.instance_vars;\r\n            if (cr.is_number(myinstvars[iv]))\r\n            {\r\n                if (cr.is_number(val))\r\n                    myinstvars[iv] = val;\r\n                else\r\n                    myinstvars[iv] = parseFloat(val);\r\n            }\r\n            else if (cr.is_string(myinstvars[iv]))\r\n            {\r\n                if (cr.is_string(val))\r\n                    myinstvars[iv] = val;\r\n                else\r\n                    myinstvars[iv] = val.toString();\r\n            }\r\n            else\r\n;\r\n        }",
+     "len": 2
+    },
+    "AddInstanceVar": {
+     "src": "function (iv, val)\r\n        {\r\n\t\t\tvar myinstvars = this.instance_vars;\r\n            if (cr.is_number(myinstvars[iv]))\r\n            {\r\n                if (cr.is_number(val))\r\n                    myinstvars[iv] += val;\r\n                else\r\n                    myinstvars[iv] += parseFloat(val);\r\n            }\r\n            else if (cr.is_string(myinstvars[iv]))\r\n            {\r\n                if (cr.is_string(val))\r\n                    myinstvars[iv] += val;\r\n                else\r\n                    myinstvars[iv] += val.toString();\r\n            }\r\n            else\r\n;\r\n        }",
+     "len": 2
+    },
+    "SubInstanceVar": {
+     "src": "function (iv, val)\r\n        {\r\n\t\t\tvar myinstvars = this.instance_vars;\r\n            if (cr.is_number(myinstvars[iv]))\r\n            {\r\n                if (cr.is_number(val))\r\n                    myinstvars[iv] -= val;\r\n                else\r\n                    myinstvars[iv] -= parseFloat(val);\r\n            }\r\n            else\r\n;\r\n        }",
+     "len": 2
+    },
+    "SetBoolInstanceVar": {
+     "src": "function (iv, val)\r\n        {\r\n            this.instance_vars[iv] = val ? 1 : 0;\r\n        }",
+     "len": 2
+    },
+    "ToggleBoolInstanceVar": {
+     "src": "function (iv)\r\n        {\r\n            this.instance_vars[iv] = 1 - this.instance_vars[iv];\r\n        }",
+     "len": 1
+    },
+    "Destroy": {
+     "src": "function ()\r\n        {\r\n            this.runtime.DestroyInstance(this);\r\n        }",
+     "len": 0
+    },
+    "SetVisible": {
+     "src": "function (v)\r\n        {\r\n\t\t\tif (!v !== !this.visible)\r\n\t\t\t{\r\n\t\t\t\tthis.visible = v;\r\n\t\t\t\tthis.runtime.redraw = true;\r\n\t\t\t}\r\n        }",
+     "len": 1
+    },
+    "SetOpacity": {
+     "src": "function (x)\r\n        {\r\n            var new_opacity = x / 100.0;\r\n            if (new_opacity < 0)\r\n                new_opacity = 0;\r\n            else if (new_opacity > 1)\r\n                new_opacity = 1;\r\n            if (new_opacity !== this.opacity)\r\n            {\r\n                this.opacity = new_opacity;\r\n                this.runtime.redraw = true;\r\n            }\r\n        }",
+     "len": 1
+    },
+    "MoveToTop": {
+     "src": "function ()\r\n\t\t{\r\n\t\t\tvar zindex = this.get_zindex();\r\n\t\t\tif (zindex === this.layer.instances.length - 1)\r\n\t\t\t\treturn;\r\n\t\t\tcr.arrayRemove(this.layer.instances, zindex);\r\n\t\t\tthis.layer.instances.push(this);\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t\tthis.layer.zindices_stale = true;\r\n\t\t}",
+     "len": 0
+    },
+    "MoveToBottom": {
+     "src": "function ()\r\n\t\t{\r\n\t\t\tvar zindex = this.get_zindex();\r\n\t\t\tif (zindex === 0)\r\n\t\t\t\treturn;\r\n\t\t\tcr.arrayRemove(this.layer.instances, zindex);\r\n\t\t\tthis.layer.instances.unshift(this);\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t\tthis.layer.zindices_stale = true;\r\n\t\t}",
+     "len": 0
+    },
+    "MoveToLayer": {
+     "src": "function (layerMove)\r\n\t\t{\r\n\t\t\tif (!layerMove || layerMove == this.layer)\r\n\t\t\t\treturn;\r\n\t\t\tcr.arrayRemove(this.layer.instances, this.get_zindex());\r\n\t\t\tthis.layer.zindices_stale = true;\r\n\t\t\tthis.layer = layerMove;\r\n\t\t\tthis.zindex = layerMove.instances.length;\r\n\t\t\tlayerMove.instances.push(this);\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}",
+     "len": 1
+    },
+    "SetEffectEnabled": {
+     "src": "function (enable_, effectname_)\r\n\t\t{\r\n\t\t\tif (!this.runtime.glwrap)\r\n\t\t\t\treturn;\r\n\t\t\tvar i = this.type.getEffectIndexByName(effectname_);\r\n\t\t\tif (i < 0)\r\n\t\t\t\treturn;\t\t// effect name not found\r\n\t\t\tvar enable = (enable_ === 1);\r\n\t\t\tif (this.active_effect_flags[i] === enable)\r\n\t\t\t\treturn;\t\t// no change\r\n\t\t\tthis.active_effect_flags[i] = enable;\r\n\t\t\tthis.updateActiveEffects();\r\n\t\t\tthis.runtime.redraw = true;\r\n\t\t}",
+     "len": 2
+    },
+    "SetEffectParam": {
+     "src": "function (effectname_, index_, value_)\r\n\t\t{\r\n\t\t\tif (!this.runtime.glwrap)\r\n\t\t\t\treturn;\r\n\t\t\tvar i = this.type.getEffectIndexByName(effectname_);\r\n\t\t\tif (i < 0)\r\n\t\t\t\treturn;\t\t// effect name not found\r\n\t\t\tvar et = this.type.effect_types[i];\r\n\t\t\tvar params = this.effect_params[i];\r\n\t\t\tindex_ = Math.floor(index_);\r\n\t\t\tif (index_ < 0 || index_ >= params.length)\r\n\t\t\t\treturn;\t\t// effect index out of bounds\r\n\t\t\tif (this.runtime.glwrap.getProgramParameterType(et.shaderindex, index_) === 1)\r\n\t\t\t\tvalue_ /= 100.0;\r\n\t\t\tif (params[index_] === value_)\r\n\t\t\t\treturn;\t\t// no change\r\n\t\t\tparams[index_] = value_;\r\n\t\t\tif (et.active)\r\n\t\t\t\tthis.runtime.redraw = true;\r\n\t\t}",
+     "len": 3
+    }
+   },
+   "exps": {
+    "X": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(this.x);\r\n        }",
+     "len": 1
+    },
+    "Y": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(this.y);\r\n        }",
+     "len": 1
+    },
+    "dt": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(this.runtime.getDt(this));\r\n        }",
+     "len": 1
+    },
+    "Width": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(this.width);\r\n        }",
+     "len": 1
+    },
+    "Height": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(this.height);\r\n        }",
+     "len": 1
+    },
+    "Angle": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(cr.to_clamped_degrees(this.angle));\r\n        }",
+     "len": 1
+    },
+    "Count": {
+     "src": "function (ret)\r\n        {\r\n\t\t\tvar count = ret.object_class.instances.length;\r\n\t\t\tvar i, len, inst;\r\n\t\t\tfor (i = 0, len = this.runtime.createRow.length; i < len; i++)\r\n\t\t\t{\r\n\t\t\t\tinst = this.runtime.createRow[i];\r\n\t\t\t\tif (ret.object_class.is_family)\r\n\t\t\t\t{\r\n\t\t\t\t\tif (inst.type.families.indexOf(ret.object_class) >= 0)\r\n\t\t\t\t\t\tcount++;\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\tif (inst.type === ret.object_class)\r\n\t\t\t\t\t\tcount++;\r\n\t\t\t\t}\r\n\t\t\t}\r\n            ret.set_int(count);\r\n        }",
+     "len": 1
+    },
+    "PickedCount": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_int(ret.object_class.getCurrentSol().getObjects().length);\r\n        }",
+     "len": 1
+    },
+    "UID": {
+     "src": "function (ret)\r\n\t\t{\r\n\t\t\tret.set_int(this.uid);\r\n\t\t}",
+     "len": 1
+    },
+    "IID": {
+     "src": "function (ret)\r\n\t\t{\r\n\t\t\tret.set_int(this.get_iid());\r\n\t\t}",
+     "len": 1
+    },
+    "Opacity": {
+     "src": "function (ret)\r\n        {\r\n            ret.set_float(cr.round6dp(this.opacity * 100.0));\r\n        }",
+     "len": 1
+    },
+    "LayerNumber": {
+     "src": "function (ret)\r\n\t\t{\r\n\t\t\tret.set_int(this.layer.number);\r\n\t\t}",
+     "len": 1
+    },
+    "LayerName": {
+     "src": "function (ret)\r\n\t\t{\r\n\t\t\tret.set_string(this.layer.name);\r\n\t\t}",
+     "len": 1
+    },
+    "ZIndex": {
+     "src": "function (ret)\r\n\t\t{\r\n\t\t\tret.set_int(this.get_zindex());\r\n\t\t}",
+     "len": 1
+    }
+   }
+  }
+ },
+ "behaviors": {
+  "Anchor": {
+   "cnds": {},
+   "acts": {
+    "SetEnabled": {
+     "src": "function (e)\r\n\t{\r\n\t\tthis.enabled = (e !== 0);\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {}
+  },
+  "Bullet": {
+   "cnds": {
+    "CompareSpeed": {
+     "src": "function (cmp, s)\r\n\t{\r\n\t\treturn cr.do_cmp(cr.distanceTo(0, 0, this.dx, this.dy), cmp, s);\r\n\t}",
+     "len": 2
+    },
+    "CompareTravelled": {
+     "src": "function (cmp, d)\r\n\t{\r\n\t\treturn cr.do_cmp(this.travelled, cmp, d);\r\n\t}",
+     "len": 2
+    }
+   },
+   "acts": {
+    "SetSpeed": {
+     "src": "function (s)\r\n\t{\r\n\t\tvar a = cr.angleTo(0, 0, this.dx, this.dy);\r\n\t\tthis.dx = Math.cos(a) * s;\r\n\t\tthis.dy = Math.sin(a) * s;\r\n\t}",
+     "len": 1
+    },
+    "SetAcceleration": {
+     "src": "function (a)\r\n\t{\r\n\t\tthis.acc = a;\r\n\t}",
+     "len": 1
+    },
+    "SetGravity": {
+     "src": "function (g)\r\n\t{\r\n\t\tthis.g = g;\r\n\t}",
+     "len": 1
+    },
+    "SetAngleOfMotion": {
+     "src": "function (a)\r\n\t{\r\n\t\ta = cr.to_radians(a);\r\n\t\tvar s = cr.distanceTo(0, 0, this.dx, this.dy)\r\n\t\tthis.dx = Math.cos(a) * s;\r\n\t\tthis.dy = Math.sin(a) * s;\r\n\t}",
+     "len": 1
+    },
+    "Bounce": {
+     "src": "function (objtype)\r\n\t{\r\n\t\tif (!objtype)\r\n\t\t\treturn;\r\n\t\tvar otherinst = objtype.getFirstPicked();\r\n\t\tif (!otherinst)\r\n\t\t\treturn;\r\n\t\tvar dt = this.runtime.getDt(this.inst);\r\n\t\tvar s = cr.distanceTo(0, 0, this.dx, this.dy);\r\n\t\tvar bounceAngle = this.runtime.calculateSolidBounceAngle(this.inst, this.lastx, this.lasty, otherinst);\r\n\t\tthis.dx = Math.cos(bounceAngle) * s;\r\n\t\tthis.dy = Math.sin(bounceAngle) * s;\r\n\t\tthis.inst.x += this.dx * dt;\t\t\t// move out for one tick since the object can't have spent a tick in the solid\r\n\t\tthis.inst.y += this.dy * dt;\r\n\t\tthis.inst.set_bbox_changed();\r\n\t\tif (this.setAngle)\r\n\t\t{\r\n\t\t\tthis.inst.angle = bounceAngle;\r\n\t\t\tthis.lastKnownAngle = bounceAngle;\r\n\t\t\tthis.inst.set_bbox_changed();\r\n\t\t}\r\n\t\tif (!this.runtime.pushOutSolid(this.inst, this.dx / s, this.dy / s, Math.max(s * 2.5 * dt, 30)))\r\n\t\t\tthis.runtime.pushOutSolidNearest(this.inst, 100);\r\n\t}",
+     "len": 1
+    },
+    "SetEnabled": {
+     "src": "function (en)\r\n\t{\r\n\t\tthis.enabled = (en === 1);\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "Speed": {
+     "src": "function (ret)\r\n\t{\r\n\t\tvar s = cr.distanceTo(0, 0, this.dx, this.dy);\r\n\t\ts = cr.round6dp(s);\r\n\t\tret.set_float(s);\r\n\t}",
+     "len": 1
+    },
+    "Acceleration": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.acc);\r\n\t}",
+     "len": 1
+    },
+    "AngleOfMotion": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(cr.to_degrees(cr.angleTo(0, 0, this.dx, this.dy)));\r\n\t}",
+     "len": 1
+    },
+    "DistanceTravelled": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(this.travelled);\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "Flash": {
+   "cnds": {
+    "IsFlashing": {
+     "src": "function ()\r\n\t{\r\n\t\treturn this.timeleft > 0;\r\n\t}",
+     "len": 0
+    },
+    "OnFlashEnded": {
+     "src": "function ()\r\n\t{\r\n\t\treturn true;\r\n\t}",
+     "len": 0
+    }
+   },
+   "acts": {
+    "Flash": {
+     "src": "function (on_, off_, dur_)\r\n\t{\r\n\t\tthis.ontime = on_;\r\n\t\tthis.offtime = off_;\r\n\t\tthis.stage = 1;\t\t// always start off\r\n\t\tthis.stagetimeleft = off_;\r\n\t\tthis.timeleft = dur_;\r\n\t\tthis.inst.visible = false;\r\n\t\tthis.runtime.redraw = true;\r\n\t}",
+     "len": 3
+    },
+    "StopFlashing": {
+     "src": "function ()\r\n\t{\r\n\t\tthis.timeleft = 0;\r\n\t\tthis.inst.visible = true;\r\n\t\tthis.runtime.redraw = true;\r\n\t\treturn;\r\n\t}",
+     "len": 0
+    }
+   },
+   "exps": {}
+  },
+  "Rotate": {
+   "cnds": {},
+   "acts": {
+    "SetSpeed": {
+     "src": "function (s)\r\n\t{\r\n\t\tthis.speed = cr.to_radians(s);\r\n\t}",
+     "len": 1
+    },
+    "SetAcceleration": {
+     "src": "function (a)\r\n\t{\r\n\t\tthis.acc = cr.to_radians(a);\r\n\t}",
+     "len": 1
+    }
+   },
+   "exps": {
+    "Speed": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(cr.to_degrees(this.speed));\r\n\t}",
+     "len": 1
+    },
+    "Acceleration": {
+     "src": "function (ret)\r\n\t{\r\n\t\tret.set_float(cr.to_degrees(this.acc));\r\n\t}",
+     "len": 1
+    }
+   }
+  },
+  "bound": {},
+  "destroy": {}
+ },
+ "table": [
+  "attr"
+ ]
+}
