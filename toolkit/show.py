@@ -34,5 +34,6 @@ def main(a):
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)   # | head
+    if hasattr(signal, "SIGPIPE"):   # | head; Windows has none
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     main(sys.argv[1:])
