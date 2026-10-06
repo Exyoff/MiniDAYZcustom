@@ -6,7 +6,9 @@ writes into the remake's checkout; `make_index.py` and `missing.py` read it at `
 (the remake cloned beside this repo).
 
 Setup: Python 3 with Pillow (`cut.py`), Node with Playwright and a Chromium for `orig.cjs` (`PW=<path to the
-playwright package>` if `require('playwright')` does not find it). The generated files below (`events/`,
+playwright package>` if `require('playwright')` does not find it). On Windows, `npm install --no-save
+playwright-core` here and nothing else: `orig.cjs` falls back to it, and to Edge (`ORIG_BROWSER=<a browser's exe>`
+picks another). Run the Python with `PYTHONUTF8=1`: the dumps hold Cyrillic, which the console's code page cannot. The generated files below (`events/`,
 `objects.txt`, `globals.txt`, `missing.txt`) are not committed: make them with
 `python3 dump_events.py && python3 make_index.py && python3 missing.py` (a few seconds).
 

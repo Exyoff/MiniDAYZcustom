@@ -16,7 +16,10 @@
 // The page is served from http://127.0.0.1:8731 (start: cd <build dir> && python3 -m http.server 8731 --bind 127.0.0.1).
 // Loading the game to its menu takes about 15-25 s here: start with wait:20000.
 const path = require('path');
-const { chromium } = require(process.env.PW || 'playwright');
+// playwright, or playwright-core beside this file (`npm install --no-save playwright-core`),
+// or PW=<path to either>.
+const pick = () => { try { require.resolve('playwright'); return 'playwright'; } catch (e) { return 'playwright-core'; } };
+const { chromium } = require(process.env.PW || pick());
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const flag = (k) => args.includes(k);
@@ -25,7 +28,8 @@ const [W, H] = opt('--res', '1280x720').split('x').map(Number);
 const PORT = Number(opt('--port', '8731'));
 const steps = (opt('--steps', 'wait:20000;shot:menu')).split(';').filter(Boolean);
 (async () => {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium',
+  const browser = await chromium.launch({ executablePath: process.env.ORIG_BROWSER || (process.platform === 'win32'
+    ? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' : '/opt/pw-browsers/chromium'),
     args: ['--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader'] });
   const touch = flag('--touch');
   const ctx = await browser.newContext({ viewport: { width: W, height: H },
