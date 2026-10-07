@@ -9,6 +9,16 @@ So every difference below is either the user's (kept, listed at the end) or a fi
 The last survey, `events.md` (events, progression, achievements, the islands, saving and every event-sheet group
 the others leave), landed after the first version of this file and is folded in: its findings are `events#N`.
 
+> **2026-10-07: the user's new asks (user_asks.md, "Stage 30") stand over this backlog where they meet.**
+> - The corner minimap goes (HUD-TOP's part, and question 29's corner-minimap point, settled by the ask).
+> - Loot is the user's split -- houses everyday clothing, bags and pistols; other houses the simpler guns; military bases the armour, gear and assault rifles; better-stat items only further east -- not 1.0's live lists (LOOT, CAMPS-TRUNKS keep 1.0's counts per point, condition and ammo only where the split allows).
+> - Military bases only in the later seasons; military infected only at military places, civilian ones elsewhere (POPULATION, ZOMBIE-NUMBERS, the place tracks).
+> - Every building's room is drawn under its front, and an open door shows its open leaf (the original does the first too).
+> - A hit wears one worn garment, as 1.0's Player_get_hit does (15.3.5.10).
+> - A container always offers USE, and searching one is a timed use with the bar, longer the more it holds.
+> - A desktop editor for places (layout, tiles, infected), buildings, objects, mobs and loot tables.
+> These are built first, as the remake's Stage 30.
+
 ## Summary
 
 | | count |
