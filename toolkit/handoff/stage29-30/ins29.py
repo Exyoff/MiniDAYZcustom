@@ -12,7 +12,7 @@ while lines and (lines[-1].strip() == '' or lines[-1].lstrip().startswith(('Date
     lines.pop()
 entry = '\n'.join(lines).strip()
 p = open(P, encoding='utf-8').read()
-T, N = f'@@TRACKS{stage}@@', f'@@NOTES{stage}@@'
+T, N = f'<!-- tracks{stage}: the next entry goes above this line -->', f'<!-- notes{stage}: the next entry goes above this line -->'
 assert p.count(T) == 1 and p.count(N) == 1
 p = p.replace(T, entry + '\n\n' + T).replace(N, f'**From {label}:**\n\n' + notes + '\n\n' + N)
 open(P, 'w', encoding='utf-8', newline='\n').write(p)
