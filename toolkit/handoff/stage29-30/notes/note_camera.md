@@ -1,0 +1,7 @@
+Merged under you: 29.1 DATA10, 29.2 AUDIO (the ears at the camera: placed sounds are heard from the camera's centre -- say what the 1:1 view and the room's 2x do to that, and follow the original), 29.3 SURVIVAL, 29.4 ZOMBIE-NUMBERS, 29.5 (the melee kept as it is, by the user's word), 29.6 ZOMBIE-AI (the infected's 335 px eyes, looked through once a second), 30.1 FRONTS (every building's room drawn under its front: its cost grows with what is in view, and a PC at 1280x720 now sees about five times the area), 30.2 HANDS (no corner minimap), 30.3 LOOT-AREAS and 30.4-30.6, the editor (`tools/editor/`, which draws with the game's modules: if you change a module it runs, keep it running).
+
+Another track, 30.7 TILES, is building at the same time: it stamps a prefab's painted tiles in `src/map/generate.lua` and `fill.lua` and draws them beside `render.roads`, and mixes them into `save.fingerprint`. Leave those parts alone; if you must touch `render.lua`, keep to the camera's and the view's parts, so the two merge cleanly.
+
+THE PHONE: the user plays on a phone held sideways. Build the web export into your own scratch dir if you can (`tools/web_perf.cjs`, `tools/web_world.cjs` at 4x CPU) and measure a town and a city at 844x390 and 1280x720 before and after; say the numbers. If 1:1 on a PC costs more than 25.2's budgets allow, say what you cut and how it compares with the original's own cost.
+
+Number your Progress entry 29.7.

@@ -1,0 +1,5 @@
+Merged under you: 29.1 DATA10 (the generated files are 1.0's), 29.2 AUDIO (sounds placed at the player through `audio.play_on`), 29.3 SURVIVAL, 29.4 ZOMBIE-NUMBERS (each kind's chase band and bite by difficulty in `data/zombies.lua`), 30.1 FRONTS, 30.2 HANDS (a hit wears the clothes in `combat.lua`, where a bite lands: keep it), 30.3 LOOT-AREAS and 30.4's editor step 1. Another track, 30.5, is building the editor's objects, mobs and loot-table screens at the same time, under `tools/editor/` and nothing of the game's; leave `tools/editor/` alone.
+
+Damage numbers and the crescent are drawn things you cannot look at now: build them from the original's numbers (the font, the colour, the outline, the speed, the fade), say exactly what you drew, and list their captures for the final check.
+
+Number your Progress entry 29.5: it is the fifth of the backlog's tracks built (CAMERA, HUD-TOP, TYPE, HUD-TOUCH and HITFX, tracks 4, 5, 7, 8 and 9, wait until the user allows windows again, since they cannot be built without looking).

@@ -1,0 +1,7 @@
+Merged under you: 29.1 DATA10, 29.2 AUDIO, 29.3 SURVIVAL, 29.4 ZOMBIE-NUMBERS (each kind's `chase_min`/`chase_max` and bites by difficulty in `data/zombies.lua`; read Progress 29.4 and its found-and-left: the warn speeds 80-90 / 90-100 / 100-110 are `warn_zed`'s, the warn speed at an infected's making is its chase band, and the walk to a noise and the wander are still fractions of the chase, `investigate_speed_fraction` and `wander_speed_fraction`, which this track replaces with the original's warn band and 20 px/s), 29.5 (the melee kept as it is), 30.1 FRONTS, 30.2 HANDS (a hit wears the clothes where a bite lands in `combat.lua`: keep it), 30.3 LOOT-AREAS (soldiers only at the army's places) and 30.4's editor step 1.
+
+THE USER'S WORD OVER THIS BRIEF: on 2026-10-07 the user said of the melee *"leave the melee as is ... I'll allow the multi target when meleeing"*. So the swing stays exactly as the remake has it -- keep `combat.swing`'s `ai.noise(150)` (the brief's "Melee makes none, so combat.swing's ai.noise(150) goes" is NOT done) and its wedge hitting every body in it. A hit's lurch (warn_zed on a hit) is the infected's response, not the swing: build it.
+
+Another track, 30.5, is building the editor's objects, mobs and loot-table screens at the same time, under `tools/editor/` only; leave `tools/editor/` alone. If you add fields to `data/zombies.lua` or `data/animals.lua`, list them in your report.
+
+Number your Progress entry 29.6.
