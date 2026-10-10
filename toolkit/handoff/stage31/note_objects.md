@@ -1,0 +1,5 @@
+Merged under you (your base is the merge of 31.3, on the local branch merge/buildings): Stages 29-30 as built (not tested), 31.1 IMPORT (read `docs/mdz2.md` first), 31.2 HUNGER, 31.5 ITEMS, 31.7 CREATURES (VERSION 6, `src/map/infected.lua`) and 31.3 BUILDINGS (read its entry: the floor and wall, `data/sort_points.lua`, the 46 new buildings in `buildings.lua`/`colliders.lua`, placed nowhere yet -- 31.4's). Another track, 31.8 BANDITS, is building at the same time over the AI, combat and sounds: leave those alone.
+
+THE USER HAS UNCOMMITTED HAND EDITS in the main checkout (from the editor) to these entries -- do not change them in your branch, so the user's numbers stand: in `data/colliders.lua` car_btr, car_hatch_grey, car_hatch_red, car_police, car_police_vert, car_regular_blue, car_uaz_anims, hammer_crash, obst_block, obst_sandblock, tree_leaves, tree_leaves_2, tree_pine, tree_pine2, wardrobe; in `data/trunks.lua` the cars' `at` points; in `data/places.lua` the `streets` and `vehicles` lists. Add new entries in new blocks; never reformat or reorder a file.
+
+Number your Progress entry 31.6.

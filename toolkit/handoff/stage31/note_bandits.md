@@ -1,0 +1,3 @@
+Merged under you: Stages 29-30 as built (not tested; 29.6 ZOMBIE-AI's senses), 31.1 IMPORT (read `docs/mdz2.md` first), 31.2 HUNGER, 31.5 ITEMS and 31.7 CREATURES (read its entry: `src/map/infected.lua` places kinds by where they live, `data/zombies.lua`'s `lives`, the sleeper and screamer, VERSION 6). Another track, 31.3 BUILDINGS, is building at the same time over the buildings' data, `render.lua`'s draw order and `interior.lua`: leave those alone. The user is hand-editing `data/buildings.lua`, `colliders.lua`, `places.lua` and `trunks.lua` (uncommitted): do not touch them. If bandits change what a seed makes, raise `generate.VERSION` and say so.
+
+Number your Progress entry 31.8.

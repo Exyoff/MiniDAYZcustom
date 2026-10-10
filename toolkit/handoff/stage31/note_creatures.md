@@ -1,0 +1,3 @@
+Merged under you: Stages 29-30 as built (not tested; 29.4 ZOMBIE-NUMBERS and 29.6 ZOMBIE-AI made the infected's numbers and senses the original's: read them), 31.1 IMPORT (read `docs/mdz2.md` first), 31.2 HUNGER and 31.5 ITEMS (meats and fur marked `from` an animal, unplaced). Another track, 31.3 BUILDINGS, is building at the same time over the buildings' data, `render.lua`'s draw order and `interior.lua`: leave those alone; if a creature's sort point needs fixing, say so rather than editing `render.lua`. The user is hand-editing `data/buildings.lua`, `colliders.lua`, `places.lua` and `trunks.lua` (uncommitted): do not touch them.
+
+Number your Progress entry 31.7.
