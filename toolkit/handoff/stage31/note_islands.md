@@ -1,0 +1,3 @@
+Merged under you: Stages 29-30 as built (not tested), and all of Stage 31 so far but 31.10 GROUND: read every Stage 31 entry, `docs/mdz2.md` first; 31.4 PLACES (generate.VERSION 9, places by season) matters most, then 31.6, 31.7, 31.8 and 31.13. Another track, 31.10 GROUND, is building at the same time over the ground's and roads' look (`render.ground`, `render.roads`, `render.coast`, `data/ground.lua`): your channels are sea -- make the sea with the coast's own drawing (26.3) and say what GROUND must draw for it, rather than editing the ground's art. Base building is 31.14's, after you: leave hooks, not buildings.
+
+Number your Progress entry 31.12.
