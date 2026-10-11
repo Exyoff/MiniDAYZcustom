@@ -1,0 +1,3 @@
+Merged under you: Stages 29-30 as built (not tested; 27.3's quotas and roads, 30.3's places by the east and soldiers at the army's places, 30.4-30.7's editor and tiles), and Stage 31's 31.1-31.3, 31.5-31.8 and the slower zombie frames: read every Stage 31 entry, `docs/mdz2.md` first. The user's editor edits of 2026-10-08 are committed (their `streets` and `vehicles` lists in `data/places.lua`, hitboxes, trunks): keep the user's values. `generate.VERSION` is 8 (31.8's bandits 7, 31.6's scenery 8). Another track, 31.9 UI, is building at the same time over the screens' art and layouts: leave `data/ui/` and `src/ui/` alone.
+
+Number your Progress entry 31.4.

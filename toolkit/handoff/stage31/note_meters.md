@@ -1,0 +1,3 @@
+Merged under you: Stages 29-30 as built (not tested; 29.3 SURVIVAL made food and water the original's, 29.8 HUD-TOP the four plates), and Stage 31: 31.1-31.3, 31.5-31.9 and the slower zombie frames -- read 31.2's entry first (what you undo), then 31.5's (its foods and drinks, the doses) and 31.9's (Mini DayZ 2's UI, as the user chose it: the in-game buttons, the pause and paper buttons are Mini DayZ 2's; the HUD's heart picture is Mini DayZ 2's Hp -- put the meters' pictures back to what they were before 31.2, the original's, heart included, and say so). Another track, 31.4 PLACES, is building at the same time over world generation, places and prefabs: leave those alone.
+
+Number your Progress entry 31.13.
